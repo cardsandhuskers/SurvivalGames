@@ -1,0 +1,30 @@
+name: SurvivalGames
+version: '${project.version}'
+main: io.github.cardsandhuskers.survivalgames.SurvivalGames
+api-version: 1.19
+authors: [ cardsandhuskers ]
+description: survival games plugin
+depend: [PlayerPoints, PlaceholderAPI, Teams, FastAsyncWorldEdit]
+commands:
+  setSGPos1:
+    description: sets position 1 of the arena
+    usage: /<command>
+  setSGPos2:
+    description: sets position 2 of the arena
+    usage: /<command>
+  saveSGArena:
+    description: makes a schematic of the arena and saves the locations of all chests
+    usage: /<command>
+  setSGSpawnPoint:
+    description: sets the spawn point
+    usage: /<command>
+  startSurvivalGames:
+    description: starts the game
+    usage: /<command> [multiplier]
+  setSGSpawnBox:
+    description: sets the spawn box for the team
+    usage: /<command> [team]
+  setLobby:
+    description: sets the lobby point to return players to
+    usage: /<command>
+
