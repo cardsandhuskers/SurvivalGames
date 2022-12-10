@@ -64,7 +64,9 @@ public class PlayerDeathHandler {
         numPlayers = playerList.size();
         numTeams = teamList.size();
         if(teamList.size() == 2) {
-            gameStageHandler.startDeathmatch();
+            if(!(gameState == State.GAME_STARTING)) {
+                gameStageHandler.startDeathmatch();
+            }
         }
         if(teamList.size() <= 1) {
             gameStageHandler.endGame();

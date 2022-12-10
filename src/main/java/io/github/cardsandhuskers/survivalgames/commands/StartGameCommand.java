@@ -18,6 +18,7 @@ import io.github.cardsandhuskers.survivalgames.listeners.*;
 import io.github.cardsandhuskers.survivalgames.objects.Border;
 import io.github.cardsandhuskers.survivalgames.objects.Chests;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
+import io.github.cardsandhuskers.survivalgames.objects.PlayerTracker;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.apache.commons.lang3.StringUtils;
 import org.black_ixx.playerpoints.PlayerPointsAPI;
@@ -45,6 +46,7 @@ public class StartGameCommand implements CommandExecutor {
     private GameStageHandler gameStageHandler;
     private PlayerPointsAPI ppAPI;
     private PlayerDeathHandler playerDeathHandler;
+    private ArrayList<PlayerTracker> trackerList;
     public StartGameCommand(SurvivalGames plugin, PlayerPointsAPI ppAPI) {
         this.plugin = plugin;
         this.ppAPI = ppAPI;
@@ -79,29 +81,17 @@ public class StartGameCommand implements CommandExecutor {
     }
 
     public void startGame() {
-
-        //Load Schematic
-        BukkitWorld weWorld = new BukkitWorld(plugin.getConfig().getLocation("pos1").getWorld());
-        Clipboard clipboard;
-        File file = new File("plugins/SurvivalGames/arena.schem");
         playerKills = new HashMap<>();
 
-        ClipboardFormat format = ClipboardFormats.findByFile(file);
-        try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
-            clipboard = reader.read();
-
-            try (EditSession editSession = WorldEdit.getInstance().newEditSession(weWorld)) {
-                Operation operation = new ClipboardHolder(clipboard)
-                        .createPaste(editSession)
-                        .to(clipboard.getOrigin())
-                        // configure here
-                        .build();
-                Operations.complete(operation);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        for(Player p:Bukkit.getOnlinePlayers()) {
+            p.setHealth(20);
+            p.setSaturation(20);
+            p.setFoodLevel(20);
+            Inventory inv = p.getInventory();
+            inv.clear();
         }
 
+        //fill the chests
         try {
             chests = new Chests(plugin);
             chests.populateChests();
@@ -136,12 +126,8 @@ public class StartGameCommand implements CommandExecutor {
 
         spawnPoint.getWorld().setTime(0);
         ArrayList<Team> teamList = new ArrayList<>();
-        gameStageHandler = new GameStageHandler(plugin, chests, ppAPI, worldBorder, teamList, attackerTimersHandler);
-        try {
-            gameStageHandler.updateGlass(Material.BARRIER);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        trackerList = new ArrayList<>();
+        gameStageHandler = new GameStageHandler(plugin, chests, ppAPI, worldBorder, teamList, attackerTimersHandler, trackerList);
 
         playerDeathHandler = new PlayerDeathHandler(ppAPI, plugin, gameStageHandler, teamList);
         //attacked, attacker (an attacked player can only have 1 attacker, vise versa is not true)
@@ -154,13 +140,44 @@ public class StartGameCommand implements CommandExecutor {
         getServer().getPluginManager().registerEvents(new PlayerLeaveListener(playerDeathHandler), plugin);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(playerDeathHandler, plugin), plugin);
 
+
+
+        //Load Schematic
+        BukkitWorld weWorld = new BukkitWorld(plugin.getConfig().getLocation("pos1").getWorld());
+/*
+        for(int i = 1; i <= 27; i++) {
+            int finalI = i;
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()-> {
+                Clipboard clipboard;
+                File file = new File("plugins/SurvivalGames/arena" + finalI + ".schem");
+
+                ClipboardFormat format = ClipboardFormats.findByFile(file);
+                try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
+                    clipboard = reader.read();
+
+                    try (EditSession editSession = WorldEdit.getInstance().newEditSession(weWorld)) {
+                        Operation operation = new ClipboardHolder(clipboard)
+                                .createPaste(editSession)
+                                .to(clipboard.getOrigin())
+                                // configure here
+                                .build();
+                        Operations.complete(operation);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }, 40L * i);
+        }
+
+ */
+
         pregameTimer();
     }
 
 
     private void pregameTimer() {
         Countdown timer = new Countdown((JavaPlugin)plugin,
-                15,
+                90,
                 //Timer Start
                 () -> {
                     gameState = SurvivalGames.State.GAME_STARTING;
@@ -173,6 +190,14 @@ public class StartGameCommand implements CommandExecutor {
                         p.sendTitle(ChatColor.GREEN + ">" + "GO" + "<", "", 2, 16, 2);
                     }
                     gameStageHandler.startGame();
+                    for(Team t:handler.getTeams()) {
+                        for(Player p:t.getOnlinePlayers()) {
+                            PlayerTracker tracker = new PlayerTracker(playerDeathHandler, p);
+                            tracker.giveCompass();
+                            trackerList.add(tracker);
+
+                        }
+                    }
                 },
 
                 //Each Second
@@ -184,7 +209,7 @@ public class StartGameCommand implements CommandExecutor {
                         Bukkit.broadcastMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "How To Play:");
                         Bukkit.broadcastMessage("This iconic survival games map returns!" +
                                 "\nWork with your teammates to take down the other teams and be the last one standing!" +
-                                "\nThe game will start with a 60 second grace period where PvP is disabled." +
+                                "\nThe game will start with a 45 second grace period where PvP is disabled." +
                                 "\nThe worldborder will shrink over time. Don't get caught outside it, you will die.");
                         Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
                     }
@@ -199,6 +224,7 @@ public class StartGameCommand implements CommandExecutor {
 
                     if(t.getSecondsLeft() == 15) {
                         try {
+                            gameStageHandler.updateGlass(Material.BARRIER);
                             gameStageHandler.teleportPlayers();
                         } catch (IOException e) {
                             throw new RuntimeException(e);
@@ -218,4 +244,5 @@ public class StartGameCommand implements CommandExecutor {
         // Start scheduling, don't use the "run" method unless you want to skip a second
         timer.scheduleTimer();
     }
+
 }

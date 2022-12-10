@@ -6,6 +6,7 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
 import com.sk89q.worldedit.function.operation.Operations;
@@ -120,41 +121,64 @@ public class SaveArenaCommand implements CommandExecutor {
             World world = plugin.getConfig().getLocation("pos1").getWorld();
 
 
+            int x1 = getCoordinate(lowerx, 'x');
+            int x2 = getCoordinate(higherx, 'x');
 
-            Location lower;
-            Location higher;
-            if(getCoordinate("pos1", 'y') < getCoordinate("pos2", 'y')) {
-                lower =  plugin.getConfig().getLocation("pos1");
-                higher =  plugin.getConfig().getLocation("pos2");
-            } else {
-                lower =  plugin.getConfig().getLocation("pos2");
-                higher =  plugin.getConfig().getLocation("pos1");
+            int y1 = getCoordinate(lowery, 'y');
+            int y2 = getCoordinate(highery, 'y');
+
+            int z1 = getCoordinate(lowerz, 'z');
+            int z2 = getCoordinate(higherz, 'z');
+
+            int pastx = x1;
+            int pasty = y1;
+            int pastz = z1;
+
+            int counter = 1;
+
+            for(int i = 1; i <= 3; i++) {
+                int x = x1 + (x2-x1) /3 * i;
+                for(int j = 1; j <= 3; j++) {
+                    int y = y1 + (y2-y1)/3 * i;
+                    for (int k = 1; k <= 3; k++) {
+                        //Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()-> {
+                        int z = z1 + (z2 - z1) / 3 * k;
+
+                        Location loc1 = new Location(plugin.getConfig().getLocation("pos1").getWorld(), pastx, pasty, pastz);
+                        Location loc2 = new Location(plugin.getConfig().getLocation("pos1").getWorld(), x, y, z);
+
+                        BlockVector3 vector1 = BukkitAdapter.asBlockVector(loc1);
+                        BlockVector3 vector2 = BukkitAdapter.asBlockVector(loc2);
+
+                        BukkitWorld weWorld = new BukkitWorld(world);
+
+                        CuboidRegion region = new CuboidRegion(weWorld, vector1, vector2);
+                        BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+                        EditSession editSession = WorldEdit.getInstance().newEditSession(weWorld);
+
+                        ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard, region.getMinimumPoint());
+
+                        //COPIED to clip board
+                        File file = new File("plugins/SurvivalGames/arena" + counter + ".schem");
+                        try (ClipboardWriter writer = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(file))) {
+                            Operations.complete(forwardExtentCopy);
+                            writer.write(clipboard);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return false;
+                        }
+                        pastz = z;
+                        counter++;
+                        //}, 5L);
+                    }
+                    pasty = y;
+                }
+                pastx = x;
             }
 
 
-            BlockVector3 vector1 = BukkitAdapter.asBlockVector(lower);
-            BlockVector3 vector2 = BukkitAdapter.asBlockVector(higher);
-
-            BukkitWorld weWorld = new BukkitWorld(world);
 
 
-            CuboidRegion region = new CuboidRegion(weWorld, vector1, vector2);
-            BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-            EditSession editSession = WorldEdit.getInstance().newEditSession(weWorld);
-
-            ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard, region.getMinimumPoint());
-
-
-            //COPIED to clip board
-            File file = new File("plugins/SurvivalGames/arena.schem");
-            try (ClipboardWriter writer = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(file))) {
-                Operations.complete(forwardExtentCopy);
-                writer.write(clipboard);
-            }
-            catch(Exception e){
-                e.printStackTrace();
-            return false;
-            }
         }
         return true;
     }

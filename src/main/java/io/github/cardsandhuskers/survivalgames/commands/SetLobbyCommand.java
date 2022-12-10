@@ -31,8 +31,6 @@ public class SetLobbyCommand implements CommandExecutor {
             System.out.println("ERROR: cannot run from console.");
         }
 
-
-
         return true;
     }
 }

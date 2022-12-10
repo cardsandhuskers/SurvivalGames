@@ -63,6 +63,7 @@ public final class SurvivalGames extends JavaPlugin {
         getCommand("setSGSpawnBox").setExecutor(new SetTeamSpawn(this));
         getCommand("startSurvivalGames").setExecutor(new StartGameCommand(this, ppAPI));
         getCommand("setLobby").setExecutor(new SetLobbyCommand(this));
+        getCommand("resetSGArena").setExecutor(new ResetArenaCommand(this));
 
 
     }

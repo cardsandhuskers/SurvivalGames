@@ -25,24 +25,32 @@ public class PlayerJoinListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
+
+
         if(handler.getPlayerTeam(p) != null && gameState == SurvivalGames.State.GAME_STARTING) {
             System.out.println("TESTA");
-            Team t = handler.getPlayerTeam(p);
-            for(Player player:t.getOnlinePlayers()) {
-                if(!player.equals(p)) {
-                    p.teleport(player);
-                    break;
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()-> {
+                Team t = handler.getPlayerTeam(p);
+                for(Player player:t.getOnlinePlayers()) {
+                    if(!player.equals(p)) {
+                        p.teleport(player);
+                        break;
+                    }
                 }
-            }
-            if(!playerDeathHandler.isPlayerAlive(p)) {
-                System.out.println("TESTB");
-                playerDeathHandler.addPlayer(p);
-            }
+            }, 10L);
+                if(!playerDeathHandler.isPlayerAlive(p)) {
+                    System.out.println("TESTB");
+                    playerDeathHandler.addPlayer(p);
+                }
         } else {
+
             System.out.println("TESTC");
+            if(plugin.getConfig().getLocation("spawnPoint") != null) {
+                p.teleport(plugin.getConfig().getLocation("spawnPoint"));
+            }
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()-> {
                 p.setGameMode(GameMode.SPECTATOR);
-            }, 20L);
+            }, 10L);
         }
 
 

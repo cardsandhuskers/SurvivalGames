@@ -4,6 +4,7 @@ import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.objects.Border;
 import io.github.cardsandhuskers.survivalgames.objects.Chests;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
+import io.github.cardsandhuskers.survivalgames.objects.PlayerTracker;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.*;
@@ -11,11 +12,15 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 
@@ -30,7 +35,9 @@ public class GameStageHandler {
     private Countdown preDeathmatch;
     private AttackerTimersHandler attackerTimersHandler;
     ArrayList<Team> teamList;
-    public GameStageHandler(SurvivalGames plugin, Chests chests, PlayerPointsAPI ppAPI, Border worldBorder, ArrayList<Team> teamList, AttackerTimersHandler attackerTimersHandler) {
+    ArrayList<PlayerTracker> trackerList;
+    public GameStageHandler(SurvivalGames plugin, Chests chests, PlayerPointsAPI ppAPI, Border worldBorder, ArrayList<Team> teamList, AttackerTimersHandler attackerTimersHandler, ArrayList<PlayerTracker> trackerList) {
+        this.trackerList = trackerList;
         this.plugin = plugin;
         this.chests = chests;
         this.ppAPI = ppAPI;
@@ -45,6 +52,11 @@ public class GameStageHandler {
                 p.setHealth(20);
                 p.setSaturation(20);
                 p.setFoodLevel(20);
+                Inventory inv = p.getInventory();
+                inv.clear();
+                for(PotionEffect potionEffect: p.getActivePotionEffects()) {
+                    p.removePotionEffect(potionEffect.getType());
+                }
             }
         }
         try {
@@ -73,7 +85,7 @@ public class GameStageHandler {
 
     private void gameTimer() {
         //should be 720 seconds
-        int totalSeconds = 90;
+        int totalSeconds = 420;
         gameTimer = new Countdown((JavaPlugin)plugin,
 
                 totalSeconds,
@@ -95,6 +107,10 @@ public class GameStageHandler {
                 (t) -> {
                     //+20 equal to startDeathmatch() timer quantity
                     SurvivalGames.altTimeVar = t.getSecondsLeft() + 20;
+
+                    for(PlayerTracker tracker:trackerList) {
+                        tracker.updateLocation();
+                    }
                 }
         );
 
@@ -107,8 +123,8 @@ public class GameStageHandler {
      */
     private void gracePeriodTimer() {
         Countdown timer = new Countdown((JavaPlugin)plugin,
-                //should be 60
-                15,
+                //should be 45
+                45,
                 //Timer Start
                 () -> {
                 },
@@ -140,7 +156,7 @@ public class GameStageHandler {
     private void restockTimer() {
         restockTimer = new Countdown((JavaPlugin)plugin,
                 //should be 420 (7mins)
-                45,
+                210,
                 //Timer Start
                 () -> {
                 },
@@ -170,8 +186,7 @@ public class GameStageHandler {
      */
     public void startDeathmatch() {
         System.out.println(gameTimer.getSecondsLeft());
-        gameTimer.cancelTimer();
-        restockTimer.cancelTimer();
+
 
         int totalSeconds = 20;
         preDeathmatch = new Countdown((JavaPlugin) plugin,
@@ -179,12 +194,13 @@ public class GameStageHandler {
                 totalSeconds,
                 //Timer Start
                 () -> {
-
+                    Bukkit.broadcastMessage(ChatColor.RED + "Deathmatch Starts in " + ChatColor.YELLOW + "20" + ChatColor.RED + "seconds!");
                 },
 
                 //Timer End
                 () -> {
                     //start deathmatch
+
                     deathmatchPrepTimer();
                     altTimeVar = 0;
                 },
@@ -192,9 +208,20 @@ public class GameStageHandler {
                 //Each Second
                 (t) -> {
                     altTimeVar = t.getSecondsLeft();
+                    if(t.getSecondsLeft() == 10 || t.getSecondsLeft() < 5) {
+                        Bukkit.broadcastMessage(ChatColor.RED + "Deathmatch Starts in " + ChatColor.YELLOW + t.getSecondsLeft() + ChatColor.RED + " seconds!");
+                        for(Player p:Bukkit.getOnlinePlayers()) {
+                            p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1F);
+                        }
+                    }
+                    for(PlayerTracker tracker:trackerList) {
+                        tracker.updateLocation();
+                    }
                 }
         );
-        if(gameState != State.DEATHMATCH && gameTimer.getSecondsLeft() >= 2) {
+        if(gameState != State.DEATHMATCH) {
+            gameTimer.cancelTimer();
+            restockTimer.cancelTimer();
             preDeathmatch.scheduleTimer();
             timeVar = 0;
         }
@@ -261,7 +288,7 @@ public class GameStageHandler {
      */
     private void deathmatchTimer() {
         //should be 120 seconds
-        int totalSeconds = 30;
+        int totalSeconds = 120;
         deathmatchTimer = new Countdown((JavaPlugin)plugin,
 
                 totalSeconds,
@@ -298,13 +325,30 @@ public class GameStageHandler {
             throw new IOException("FILE CANNOT BE FOUND");
         }
         FileConfiguration arenaFileConfig = YamlConfiguration.loadConfiguration(arenaFile);
-        int counter = 1;
-        while(arenaFileConfig.get("teamSpawn." + counter) != null && counter <= teamList.size()) {
+
+        Queue<Integer> spots = new LinkedList<>();
+        spots.add(1);
+        spots.add(6);
+        spots.add(3);
+        spots.add(9);
+        spots.add(11);
+        spots.add(8);
+        spots.add(4);
+        spots.add(10);
+        spots.add(2);
+        spots.add(5);
+        spots.add(7);
+        spots.add(12);
+
+        int counter = spots.remove();
+        int index = 0;
+        while(arenaFileConfig.get("teamSpawn." + counter) != null && index < teamList.size()) {
             Location spawn = arenaFileConfig.getLocation("teamSpawn." + counter);
-            for(Player p: teamList.get(counter - 1).getOnlinePlayers()) {
+            for(Player p: teamList.get(index).getOnlinePlayers()) {
                 p.teleport(spawn);
             }
-            counter++;
+            index++;
+            counter = spots.remove();
         }
     }
 
