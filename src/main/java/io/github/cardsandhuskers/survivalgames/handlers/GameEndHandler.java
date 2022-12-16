@@ -165,7 +165,7 @@ public class GameEndHandler {
                     }
 
                     if(t.getSecondsLeft() == 12) {
-                        ArrayList<Team> teamList = handler.getPointsSortedList();
+                        ArrayList<Team> teamList = handler.getTempPointsSortedList();
 
                         Bukkit.broadcastMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "Team Performance:");
                         Bukkit.broadcastMessage(ChatColor.GREEN + "------------------------------");
