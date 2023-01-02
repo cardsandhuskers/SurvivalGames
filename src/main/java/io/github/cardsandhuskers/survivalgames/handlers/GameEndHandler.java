@@ -6,16 +6,12 @@ import io.github.cardsandhuskers.teams.objects.Team;
 import io.github.cardsandhuskers.teams.objects.TempPointsHolder;
 import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.*;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 
@@ -31,22 +27,28 @@ public class GameEndHandler {
     }
 
     public void gameEndTimer() {
-        int totalSeconds = 30;
+        int totalSeconds = plugin.getConfig().getInt(gameType + ".GameEndTime");
         Countdown timer = new Countdown((JavaPlugin)plugin,
 
                 totalSeconds,
                 //Timer Start
                 () -> {
+                    for(Player p:Bukkit.getOnlinePlayers()) {
+                        p.setGameMode(GameMode.SPECTATOR);
+                    }
                     final Team winner;
                     if(!teamList.isEmpty()) {
                         winner = teamList.get(0);
                     } else {
                         winner = handler.getTeam(0);
                     }
+
                     int numPlayers = winner.getOnlinePlayers().size();
+                    int winPoints = plugin.getConfig().getInt(gameType + ".winPoints");
+
                     for(Player p: winner.getOnlinePlayers()) {
-                        winner.addTempPoints(p, (int) ((800/numPlayers) * multiplier));
-                        ppAPI.give(p.getUniqueId(), (int) ((800/numPlayers) * multiplier));
+                        winner.addTempPoints(p, (int) ((winPoints/numPlayers) * multiplier));
+                        ppAPI.give(p.getUniqueId(), (int) ((winPoints/numPlayers) * multiplier));
                     }
                     gameState = SurvivalGames.State.GAME_OVER;
                     Bukkit.broadcastMessage(ChatColor.DARK_BLUE + "------------------------------");
@@ -59,9 +61,12 @@ public class GameEndHandler {
                         p.sendTitle("Winner:", winner.color + winner.getTeamName(), 5, 30, 5);
                     }
                     //fireworks
-                    Location pos1 = plugin.getConfig().getLocation("pos1");
-                    Location pos2 = plugin.getConfig().getLocation("pos2");
-                    Location spawn = new Location(pos1.getWorld(), (pos1.getX() + pos2.getX())/2, 30, (pos1.getZ() + pos2.getZ())/2);
+                    Location pos1 = plugin.getConfig().getLocation(gameType + ".pos1");
+                    Location pos2 = plugin.getConfig().getLocation(gameType + ".pos2");
+                    int y;
+                    if(gameType == GameType.SURVIVAL_GAMES) y = 30;
+                    else y = 80;
+                    Location spawn = new Location(pos1.getWorld(), (pos1.getX() + pos2.getX())/2, y, (pos1.getZ() + pos2.getZ())/2);
 
                     Location l1 = new Location(spawn.getWorld(), spawn.getX() + 10, spawn.getY() + 5, spawn.getZ() + 10);
                     Location l2 = new Location(spawn.getWorld(), spawn.getX() + 10, spawn.getY() + 5, spawn.getZ() - 10);
@@ -111,7 +116,7 @@ public class GameEndHandler {
                 (t) -> {
                     timeVar = t.getSecondsLeft();
                     //show each player their team performance
-                    if(t.getSecondsLeft() == 25) {
+                    if(t.getSecondsLeft() == t.getTotalSeconds() - 5) {
                         for (Team team : handler.getTeams()) {
                             ArrayList<TempPointsHolder> tempPointsList = new ArrayList<>();
                             for (Player p : team.getOnlinePlayers()) {
@@ -135,7 +140,7 @@ public class GameEndHandler {
                             }
                         }
                     }
-                    if(t.getSecondsLeft() == 20) {
+                    if(t.getSecondsLeft() == t.getTotalSeconds() - 10) {
                         ArrayList<TempPointsHolder> tempPointsList = new ArrayList<>();
                         for(Team team: handler.getTeams()) {
                             for(Player p:team.getOnlinePlayers()) {
@@ -164,7 +169,7 @@ public class GameEndHandler {
                         Bukkit.broadcastMessage(ChatColor.DARK_RED + "------------------------------");
                     }
 
-                    if(t.getSecondsLeft() == 12) {
+                    if(t.getSecondsLeft() == t.getTotalSeconds() - 15) {
                         ArrayList<Team> teamList = handler.getTempPointsSortedList();
 
                         Bukkit.broadcastMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "Team Performance:");
@@ -188,6 +193,16 @@ public class GameEndHandler {
 
 
     public void endGame() {
+        //removes ITEM ENTITIES left behind
+        //Collection<Item> entityList = plugin.getConfig().getLocation(gameType + ".pos1").getWorld().getEntitiesByClass(Item.class);
+        Collection<Entity> entityList = plugin.getConfig().getLocation(gameType + ".pos1").getWorld().getEntities();
+        for(Entity e:entityList) {
+            if(e.getType() != EntityType.PLAYER) {
+                e.remove();
+            }
+        }
+
+
         HandlerList.unregisterAll(plugin);
         Location lobby = plugin.getConfig().getLocation("Lobby");
         for(Player p: Bukkit.getOnlinePlayers()) {

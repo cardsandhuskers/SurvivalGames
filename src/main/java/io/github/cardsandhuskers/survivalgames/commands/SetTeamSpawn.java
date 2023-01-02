@@ -17,7 +17,7 @@ import java.io.IOException;
 
 public class SetTeamSpawn implements CommandExecutor {
     SurvivalGames plugin;
-
+    private SurvivalGames.GameType game;
     public SetTeamSpawn(SurvivalGames plugin) {
         this.plugin = plugin;
     }
@@ -26,8 +26,10 @@ public class SetTeamSpawn implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if(sender instanceof Player p) {
-            if(args.length > 0) {
+            if(args.length > 1) {
                 try {
+                    game = SurvivalGames.GameType.valueOf(args[1].toUpperCase());
+
                     int team = Integer.parseInt(args[0]);
                     saveLocation(p.getLocation(), team);
                     p.sendMessage("Team " + team + " saved at: " + p.getLocation());
@@ -44,7 +46,7 @@ public class SetTeamSpawn implements CommandExecutor {
     }
 
     private void saveLocation(Location l, int team) {
-        File arenaFile = new File(Bukkit.getServer().getPluginManager().getPlugin("SurvivalGames").getDataFolder(), "arena.yml");
+        File arenaFile = new File(Bukkit.getServer().getPluginManager().getPlugin("SurvivalGames").getDataFolder(), game + ".yml");
         if (!arenaFile.exists()) {
             try {
                 System.out.println("MAKING FILE");

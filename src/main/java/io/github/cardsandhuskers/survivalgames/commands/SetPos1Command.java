@@ -17,12 +17,23 @@ public class SetPos1Command implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player p && p.isOp()) {
-            Location location = p.getLocation();
+            if(args.length > 0) {
+                SurvivalGames.GameType game;
+                try {
+                    game = SurvivalGames.GameType.valueOf(args[0].toUpperCase());
+                } catch (Exception e) {
+                    p.sendMessage(ChatColor.RED + "ERROR: game type must be SURVIVAL_GAMES or SKYWARS");
+                    return false;
+                }
 
-            plugin.getConfig().set("pos1", location);
-            plugin.saveConfig();
-            p.sendMessage("Location 1 Set at: " + location.toString());
+                Location location = p.getLocation();
 
+                plugin.getConfig().set(game + ".pos1", location);
+                plugin.saveConfig();
+                p.sendMessage(game + " Location 1 Set at: " + location.toString());
+            } else {
+                return false;
+            }
         } else if(sender instanceof Player p) {
             p.sendMessage(ChatColor.RED + "ERROR: You do not have sufficient permission to do this");
         } else {

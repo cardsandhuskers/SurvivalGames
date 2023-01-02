@@ -45,7 +45,6 @@ public class PlayerDeathHandler {
     }
 
     public void onPlayerDeath(Player p) {
-        System.out.println(playerList);
         Team t = t = handler.getPlayerTeam(p);
         if(playerList.contains(p)) {
             playerList.remove(p);
@@ -64,7 +63,7 @@ public class PlayerDeathHandler {
         numPlayers = playerList.size();
         numTeams = teamList.size();
         if(teamList.size() == 2) {
-            if(!(gameState == State.GAME_STARTING)) {
+            if(gameState != State.GAME_STARTING && gameType == GameType.SURVIVAL_GAMES) {
                 gameStageHandler.startDeathmatch();
             }
         }
@@ -89,8 +88,8 @@ public class PlayerDeathHandler {
         p.setGameMode(GameMode.SPECTATOR);
         //give survival points to everyone alive
         for(Player player:playerList) {
-            handler.getPlayerTeam(player).addTempPoints(player, (int) (10 * multiplier));
-            ppAPI.give(player.getUniqueId(), (int)(10 * multiplier));
+            handler.getPlayerTeam(player).addTempPoints(player, (int) (plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier));
+            ppAPI.give(player.getUniqueId(), (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier));
         }
     }
     public boolean isPlayerAlive(Player p) {

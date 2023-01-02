@@ -57,6 +57,13 @@ public class StartGameCommand implements CommandExecutor {
             if (args.length > 0) {
                 try {
                     multiplier = Double.parseDouble(args[0]);
+                    try {
+                        //TRUE = SKYWARS "altgame"
+                        gameType = GameType.valueOf(args[1].toUpperCase());
+                    } catch (Exception e) {
+                        System.out.println(ChatColor.RED + "ERROR: game type must be SURVIVAL_GAMES or SKYWARS");
+                        return false;
+                    }
                     startGame();
                 } catch (Exception e) {
                     p.sendMessage(ChatColor.RED + "ERROR: argument must be a double");
@@ -68,6 +75,13 @@ public class StartGameCommand implements CommandExecutor {
             if (args.length > 0) {
                 try {
                     multiplier = Double.parseDouble(args[0]);
+                    try {
+                        //TRUE = SKYWARS "altgame"
+                        gameType = GameType.valueOf(args[1].toUpperCase());
+                    } catch (Exception e) {
+                        System.out.println(ChatColor.RED + "ERROR: game type must be SURVIVAL_GAMES or SKYWARS");
+                        return false;
+                    }
                     startGame();
                 } catch (Exception e) {
                     System.out.println(ChatColor.RED + "ERROR: argument must be a double");
@@ -92,19 +106,36 @@ public class StartGameCommand implements CommandExecutor {
         }
 
         //fill the chests
-        try {
-            chests = new Chests(plugin);
-            chests.populateChests();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if(gameType == GameType.SKYWARS) {
+            try {
+                chests = new Chests(plugin);
+                chests.populateSkywarsChests();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
+        if(gameType == GameType.SURVIVAL_GAMES) {
+            try {
+                chests = new Chests(plugin);
+                chests.populateSGChests();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+
         for(Team t:handler.getTeams()) {
             t.resetTempPoints();
         }
 
-        totalPlayers = Bukkit.getOnlinePlayers().size();
+        totalPlayers = 0;
+        for(Player p:Bukkit.getOnlinePlayers()) {
+            if(handler.getPlayerTeam(p) != null) {
+                totalPlayers++;
+            }
+        }
 
-        Location spawnPoint = plugin.getConfig().getLocation("spawnPoint");
+        Location spawnPoint = plugin.getConfig().getLocation(gameType + ".spawnPoint");
         for(Player p:Bukkit.getOnlinePlayers()) {
             p.teleport(spawnPoint);
             Inventory inv = p.getInventory();
@@ -116,7 +147,14 @@ public class StartGameCommand implements CommandExecutor {
             }
         }
         Border worldBorder = new Border(plugin);
-        worldBorder.buildWorldBorder();
+        if(gameType == GameType.SURVIVAL_GAMES) {
+            worldBorder.buildWorldBorder(0, -2);
+        }
+        if(gameType == GameType.SKYWARS) {
+            //TODO CHANGE COORDINATES BASED ON CENTER
+            //Skywars may not need a worldborder, not sure yet.
+            worldBorder.buildWorldBorder(0, 0);
+        }
 
         HashMap<Player, Player> storedAttackers = new HashMap<>();
         HashMap<Player, Integer> attackerTimers = new HashMap<>();
@@ -132,18 +170,21 @@ public class StartGameCommand implements CommandExecutor {
         playerDeathHandler = new PlayerDeathHandler(ppAPI, plugin, gameStageHandler, teamList);
         //attacked, attacker (an attacked player can only have 1 attacker, vise versa is not true)
 
-        getServer().getPluginManager().registerEvents(new PlayerAttackListener(ppAPI, playerDeathHandler, storedAttackers, attackerTimers), plugin);
+        PlayerDamageListener playerDamageListener = new PlayerDamageListener(ppAPI, playerDeathHandler, storedAttackers);
+        getServer().getPluginManager().registerEvents(new PlayerAttackListener(ppAPI, playerDeathHandler, storedAttackers, attackerTimers, playerDamageListener, plugin), plugin);
         getServer().getPluginManager().registerEvents(new BlockPlaceListener(plugin), plugin);
         getServer().getPluginManager().registerEvents(new BlockBreakListener(), plugin);
         getServer().getPluginManager().registerEvents(new ItemClickListener(), plugin);
-        getServer().getPluginManager().registerEvents(new PlayerDamageListener(ppAPI, playerDeathHandler, storedAttackers), plugin);
+
+        getServer().getPluginManager().registerEvents(playerDamageListener, plugin);
         getServer().getPluginManager().registerEvents(new PlayerLeaveListener(playerDeathHandler), plugin);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(playerDeathHandler, plugin), plugin);
+        getServer().getPluginManager().registerEvents(new PlayerMoveListener(playerDamageListener), plugin);
 
 
 
         //Load Schematic
-        BukkitWorld weWorld = new BukkitWorld(plugin.getConfig().getLocation("pos1").getWorld());
+        //BukkitWorld weWorld = new BukkitWorld(plugin.getConfig().getLocation("pos1").getWorld());
 /*
         for(int i = 1; i <= 27; i++) {
             int finalI = i;
@@ -177,7 +218,7 @@ public class StartGameCommand implements CommandExecutor {
 
     private void pregameTimer() {
         Countdown timer = new Countdown((JavaPlugin)plugin,
-                90,
+                plugin.getConfig().getInt(gameType + ".PregameTime"),
                 //Timer Start
                 () -> {
                     gameState = SurvivalGames.State.GAME_STARTING;
@@ -203,28 +244,43 @@ public class StartGameCommand implements CommandExecutor {
                 //Each Second
                 (t) -> {
                     timeVar = t.getSecondsLeft();
-                    if(t.getSecondsLeft() == 80) {
-                        Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
-                        Bukkit.broadcastMessage(StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Survival Games", 30));
-                        Bukkit.broadcastMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "How To Play:");
-                        Bukkit.broadcastMessage("This iconic survival games map returns!" +
-                                "\nWork with your teammates to take down the other teams and be the last one standing!" +
-                                "\nThe game will start with a 45 second grace period where PvP is disabled." +
-                                "\nThe worldborder will shrink over time. Don't get caught outside it, you will die.");
-                        Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
+                    if(gameType == GameType.SURVIVAL_GAMES) {
+                        if (t.getSecondsLeft() == t.getTotalSeconds() - 1) {
+                            Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
+                            Bukkit.broadcastMessage(StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Survival Games", 30));
+                            Bukkit.broadcastMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "How To Play:");
+                            Bukkit.broadcastMessage("This iconic survival games map returns!" +
+                                    "\nWork with your teammates to take down the other teams and be the last one standing!" +
+                                    "\nThe game will start with a 45 second grace period where PvP is disabled." +
+                                    "\nThe worldborder will shrink over time. Don't get caught outside it, you will die.");
+                            Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
+                        }
                     }
-                    if(t.getSecondsLeft() == 70) {
+                    if(gameType == GameType.SKYWARS) {
+                        if (t.getSecondsLeft() == t.getTotalSeconds() - 1) {
+                            Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
+                            Bukkit.broadcastMessage(StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Survival Games", 30));
+                            Bukkit.broadcastMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "How To Play:");
+                            Bukkit.broadcastMessage("Welcome to Skywars!" +
+                                    "\nWork with your teammates to take down the other teams and be the last one standing!" +
+                                    "\nEach island has chests so you can get geared up before heading to the center to fight." +
+                                    "\nBe careful not to fall off the edge! The void will kill you.");
+                            Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
+                        }
+                    }
+
+                    if (t.getSecondsLeft() == t.getTotalSeconds() - 11) {
                         Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
                         Bukkit.broadcastMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "How is the game Scored:");
-                        Bukkit.broadcastMessage("For winning: " + ChatColor.GOLD + (int)(200 * multiplier) + ChatColor.RESET + " points per player on your team (alive or dead)" +
-                                "\nFor Each Kill: " + ChatColor.GOLD + (int)(50 * multiplier) + ChatColor.RESET + " points" +
-                                "\nFor each player you outlive: " + ChatColor.GOLD + (int)(10 * multiplier) + ChatColor.RESET + " points");
+                        Bukkit.broadcastMessage("For winning: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".winPoints") * multiplier) + ChatColor.RESET + " points divided by the team members" +
+                                "\nFor Each Kill: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".killPoints") * multiplier) + ChatColor.RESET + " points" +
+                                "\nFor each player you outlive: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + " points");
                         Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
                     }
 
                     if(t.getSecondsLeft() == 15) {
                         try {
-                            gameStageHandler.updateGlass(Material.BARRIER);
+                            gameStageHandler.updateGlass(Material.GLASS);
                             gameStageHandler.teleportPlayers();
                         } catch (IOException e) {
                             throw new RuntimeException(e);

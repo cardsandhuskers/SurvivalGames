@@ -38,43 +38,87 @@ public class Placeholder extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer p, String s) {
-
-        if(s.equalsIgnoreCase("timer")) {
-            int time;
-            if((gameState == State.GAME_IN_PROGRESS && timeVar == 0) || gameState == State.DEATHMATCH && timeVar == 0) {
-                time = altTimeVar;
-            } else {
-                time = timeVar;
+        if(gameType == GameType.SURVIVAL_GAMES) {
+            if (s.equalsIgnoreCase("timer")) {
+                int time;
+                if ((gameState == State.GAME_IN_PROGRESS && timeVar == 0) || gameState == State.DEATHMATCH && timeVar == 0) {
+                    time = altTimeVar;
+                } else {
+                    time = timeVar;
+                }
+                int mins = time / 60;
+                String seconds = String.format("%02d", time - (mins * 60));
+                return mins + ":" + seconds;
             }
-            int mins = time / 60;
-            String seconds = String.format("%02d", time - (mins * 60));
-            return mins + ":" + seconds;
+
+            if (s.equalsIgnoreCase("timerstage")) {
+                switch (gameState) {
+                    case GAME_STARTING:
+                        return "Game Starting";
+                    case GRACE_PERIOD:
+                        return "PVP enabled";
+                    case GAME_IN_PROGRESS:
+                        if (timeVar > 0) {
+                            return "Chests refill";
+                        } else {
+                            return "Deathmatch";
+                        }
+                    case DEATHMATCH:
+                        if (altTimeVar > 0) {
+                            return "Deathmatch";
+                        } else {
+                            return "Game end";
+                        }
+                    case GAME_OVER:
+                        return "Return to Lobby";
+                    default:
+                        return "Game";
+                }
+            }
         }
 
-        if(s.equalsIgnoreCase("timerstage")) {
-            switch(gameState) {
-                case GAME_STARTING:
-                    return "Game Starting";
-                case GRACE_PERIOD:
-                    return "PVP enabled";
-                case GAME_IN_PROGRESS:
-                    if(timeVar > 0) {
-                        return "Chests refill";
-                    } else {
-                        return "Deathmatch";
-                    }
-                case DEATHMATCH:
-                    if(altTimeVar > 0) {
-                        return "Deathmatch";
-                    } else {
-                        return "Game end";
-                    }
-                case GAME_OVER:
-                    return "Game Over";
-                default:
-                    return "Game";
+
+        if(gameType == GameType.SKYWARS) {
+            if (s.equalsIgnoreCase("timer")) {
+                int time;
+                if ((gameState == State.GAME_IN_PROGRESS && timeVar == 0) || gameState == State.DEATHMATCH && timeVar == 0) {
+                    time = altTimeVar;
+                } else {
+                    time = timeVar;
+                }
+                int mins = time / 60;
+                String seconds = String.format("%02d", time - (mins * 60));
+                return mins + ":" + seconds;
+            }
+
+            if (s.equalsIgnoreCase("timerstage")) {
+                switch (gameState) {
+                    case GAME_STARTING:
+                        return "Game Starting";
+                    case GRACE_PERIOD:
+                        //return "PVP enabled";
+                    case GAME_IN_PROGRESS:
+                        if (timeVar > 0) {
+                            return "Chests refill";
+                        } else {
+                            return "Game Over";
+                        }
+                    case DEATHMATCH:
+                        if (altTimeVar > 0) {
+                            return "Deathmatch";
+                        } else {
+                            return "Game end";
+                        }
+                    case GAME_OVER:
+                        return "Game Over";
+                    default:
+                        return "Game";
+                }
             }
         }
+
+
+
         if(s.equalsIgnoreCase("teamsLeft")) {
             return numTeams + "/" + handler.getNumTeams();
         }

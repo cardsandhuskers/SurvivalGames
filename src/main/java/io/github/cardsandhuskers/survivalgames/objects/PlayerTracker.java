@@ -43,10 +43,11 @@ public class PlayerTracker {
                 Player p = calcNearestPlayer();
                 if(p != null) {
                     owner.setCompassTarget(p.getLocation());
+                    sendText();
                 }
             }
         }
-        sendText();
+
     }
 
     private void sendText() {

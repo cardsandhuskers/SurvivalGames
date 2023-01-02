@@ -13,8 +13,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +59,16 @@ public class GameStageHandler {
                 for(PotionEffect potionEffect: p.getActivePotionEffects()) {
                     p.removePotionEffect(potionEffect.getType());
                 }
+                p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 60,30));
+                if(gameType == GameType.SKYWARS) {
+                    inv.setItem(0, new ItemStack(Material.SHEARS));
+                    inv.setItem(1, new ItemStack(handler.getPlayerTeam(p).getWoolColor(), 64));
+                }
+            }
+        }
+        for(Player p:Bukkit.getOnlinePlayers()) {
+            if(handler.getPlayerTeam(p) == null) {
+                p.setGameMode(GameMode.SPECTATOR);
             }
         }
         try {
@@ -67,47 +79,75 @@ public class GameStageHandler {
 
         gameTimer();
         restockTimer();
-        gracePeriodTimer();
+        if(gameType == GameType.SURVIVAL_GAMES) {
+            gracePeriodTimer();
+        }
     }
 
     public void endGame() {
-        gameTimer.cancelTimer();
-        restockTimer.cancelTimer();
+        if(gameTimer != null) {
+            gameTimer.cancelTimer();
+        }
+        if(restockTimer != null) {
+            restockTimer.cancelTimer();
+        }
         if(deathmatchTimer != null) {
             deathmatchTimer.cancelTimer();
         }
         if(preDeathmatch != null) {
             preDeathmatch.cancelTimer();
         }
-        worldBorder.shrinkWorldBorder(50, 1);
+        if(gameType == GameType.SURVIVAL_GAMES) {
+            worldBorder.shrinkWorldBorder(50, 1);
+        }
+        if(gameType == GameType.SKYWARS) {
+            worldBorder.buildWorldBorder(0,0);
+        }
         attackerTimersHandler.cancelOperation();
     }
 
     private void gameTimer() {
         //should be 720 seconds
-        int totalSeconds = 420;
+        int totalSeconds = plugin.getConfig().getInt(gameType + ".GameTime");
         gameTimer = new Countdown((JavaPlugin)plugin,
 
                 totalSeconds,
                 //Timer Start
                 () -> {
                     altTimeVar = totalSeconds;
-                    gameState = State.GRACE_PERIOD;
-                    worldBorder.shrinkWorldBorder(90, totalSeconds);
+                    gameState = State.GAME_IN_PROGRESS;
+                    if(gameType == GameType.SURVIVAL_GAMES) {
+                        worldBorder.shrinkWorldBorder(90, totalSeconds);
+                        gameState = State.GRACE_PERIOD;
+                    }
+
                 },
 
                 //Timer End
                 () -> {
                 //start deathmatch
                     altTimeVar = 0;
-                    startDeathmatch();
+                    if(gameType == GameType.SURVIVAL_GAMES) {
+                        startDeathmatch();
+                    }
+                    if(gameType == GameType.SKYWARS) {
+                        Bukkit.broadcastMessage(ChatColor.RED + "" + ChatColor.BOLD + "OVERTIME! BORDER WILL SHRINK RAPIDLY");
+                        for(Player p:Bukkit.getOnlinePlayers()) {
+                            p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_AMBIENT, 1F, .5F);
+                        }
+                        worldBorder.shrinkWorldBorder(2,60);
+                    }
                 },
 
                 //Each Second
                 (t) -> {
                     //+20 equal to startDeathmatch() timer quantity
-                    SurvivalGames.altTimeVar = t.getSecondsLeft() + 20;
-
+                    if(gameType == GameType.SURVIVAL_GAMES) {
+                        SurvivalGames.altTimeVar = t.getSecondsLeft() + 20;
+                    }
+                    if(gameType == GameType.SKYWARS) {
+                        altTimeVar = t.getSecondsLeft();
+                    }
                     for(PlayerTracker tracker:trackerList) {
                         tracker.updateLocation();
                     }
@@ -124,7 +164,7 @@ public class GameStageHandler {
     private void gracePeriodTimer() {
         Countdown timer = new Countdown((JavaPlugin)plugin,
                 //should be 45
-                45,
+                plugin.getConfig().getInt(gameType + ".GracePeriod"),
                 //Timer Start
                 () -> {
                 },
@@ -156,7 +196,7 @@ public class GameStageHandler {
     private void restockTimer() {
         restockTimer = new Countdown((JavaPlugin)plugin,
                 //should be 420 (7mins)
-                210,
+                plugin.getConfig().getInt(gameType + ".RestockTime"),
                 //Timer Start
                 () -> {
                 },
@@ -164,7 +204,16 @@ public class GameStageHandler {
                 //Timer End
                 () -> {
                     timeVar = 0;
-                    chests.populateChests();
+                    if(gameType == GameType.SURVIVAL_GAMES) {
+                        chests.populateSGChests();
+                    } else {
+                        try {
+                            chests.populateSkywarsChests();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
                     Bukkit.broadcastMessage(ChatColor.BLUE + "Chests Have Been Restocked!");
                     for(Player p:Bukkit.getOnlinePlayers()) {
                         p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1F);
@@ -185,10 +234,8 @@ public class GameStageHandler {
      * Begins the process of deathmatch
      */
     public void startDeathmatch() {
-        System.out.println(gameTimer.getSecondsLeft());
 
-
-        int totalSeconds = 20;
+        int totalSeconds = plugin.getConfig().getInt(gameType + ".PreDeathmatchTime");
         preDeathmatch = new Countdown((JavaPlugin) plugin,
 
                 totalSeconds,
@@ -233,7 +280,7 @@ public class GameStageHandler {
      */
     private void deathmatchPrepTimer() {
 //should be 15 seconds
-        int totalSeconds = 15;
+        int totalSeconds = plugin.getConfig().getInt(gameType + ".DeathmatchPrepTime");
         Countdown timer = new Countdown((JavaPlugin) plugin,
 
                 totalSeconds,
@@ -241,9 +288,11 @@ public class GameStageHandler {
                 () -> {
                     altTimeVar = totalSeconds;
                     gameState = State.DEATHMATCH;
-                    worldBorder.shrinkWorldBorder(50, 1);
+                    if(gameType == GameType.SURVIVAL_GAMES) {
+                        worldBorder.shrinkWorldBorder(50, 1);
+                    }
                     try {
-                        updateGlass(Material.BARRIER);
+                        updateGlass(Material.GLASS);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -288,14 +337,16 @@ public class GameStageHandler {
      */
     private void deathmatchTimer() {
         //should be 120 seconds
-        int totalSeconds = 120;
+        int totalSeconds = plugin.getConfig().getInt(gameType + ".DeathmatchTime");
         deathmatchTimer = new Countdown((JavaPlugin)plugin,
 
                 totalSeconds,
                 //Timer Start
                 () -> {
                     timeVar = totalSeconds;
-                    worldBorder.shrinkWorldBorder(2, totalSeconds);
+                    if(gameType == GameType.SURVIVAL_GAMES) {
+                        worldBorder.shrinkWorldBorder(2, totalSeconds);
+                    }
                 },
 
                 //Timer End
@@ -319,7 +370,7 @@ public class GameStageHandler {
      * @throws IOException
      */
     public void teleportPlayers() throws IOException {
-        File arenaFile = new File(Bukkit.getServer().getPluginManager().getPlugin("SurvivalGames").getDataFolder(),"arena.yml");
+        File arenaFile = new File(Bukkit.getServer().getPluginManager().getPlugin("SurvivalGames").getDataFolder(),gameType + ".yml");
         if(!arenaFile.exists()) {
             //if the file does not exist, crash program, since game cannot run without it
             throw new IOException("FILE CANNOT BE FOUND");
@@ -358,7 +409,7 @@ public class GameStageHandler {
      * @throws IOException
      */
     public void updateGlass(Material mat) throws IOException {
-        File arenaFile = new File(Bukkit.getServer().getPluginManager().getPlugin("SurvivalGames").getDataFolder(),"arena.yml");
+        File arenaFile = new File(Bukkit.getServer().getPluginManager().getPlugin("SurvivalGames").getDataFolder(),gameType + ".yml");
         if(!arenaFile.exists()) {
             //if the file does not exist, crash program, since game cannot run without it
             throw new IOException("FILE CANNOT BE FOUND");
@@ -369,44 +420,77 @@ public class GameStageHandler {
             Location spawn = arenaFileConfig.getLocation("teamSpawn." + counter);
             //spawn is on northwest corner (-x -y corner)
             //x-1 {z+1}, z-1{x+1}
+            if (gameType == GameType.SURVIVAL_GAMES) {
+                //loop 3 times to handle the y
+                for (int y = 0; y <= 2; y++) {
+                    Location loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
+                    loc.setX(loc.getX() - 1);
+                    Block b = loc.getBlock();
+                    b.setType(mat);
 
-            //loop 3 times to handle the y
-            for(int y=0; y<= 2; y++) {
-                Location loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
-                loc.setX(loc.getX() - 1);
-                Block b = loc.getBlock();
+                    loc.setZ(loc.getZ() + 1);
+                    b = loc.getBlock();
+                    b.setType(mat);
+
+                    loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
+                    loc.setZ(loc.getZ() - 1);
+                    b = loc.getBlock();
+                    b.setType(mat);
+
+                    loc.setX(loc.getX() + 1);
+                    b = loc.getBlock();
+                    b.setType(mat);
+
+                    loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
+                    loc.setX(loc.getX() + 2);
+                    b = loc.getBlock();
+                    b.setType(mat);
+
+                    loc.setZ(loc.getZ() + 1);
+                    b = loc.getBlock();
+                    b.setType(mat);
+
+                    loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
+                    loc.setZ(loc.getZ() + 2);
+                    b = loc.getBlock();
+                    b.setType(mat);
+
+                    loc.setX(loc.getX() + 1);
+                    b = loc.getBlock();
+                    b.setType(mat);
+                }
+            }
+            if(gameType == GameType.SKYWARS) {
+                Location baseBlock = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() - 1, spawn.getZ());
+                Block b = baseBlock.getBlock();
                 b.setType(mat);
 
-                loc.setZ(loc.getZ() + 1);
-                b = loc.getBlock();
-                b.setType(mat);
 
-                loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
-                loc.setZ(loc.getZ() - 1);
-                b = loc.getBlock();
-                b.setType(mat);
+                for(int y = 0; y <= 2; y++) {
+                    Location loc = new Location(spawn.getWorld(), spawn.getX(),spawn.getY(),spawn.getZ());
+                    loc.setY(loc.getY() + y);
+                    loc.setX(loc.getX() - 1);
+                    b = loc.getBlock();
+                    b.setType(mat);
+                    loc.setX(spawn.getX());
 
-                loc.setX(loc.getX() + 1);
-                b = loc.getBlock();
-                b.setType(mat);
+                    loc.setX(loc.getX() + 1);
+                    b = loc.getBlock();
+                    b.setType(mat);
+                    loc.setX(spawn.getX());
 
-                loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
-                loc.setX(loc.getX() + 2);
-                b = loc.getBlock();
-                b.setType(mat);
 
-                loc.setZ(loc.getZ() + 1);
-                b = loc.getBlock();
-                b.setType(mat);
+                    loc.setZ(loc.getZ() - 1);
+                    b = loc.getBlock();
+                    b.setType(mat);
+                    loc.setZ(spawn.getZ());
 
-                loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
-                loc.setZ(loc.getZ() + 2);
-                b = loc.getBlock();
-                b.setType(mat);
+                    loc.setZ(loc.getZ() + 1);
+                    b = loc.getBlock();
+                    b.setType(mat);
+                    loc.setZ(spawn.getZ());
 
-                loc.setX(loc.getX() + 1);
-                b = loc.getBlock();
-                b.setType(mat);
+                }
             }
             counter++;
         }

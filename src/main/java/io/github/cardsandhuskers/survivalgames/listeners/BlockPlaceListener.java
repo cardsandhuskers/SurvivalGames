@@ -8,6 +8,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameState;
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameType;
+
 public class BlockPlaceListener implements Listener {
     SurvivalGames plugin;
     public BlockPlaceListener(SurvivalGames plugin) {
@@ -17,17 +20,27 @@ public class BlockPlaceListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
         Material mat = e.getBlock().getType();
-        if(mat == Material.FIRE || mat == Material.COBWEB || mat == Material.CAKE) {
-            if(mat == Material.FIRE) {
-                Block b = e.getBlock();
+        if(gameType == SurvivalGames.GameType.SURVIVAL_GAMES) {
+            if (mat == Material.FIRE || mat == Material.COBWEB || mat == Material.CAKE) {
+                if (mat == Material.FIRE) {
+                    Block b = e.getBlock();
 
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()-> {
-                    b.setType(Material.AIR);
-                }, 600L);
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                        b.setType(Material.AIR);
+                    }, 600L);
 
+                }
+            } else {
+                e.setCancelled(true);
             }
-        } else {
-            e.setCancelled(true);
+        }
+        if(gameType == SurvivalGames.GameType.SKYWARS) {
+            if(e.getBlock().getY() >= 120) {
+                e.setCancelled(true);
+            }
+            if(gameState != SurvivalGames.State.GAME_IN_PROGRESS) {
+                e.setCancelled(true);
+            }
         }
     }
 

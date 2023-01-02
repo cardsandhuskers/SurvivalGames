@@ -21,6 +21,7 @@ public final class SurvivalGames extends JavaPlugin {
     public static double multiplier = 1;
     public static int totalPlayers;
     public static HashMap<Player, Integer> playerKills;
+    public static GameType gameType = GameType.SURVIVAL_GAMES;
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -63,21 +64,26 @@ public final class SurvivalGames extends JavaPlugin {
         getCommand("setSGSpawnBox").setExecutor(new SetTeamSpawn(this));
         getCommand("startSurvivalGames").setExecutor(new StartGameCommand(this, ppAPI));
         getCommand("setLobby").setExecutor(new SetLobbyCommand(this));
-        getCommand("resetSGArena").setExecutor(new ResetArenaCommand(this));
+        getCommand("loadSGArena").setExecutor(new ResetArenaCommand(this));
 
-
+        saveDefaultConfig();
+        getConfig().options().copyDefaults(true);
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
     }
-    public static enum State {
+    public enum State {
         GAME_STARTING,
         GRACE_PERIOD,
         GAME_IN_PROGRESS,
         DEATHMATCH,
         GAME_OVER
+    }
+    public enum GameType {
+        SURVIVAL_GAMES,
+        SKYWARS
     }
 }
 

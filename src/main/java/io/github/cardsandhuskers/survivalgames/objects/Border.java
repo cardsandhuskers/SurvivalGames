@@ -7,6 +7,7 @@ import org.bukkit.WorldBorder;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.altTimeVar;
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameType;
 
 public class Border {
     public static int borderSize = 0;
@@ -19,12 +20,13 @@ public class Border {
 
     /**
      * Initializes a worldborder the size of the arena
+     * @param x coordinate of center
+     * @param z coordinate of center
      */
-    public void buildWorldBorder() {
-        Location l = plugin.getConfig().getLocation("pos1");
-
+    public void buildWorldBorder(int x, int z) {
+        Location l = plugin.getConfig().getLocation(gameType + ".pos1");
         worldBorder = Bukkit.getWorld(l.getWorld().getUID()).getWorldBorder();
-        worldBorder.setCenter(0, -2);
+        worldBorder.setCenter(x, z);
 
         worldBorder.setSize(Math.abs(l.getX() * 2));
         worldBorder.setDamageBuffer(0);
