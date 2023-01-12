@@ -85,6 +85,10 @@ public class PlayerAttackListener implements Listener {
                     }
                 }
 
+                Snowball snowball = (Snowball) e.getDamager();
+                attacker = (Player) snowball.getShooter();
+                damage(attacker, attacked, e);
+
             }else {
                 if(attacked.getHealth() - e.getDamage() <= 0 && attacked.getGameMode() != GameMode.SPECTATOR) {
                     e.setCancelled(true);
@@ -130,18 +134,19 @@ public class PlayerAttackListener implements Listener {
                             playerKills.put(attacker, 1);
                         }
 
-                        for (Player p : handler.getPlayerTeam(attacker).getOnlinePlayers()) {
-                            if (p.equals(attacker)) {
-                                p.sendMessage("[+" + plugin.getConfig().getInt(gameType + ".killPoints") * multiplier + " points] " + handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName());
-                            } else {
-                                //p.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName());
-                            }
-                        }
+
                         for (Player p : Bukkit.getOnlinePlayers()) {
                             if(!p.equals(attacker) && !p.equals(attacked)) {
-                                p.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + "[+" + ChatColor.YELLOW + (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
+                                if(deathHandler.isPlayerAlive(p)) {
+                                    p.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + "[+" + ChatColor.YELLOW + ChatColor.BOLD + (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
+                                } else {
+                                    p.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + ".");
+                                }
+
                             }
                         }
+
+                        attacker.sendMessage("[+" + ChatColor.YELLOW + ChatColor.BOLD + plugin.getConfig().getInt(gameType + ".killPoints") * multiplier + ChatColor.RESET + "] points " + handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName());
                         attacker.playSound(attacker.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1f, 2f);
                         attacker.sendTitle("Killed " + handler.getPlayerTeam(attacked).color + attacked.getName(), "", 2, 16, 2);
 

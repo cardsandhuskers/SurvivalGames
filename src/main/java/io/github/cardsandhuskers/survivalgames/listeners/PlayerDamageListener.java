@@ -53,30 +53,37 @@ public class PlayerDamageListener implements Listener {
                 playerKills.put(attacker, 1);
             }
 
-            for(Player player: handler.getPlayerTeam(attacker).getOnlinePlayers()) {
-                if(player.equals(attacker)) {
-                    player.sendMessage("[+" + plugin.getConfig().getInt(gameType + ".killPoints") * multiplier + " points] " + handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName());
-                } else {
-                    //player.sendMessage(handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName());
-                }
-            }
-            for(Player player: Bukkit.getOnlinePlayers()) {
-                if(!p.equals(attacker)) {
-                    player.sendMessage(handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + "[" + ChatColor.YELLOW + (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
-                }
-            }
-            attacker.playSound(attacker.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1f, 2f);
             attacker.sendTitle("Killed " + handler.getPlayerTeam(p).color + p.getName(), "", 2, 16, 2);
+            attacker.sendMessage("[+" + ChatColor.YELLOW + ChatColor.BOLD + plugin.getConfig().getInt(gameType + ".killPoints") * multiplier + ChatColor.RESET + "] points" + handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName());
+            attacker.playSound(attacker.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1f, 2f);
+
+            p.sendMessage("You were killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + "!");
+            p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_AMBIENT, 1, 2);
+
+            for(Player player: Bukkit.getOnlinePlayers()) {
+                if(!player.equals(attacker) && !player.equals(p)) {
+                    //System.out.println(player.getName() + "   " + playerDeathHandler.isPlayerAlive(player));
+                    if(playerDeathHandler.isPlayerAlive(player)) {
+                        player.sendMessage(handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + " [+" + ChatColor.YELLOW + ChatColor.BOLD + (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
+                    } else {
+                        player.sendMessage(handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + ".");
+                    }
+                }
+            }
 
         } else {
             for(Player player:Bukkit.getOnlinePlayers()) {
                 if(!player.equals(p)) {
-                    player.sendMessage(handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " died [+" + ChatColor.YELLOW + (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
-                } else {
-                    p.sendMessage("You died.");
-                    p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_AMBIENT,1,2);
+                    //System.out.println(player.getName() + "   " + playerDeathHandler.isPlayerAlive(player));
+                    if(playerDeathHandler.isPlayerAlive(player)) {
+                        player.sendMessage(handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " died [+" + ChatColor.YELLOW + ChatColor.BOLD + (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
+                    } else {
+                        player.sendMessage(handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " died.");
+                    }
                 }
             }
+            p.sendMessage(ChatColor.GRAY + "You died.");
+            p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_AMBIENT,1,2);
         }
         //p.sendMessage("Dead");
 

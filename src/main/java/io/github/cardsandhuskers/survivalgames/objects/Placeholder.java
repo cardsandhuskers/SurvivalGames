@@ -110,6 +110,9 @@ public class Placeholder extends PlaceholderExpansion {
                             return "Game end";
                         }
                     case GAME_OVER:
+                        if(gameNumber == 1) {
+                            return "Round Over";
+                        }
                         return "Game Over";
                     default:
                         return "Game";
@@ -134,6 +137,9 @@ public class Placeholder extends PlaceholderExpansion {
             } else {
                 playerKills.put((Player) p, 0);
             }
+        }
+        if(s.equalsIgnoreCase("round")) {
+            return gameNumber + "";
         }
         return null;
     }

@@ -20,6 +20,7 @@ public final class SurvivalGames extends JavaPlugin {
     public static int altTimeVar = 0;
     public static double multiplier = 1;
     public static int totalPlayers;
+    public static int gameNumber = 1;
     public static HashMap<Player, Integer> playerKills;
     public static GameType gameType = GameType.SURVIVAL_GAMES;
     @Override
@@ -61,10 +62,10 @@ public final class SurvivalGames extends JavaPlugin {
         getCommand("setSGPos2").setExecutor(new SetPos2Command(this));
         getCommand("saveSGArena").setExecutor(new SaveArenaCommand(this));
         getCommand("setSGSpawnPoint").setExecutor(new SetSpawnPointCommand(this));
-        getCommand("setSGSpawnBox").setExecutor(new SetTeamSpawn(this));
+        getCommand("setSGSpawnBox").setExecutor(new SetTeamSpawnCommand(this));
         getCommand("startSurvivalGames").setExecutor(new StartGameCommand(this, ppAPI));
         getCommand("setLobby").setExecutor(new SetLobbyCommand(this));
-        getCommand("loadSGArena").setExecutor(new ResetArenaCommand(this));
+        getCommand("reloadSGArena").setExecutor(new ResetArenaCommand(this));
 
         saveDefaultConfig();
         getConfig().options().copyDefaults(true);

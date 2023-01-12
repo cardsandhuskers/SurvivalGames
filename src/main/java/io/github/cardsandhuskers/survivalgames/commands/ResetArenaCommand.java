@@ -27,48 +27,76 @@ public class ResetArenaCommand implements CommandExecutor {
     public ResetArenaCommand(SurvivalGames plugin) {
         this.plugin = plugin;
     }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if(args.length > 0) {
-            SurvivalGames.GameType game;
-            try {
-                game = SurvivalGames.GameType.valueOf(args[0].toUpperCase());
-            } catch (Exception e) {
-                if(sender instanceof Player p) {
+        if(sender instanceof Player p && p.isOp()) {
+            if(args.length > 0) {
+                SurvivalGames.GameType game;
+                try {
+                    game = SurvivalGames.GameType.valueOf(args[0].toUpperCase());
+                } catch (Exception e) {
                     p.sendMessage(ChatColor.RED + "ERROR: game type must be SURVIVAL_GAMES or SKYWARS");
+                    return false;
                 }
-                return false;
+                resetArena(game);
+                return true;
             }
-            BukkitWorld weWorld = new BukkitWorld(plugin.getConfig().getLocation(game + ".pos1").getWorld());
-            for (int i = 1; i <= 27; i++) {
-                int finalI = i;
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    Clipboard clipboard;
-                    File file = new File("plugins/SurvivalGames/"+ game + finalI + ".schem");
-
-                    ClipboardFormat format = ClipboardFormats.findByFile(file);
-                    try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
-                        clipboard = reader.read();
-
-                        try (EditSession editSession = WorldEdit.getInstance().newEditSession(weWorld)) {
-                            Operation operation = new ClipboardHolder(clipboard)
-                                    .createPaste(editSession)
-                                    .to(clipboard.getOrigin())
-                                    // configure here
-                                    .build();
-                            Operations.complete(operation);
-
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    if(finalI == 27) {
-                        Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "ARENA RESET COMPLETE");
-                    }
-                }, 20L * i);
-            }
+        } else if(sender instanceof Player p) {
+            p.sendMessage("No permission to do that");
             return true;
+        } else {
+            if(args.length > 0) {
+                SurvivalGames.GameType game;
+                try {
+                    game = SurvivalGames.GameType.valueOf(args[0].toUpperCase());
+                } catch (Exception e) {
+                    System.out.println(ChatColor.RED + "ERROR: game type must be SURVIVAL_GAMES or SKYWARS");
+                    return false;
+                }
+                resetArena(game);
+                return true;
+            }
         }
         return false;
+    }
+
+    public void resetArena(SurvivalGames.GameType game) {
+        int delay;
+        if(game == SurvivalGames.GameType.SKYWARS) {
+            delay = 7;
+        } else {
+            delay = 20;
+        }
+
+
+        BukkitWorld weWorld = new BukkitWorld(plugin.getConfig().getLocation(game + ".pos1").getWorld());
+        for (int i = 1; i <= 27; i++) {
+            int finalI = i;
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                Clipboard clipboard;
+                File file = new File("plugins/SurvivalGames/"+ game + finalI + ".schem");
+
+                ClipboardFormat format = ClipboardFormats.findByFile(file);
+                try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
+                    clipboard = reader.read();
+
+                    try (EditSession editSession = WorldEdit.getInstance().newEditSession(weWorld)) {
+                        Operation operation = new ClipboardHolder(clipboard)
+                                .createPaste(editSession)
+                                .to(clipboard.getOrigin())
+                                // configure here
+                                .build();
+                        Operations.complete(operation);
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if(finalI == 27) {
+                    Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "ARENA RESET COMPLETE");
+                }
+            }, delay * i);
+        }
     }
 }

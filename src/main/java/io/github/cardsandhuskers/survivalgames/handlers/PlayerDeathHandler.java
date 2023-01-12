@@ -93,12 +93,16 @@ public class PlayerDeathHandler {
         }
     }
     public boolean isPlayerAlive(Player p) {
+        if(playerList.contains(p)) return true;
+        return false;
+        /*
         for(Player player:playerList) {
             if(p.equals(player)) {
                 return true;
             }
         }
         return false;
+         */
     }
     public void addPlayer(Player p) {
         playerList.add(p);

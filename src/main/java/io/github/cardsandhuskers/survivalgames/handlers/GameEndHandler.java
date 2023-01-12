@@ -1,6 +1,8 @@
 package io.github.cardsandhuskers.survivalgames.handlers;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
+import io.github.cardsandhuskers.survivalgames.commands.ResetArenaCommand;
+import io.github.cardsandhuskers.survivalgames.commands.StartGameCommand;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import io.github.cardsandhuskers.teams.objects.Team;
 import io.github.cardsandhuskers.teams.objects.TempPointsHolder;
@@ -27,15 +29,23 @@ public class GameEndHandler {
     }
 
     public void gameEndTimer() {
-        int totalSeconds = plugin.getConfig().getInt(gameType + ".GameEndTime");
+        int totalSeconds;
+
+        if(gameType == GameType.SKYWARS && gameNumber == 1) totalSeconds = 10;
+        else totalSeconds = plugin.getConfig().getInt(gameType + ".GameEndTime");
+
         Countdown timer = new Countdown((JavaPlugin)plugin,
 
                 totalSeconds,
                 //Timer Start
                 () -> {
-                    for(Player p:Bukkit.getOnlinePlayers()) {
-                        p.setGameMode(GameMode.SPECTATOR);
+
+                    if(gameType == GameType.SKYWARS && gameNumber == 1) {
+                        //ResetArenaCommand resetArenaCommand = new ResetArenaCommand(plugin);
+                        //resetArenaCommand.resetArena(GameType.SKYWARS);
+                        Bukkit.broadcastMessage(ChatColor.GRAY + "Resetting Arena for round 2...");
                     }
+
                     final Team winner;
                     if(!teamList.isEmpty()) {
                         winner = teamList.get(0);
@@ -115,73 +125,82 @@ public class GameEndHandler {
                 //Each Second
                 (t) -> {
                     timeVar = t.getSecondsLeft();
-                    //show each player their team performance
-                    if(t.getSecondsLeft() == t.getTotalSeconds() - 5) {
-                        for (Team team : handler.getTeams()) {
+
+                    if (t.getSecondsLeft() == t.getTotalSeconds() - 2) {
+                        for (Player p : Bukkit.getOnlinePlayers()) {
+                            p.setGameMode(GameMode.SPECTATOR);
+                        }
+                    }
+
+                    if (!(gameType == GameType.SKYWARS && gameNumber == 1)) {
+                        //show each player their team performance
+                        if (t.getSecondsLeft() == t.getTotalSeconds() - 5) {
+                            for (Team team : handler.getTeams()) {
+                                ArrayList<TempPointsHolder> tempPointsList = new ArrayList<>();
+                                for (Player p : team.getOnlinePlayers()) {
+                                    if (team.getPlayerTempPoints(p) != null) {
+                                        tempPointsList.add(team.getPlayerTempPoints(p));
+                                    }
+                                }
+                                Collections.sort(tempPointsList, Comparator.comparing(TempPointsHolder::getPoints));
+                                Collections.reverse(tempPointsList);
+
+                                for (Player p : team.getOnlinePlayers()) {
+                                    p.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Your Team Standings:");
+                                    p.sendMessage(ChatColor.DARK_BLUE + "------------------------------");
+                                    int number = 1;
+                                    for (TempPointsHolder h : tempPointsList) {
+                                        p.sendMessage(number + ". " + handler.getPlayerTeam(p).color + h.getPlayer().getName() + ChatColor.RESET + "    Points: " + h.getPoints());
+                                        number++;
+                                    }
+                                    p.sendMessage(ChatColor.DARK_BLUE + "------------------------------\n");
+                                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+                                }
+                            }
+                        }
+                        if (t.getSecondsLeft() == t.getTotalSeconds() - 10) {
                             ArrayList<TempPointsHolder> tempPointsList = new ArrayList<>();
-                            for (Player p : team.getOnlinePlayers()) {
-                                if (team.getPlayerTempPoints(p) != null) {
+                            for (Team team : handler.getTeams()) {
+                                for (Player p : team.getOnlinePlayers()) {
                                     tempPointsList.add(team.getPlayerTempPoints(p));
+                                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
                                 }
                             }
                             Collections.sort(tempPointsList, Comparator.comparing(TempPointsHolder::getPoints));
                             Collections.reverse(tempPointsList);
 
-                            for (Player p : team.getOnlinePlayers()) {
-                                p.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Your Team Standings:");
-                                p.sendMessage(ChatColor.DARK_BLUE + "------------------------------");
-                                int number = 1;
-                                for (TempPointsHolder h : tempPointsList) {
-                                    p.sendMessage(number + ". " + handler.getPlayerTeam(p).color + h.getPlayer().getName() + ChatColor.RESET + "    Points: " + h.getPoints());
-                                    number++;
-                                }
-                                p.sendMessage(ChatColor.DARK_BLUE + "------------------------------\n");
+                            int max;
+                            if (tempPointsList.size() >= 5) {
+                                max = 4;
+                            } else {
+                                max = tempPointsList.size() - 1;
+                            }
+
+                            Bukkit.broadcastMessage("\n" + ChatColor.RED + "" + ChatColor.BOLD + "Top 5 Players:");
+                            Bukkit.broadcastMessage(ChatColor.DARK_RED + "------------------------------");
+                            int number = 1;
+                            for (int i = 0; i <= max; i++) {
+                                TempPointsHolder h = tempPointsList.get(i);
+                                Bukkit.broadcastMessage(number + ". " + handler.getPlayerTeam(h.getPlayer()).color + h.getPlayer().getName() + ChatColor.RESET + "    Points: " + h.getPoints());
+                                number++;
+                            }
+                            Bukkit.broadcastMessage(ChatColor.DARK_RED + "------------------------------");
+                        }
+
+                        if (t.getSecondsLeft() == t.getTotalSeconds() - 15) {
+                            ArrayList<Team> teamList = handler.getTempPointsSortedList();
+
+                            Bukkit.broadcastMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "Team Performance:");
+                            Bukkit.broadcastMessage(ChatColor.GREEN + "------------------------------");
+                            int counter = 1;
+                            for (Team team : teamList) {
+                                Bukkit.broadcastMessage(counter + ". " + team.color + ChatColor.BOLD + team.getTeamName() + ChatColor.RESET + " Points: " + team.getTempPoints());
+                                counter++;
+                            }
+                            Bukkit.broadcastMessage(ChatColor.GREEN + "------------------------------");
+                            for (Player p : Bukkit.getOnlinePlayers()) {
                                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
                             }
-                        }
-                    }
-                    if(t.getSecondsLeft() == t.getTotalSeconds() - 10) {
-                        ArrayList<TempPointsHolder> tempPointsList = new ArrayList<>();
-                        for(Team team: handler.getTeams()) {
-                            for(Player p:team.getOnlinePlayers()) {
-                                tempPointsList.add(team.getPlayerTempPoints(p));
-                                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-                            }
-                        }
-                        Collections.sort(tempPointsList, Comparator.comparing(TempPointsHolder::getPoints));
-                        Collections.reverse(tempPointsList);
-
-                        int max;
-                        if(tempPointsList.size() >= 5) {
-                            max = 4;
-                        } else {
-                            max = tempPointsList.size() - 1;
-                        }
-
-                        Bukkit.broadcastMessage("\n" + ChatColor.RED + "" + ChatColor.BOLD + "Top 5 Players:");
-                        Bukkit.broadcastMessage(ChatColor.DARK_RED + "------------------------------");
-                        int number = 1;
-                        for(int i = 0; i <= max; i++) {
-                            TempPointsHolder h = tempPointsList.get(i);
-                            Bukkit.broadcastMessage(number + ". " + handler.getPlayerTeam(h.getPlayer()).color + h.getPlayer().getName() + ChatColor.RESET + "    Points: " +  h.getPoints());
-                            number++;
-                        }
-                        Bukkit.broadcastMessage(ChatColor.DARK_RED + "------------------------------");
-                    }
-
-                    if(t.getSecondsLeft() == t.getTotalSeconds() - 15) {
-                        ArrayList<Team> teamList = handler.getTempPointsSortedList();
-
-                        Bukkit.broadcastMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "Team Performance:");
-                        Bukkit.broadcastMessage(ChatColor.GREEN + "------------------------------");
-                        int counter = 1;
-                        for(Team team:teamList) {
-                            Bukkit.broadcastMessage(counter + ". " + team.color + ChatColor.BOLD +  team.getTeamName() + ChatColor.RESET + " Points: " + team.getTempPoints());
-                            counter++;
-                        }
-                        Bukkit.broadcastMessage(ChatColor.GREEN + "------------------------------");
-                        for(Player p: Bukkit.getOnlinePlayers()) {
-                            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
                         }
                     }
                 }
@@ -190,28 +209,36 @@ public class GameEndHandler {
         timer.scheduleTimer();
     }
 
-
-
     public void endGame() {
-        //removes ITEM ENTITIES left behind
-        //Collection<Item> entityList = plugin.getConfig().getLocation(gameType + ".pos1").getWorld().getEntitiesByClass(Item.class);
+        //removes ALL ENTITIES left behind
         Collection<Entity> entityList = plugin.getConfig().getLocation(gameType + ".pos1").getWorld().getEntities();
-        for(Entity e:entityList) {
-            if(e.getType() != EntityType.PLAYER) {
+        for (Entity e : entityList) {
+            if (e.getType() != EntityType.PLAYER) {
                 e.remove();
             }
         }
 
-
         HandlerList.unregisterAll(plugin);
-        Location lobby = plugin.getConfig().getLocation("Lobby");
-        for(Player p: Bukkit.getOnlinePlayers()) {
-            p.teleport(lobby);
-        }
-        for(Player p:Bukkit.getOnlinePlayers()) {
-            if(p.isOp()) {
-                p.performCommand("startRound");
-                break;
+        if (gameType == GameType.SKYWARS && gameNumber == 1) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (p.isOp()) {
+                    gameNumber++;
+                    StartGameCommand startGameCommand = new StartGameCommand(plugin, ppAPI);
+                    startGameCommand.startGame();
+                    break;
+                }
+            }
+        } else {
+            gameNumber = 1;
+            Location lobby = plugin.getConfig().getLocation("Lobby");
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.teleport(lobby);
+            }
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (p.isOp()) {
+                    p.performCommand("startRound");
+                    break;
+                }
             }
         }
     }

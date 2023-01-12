@@ -1,0 +1,78 @@
+SURVIVAL_GAMES:
+  PregameTime: 30
+  # total game time, excluding deathmatch
+  GameTime: 120
+  GracePeriod: 45
+  RestockTime: 90
+  # countdown from when there are 2 teams left
+  PreDeathmatchTime: 20
+  #time while players are in spawn boxes to countdown deathmatch
+  DeathmatchPrepTime: 15
+  DeathmatchTime: 120
+  #time countdown after the game ends
+  GameEndTime: 20
+
+  #points given for a kill
+  killPoints: 100
+  #points given to the winning team (divided among players)
+  winPoints: 600
+  #points given to alive players when someone else dies
+  survivalPoints: 20
+
+  chest:
+    # number of items to put in each chest
+    min: 3
+    max: 11
+    # items to put in the chests:
+    # POTION, [num], TYPE, time, amplifier
+    # ENCHANTED_BOOK, [num], ENCHANT, level
+    # ITEM, [num], ENCHANT, [level], ENCHANT, [level], ...
+    # Chance: 5/15
+    level1:
+      - leather_helmet
+    # Chance: 4/15
+    level2:
+      - string,2
+    # Chance: 3/15
+    level3:
+      - chainmail_chestplate
+    # Chance: 2/15
+    level4:
+      - iron_leggings
+    # Chance: 1/15
+    level5:
+      - iron_chestplate
+
+SKYWARS:
+  PregameTime: 15
+  # total game time
+  GameTime: 720
+  RestockTime: 360
+  GameEndTime: 10
+
+  #points given for a kill
+  killPoints: 100
+  #points given to the winning team (divided among players)
+  winPoints: 600
+  #points given to alive players when someone else dies
+  survivalPoints: 20
+
+  # number of items to put in each chest
+  chest:
+    min: 13
+    max: 19
+    # island only, chance 4/9
+    level1:
+      - water_bucket
+    # Island only, Chance 3/9
+    level2:
+      - diamond_pickaxe
+    # Island Chance: 2/9, Center Chance: 4/9
+    level3:
+      - golden_apple,4
+    # Center Only, Chance: 3/9
+    level4:
+      - slime_spawn_egg,6
+    # Center Only, Chance: 2/9
+    level5:
+      - crying_obsidian,5

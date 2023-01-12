@@ -291,9 +291,7 @@ public class Chests {
 
                         chestInv.setItem(slot, item);
                     }
-            } else {
-                System.out.println("Block is not a chest");
-            }
+                }
             }, 1L * (counter/50) + 1);
             counter++;
         }

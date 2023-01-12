@@ -8,21 +8,22 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameState;
 import static io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler.numPlayers;
 
 public class PlayerLeaveListener implements Listener {
-    private PlayerDeathHandler playerDeathHandler;
+    private PlayerDamageListener playerDamageListener;
 
-    public PlayerLeaveListener(PlayerDeathHandler playerDeathHandler) {
-        this.playerDeathHandler = playerDeathHandler;
+    public PlayerLeaveListener(PlayerDamageListener playerDamageListener) {
+        this.playerDamageListener = playerDamageListener;
     }
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         if(gameState != SurvivalGames.State.GAME_OVER) {
-            playerDeathHandler.onPlayerDeath(p);
+            playerDamageListener.onPlayerDeath(p);
         }
         //numPlayers--;
     }

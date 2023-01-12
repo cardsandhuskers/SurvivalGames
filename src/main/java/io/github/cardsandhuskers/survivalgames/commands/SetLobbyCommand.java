@@ -1,6 +1,7 @@
 package io.github.cardsandhuskers.survivalgames.commands;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,6 +27,8 @@ public class SetLobbyCommand implements CommandExecutor {
                 plugin.getConfig().set("Lobby", location);
                 plugin.saveConfig();
                 p.sendMessage("Lobby set at:\nWorld: " + location.getWorld() + "\nX: " + location.getX() + " Y: " + location.getY() + " Z: " + location.getZ());
+            } else {
+                p.sendMessage(ChatColor.RED + "You do not have permission.");
             }
         } else {
             System.out.println("ERROR: cannot run from console.");
