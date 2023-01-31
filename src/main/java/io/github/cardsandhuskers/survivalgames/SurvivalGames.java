@@ -4,8 +4,6 @@ import io.github.cardsandhuskers.survivalgames.commands.*;
 import io.github.cardsandhuskers.survivalgames.objects.Placeholder;
 import io.github.cardsandhuskers.teams.Teams;
 import io.github.cardsandhuskers.teams.handlers.TeamHandler;
-import org.black_ixx.playerpoints.PlayerPoints;
-import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,7 +13,6 @@ import java.util.HashMap;
 public final class SurvivalGames extends JavaPlugin {
     public static State gameState = State.GAME_STARTING;
     public static TeamHandler handler;
-    private PlayerPointsAPI ppAPI;
     public static int timeVar = 0;
     public static int altTimeVar = 0;
     public static double multiplier = 1;
@@ -26,13 +23,6 @@ public final class SurvivalGames extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
-        if (Bukkit.getPluginManager().isPluginEnabled("PlayerPoints")) {
-            this.ppAPI = PlayerPoints.getInstance().getAPI();
-        } else {
-            System.out.println("Could not find PlayerPointsAPI! This plugin is required.");
-            Bukkit.getPluginManager().disablePlugin(this);
-        }
-
 
         //Placeholder API validation
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -63,7 +53,7 @@ public final class SurvivalGames extends JavaPlugin {
         getCommand("saveSGArena").setExecutor(new SaveArenaCommand(this));
         getCommand("setSGSpawnPoint").setExecutor(new SetSpawnPointCommand(this));
         getCommand("setSGSpawnBox").setExecutor(new SetTeamSpawnCommand(this));
-        getCommand("startSurvivalGames").setExecutor(new StartGameCommand(this, ppAPI));
+        getCommand("startSurvivalGames").setExecutor(new StartGameCommand(this));
         getCommand("setLobby").setExecutor(new SetLobbyCommand(this));
         getCommand("reloadSGArena").setExecutor(new ResetArenaCommand(this));
 

@@ -1,12 +1,10 @@
 package io.github.cardsandhuskers.survivalgames.handlers;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
-import io.github.cardsandhuskers.survivalgames.commands.ResetArenaCommand;
 import io.github.cardsandhuskers.survivalgames.commands.StartGameCommand;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import io.github.cardsandhuskers.teams.objects.Team;
 import io.github.cardsandhuskers.teams.objects.TempPointsHolder;
-import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.HandlerList;
@@ -20,10 +18,8 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 public class GameEndHandler {
     private SurvivalGames plugin;
     private ArrayList<Team> teamList;
-    private PlayerPointsAPI ppAPI;
 
-    public GameEndHandler(SurvivalGames plugin, ArrayList<Team> teamList, PlayerPointsAPI ppAPI) {
-        this.ppAPI = ppAPI;
+    public GameEndHandler(SurvivalGames plugin, ArrayList<Team> teamList) {
         this.teamList = teamList;
         this.plugin = plugin;
     }
@@ -150,7 +146,7 @@ public class GameEndHandler {
                                     p.sendMessage(ChatColor.DARK_BLUE + "------------------------------");
                                     int number = 1;
                                     for (TempPointsHolder h : tempPointsList) {
-                                        p.sendMessage(number + ". " + handler.getPlayerTeam(p).color + h.getPlayer().getName() + ChatColor.RESET + "    Points: " + h.getPoints());
+                                        p.sendMessage(number + ". " + handler.getPlayerTeam(p).color + h.getPlayer().getName() + ChatColor.RESET + "    Points: " + (int)h.getPoints());
                                         number++;
                                     }
                                     p.sendMessage(ChatColor.DARK_BLUE + "------------------------------\n");
@@ -181,7 +177,7 @@ public class GameEndHandler {
                             int number = 1;
                             for (int i = 0; i <= max; i++) {
                                 TempPointsHolder h = tempPointsList.get(i);
-                                Bukkit.broadcastMessage(number + ". " + handler.getPlayerTeam(h.getPlayer()).color + h.getPlayer().getName() + ChatColor.RESET + "    Points: " + h.getPoints());
+                                Bukkit.broadcastMessage(number + ". " + handler.getPlayerTeam(h.getPlayer()).color + h.getPlayer().getName() + ChatColor.RESET + "    Points: " + (int)h.getPoints());
                                 number++;
                             }
                             Bukkit.broadcastMessage(ChatColor.DARK_RED + "------------------------------");
@@ -194,7 +190,7 @@ public class GameEndHandler {
                             Bukkit.broadcastMessage(ChatColor.GREEN + "------------------------------");
                             int counter = 1;
                             for (Team team : teamList) {
-                                Bukkit.broadcastMessage(counter + ". " + team.color + ChatColor.BOLD + team.getTeamName() + ChatColor.RESET + " Points: " + team.getTempPoints());
+                                Bukkit.broadcastMessage(counter + ". " + team.color + ChatColor.BOLD + team.getTeamName() + ChatColor.RESET + " Points: " + (int)team.getTempPoints());
                                 counter++;
                             }
                             Bukkit.broadcastMessage(ChatColor.GREEN + "------------------------------");
@@ -223,7 +219,7 @@ public class GameEndHandler {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (p.isOp()) {
                     gameNumber++;
-                    StartGameCommand startGameCommand = new StartGameCommand(plugin, ppAPI);
+                    StartGameCommand startGameCommand = new StartGameCommand(plugin);
                     startGameCommand.startGame();
                     break;
                 }

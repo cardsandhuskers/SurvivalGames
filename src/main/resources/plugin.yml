@@ -4,7 +4,7 @@ main: io.github.cardsandhuskers.survivalgames.SurvivalGames
 api-version: 1.19
 authors: [ cardsandhuskers ]
 description: survival games plugin
-depend: [PlayerPoints, PlaceholderAPI, Teams]
+depend: [PlaceholderAPI, Teams]
 commands:
   setSGPos1:
     description: sets position 1 of the arena

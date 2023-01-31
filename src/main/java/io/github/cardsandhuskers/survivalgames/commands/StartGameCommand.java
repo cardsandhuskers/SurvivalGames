@@ -11,7 +11,6 @@ import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import io.github.cardsandhuskers.survivalgames.objects.PlayerTracker;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.apache.commons.lang3.StringUtils;
-import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,12 +31,10 @@ public class StartGameCommand implements CommandExecutor {
     private SurvivalGames plugin;
     private Chests chests;
     private GameStageHandler gameStageHandler;
-    private PlayerPointsAPI ppAPI;
     private PlayerDeathHandler playerDeathHandler;
     private ArrayList<PlayerTracker> trackerList;
-    public StartGameCommand(SurvivalGames plugin, PlayerPointsAPI ppAPI) {
+    public StartGameCommand(SurvivalGames plugin) {
         this.plugin = plugin;
-        this.ppAPI = ppAPI;
     }
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -149,13 +146,13 @@ public class StartGameCommand implements CommandExecutor {
         ArrayList<Team> teamList = new ArrayList<>();
         trackerList = new ArrayList<>();
 
-        gameStageHandler = new GameStageHandler(plugin, chests, ppAPI, worldBorder, teamList, attackerTimersHandler, trackerList);
+        gameStageHandler = new GameStageHandler(plugin, chests, worldBorder, teamList, attackerTimersHandler, trackerList);
 
-        playerDeathHandler = new PlayerDeathHandler(ppAPI, plugin, gameStageHandler, teamList);
+        playerDeathHandler = new PlayerDeathHandler(plugin, gameStageHandler, teamList);
         //attacked, attacker (an attacked player can only have 1 attacker, vise versa is not true)
 
-        PlayerDamageListener playerDamageListener = new PlayerDamageListener(ppAPI, playerDeathHandler, storedAttackers);
-        getServer().getPluginManager().registerEvents(new PlayerAttackListener(ppAPI, playerDeathHandler, storedAttackers, attackerTimers, playerDamageListener, plugin), plugin);
+        PlayerDamageListener playerDamageListener = new PlayerDamageListener(playerDeathHandler, storedAttackers);
+        getServer().getPluginManager().registerEvents(new PlayerAttackListener(playerDeathHandler, storedAttackers, attackerTimers, playerDamageListener, plugin), plugin);
         getServer().getPluginManager().registerEvents(new BlockPlaceListener(plugin), plugin);
         getServer().getPluginManager().registerEvents(new BlockBreakListener(), plugin);
         getServer().getPluginManager().registerEvents(new ItemClickListener(), plugin);
@@ -166,40 +163,10 @@ public class StartGameCommand implements CommandExecutor {
         getServer().getPluginManager().registerEvents(new PlayerMoveListener(playerDamageListener), plugin);
         getServer().getPluginManager().registerEvents(new PearlThrowListener(), plugin);
 
-
         if(gameType == GameType.SKYWARS) {
             ResetArenaCommand resetArenaCommand = new ResetArenaCommand(plugin);
             resetArenaCommand.resetArena(GameType.SKYWARS);
         }
-        //Load Schematic
-        //BukkitWorld weWorld = new BukkitWorld(plugin.getConfig().getLocation("pos1").getWorld());
-/*
-        for(int i = 1; i <= 27; i++) {
-            int finalI = i;
-            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()-> {
-                Clipboard clipboard;
-                File file = new File("plugins/SurvivalGames/arena" + finalI + ".schem");
-
-                ClipboardFormat format = ClipboardFormats.findByFile(file);
-                try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
-                    clipboard = reader.read();
-
-                    try (EditSession editSession = WorldEdit.getInstance().newEditSession(weWorld)) {
-                        Operation operation = new ClipboardHolder(clipboard)
-                                .createPaste(editSession)
-                                .to(clipboard.getOrigin())
-                                // configure here
-                                .build();
-                        Operations.complete(operation);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }, 40L * i);
-        }
-
- */
-
         pregameTimer();
     }
 

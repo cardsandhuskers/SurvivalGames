@@ -6,7 +6,6 @@ import io.github.cardsandhuskers.survivalgames.objects.Chests;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import io.github.cardsandhuskers.survivalgames.objects.PlayerTracker;
 import io.github.cardsandhuskers.teams.objects.Team;
-import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -29,7 +28,6 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 public class GameStageHandler {
     private SurvivalGames plugin;
     private Chests chests;
-    private PlayerPointsAPI ppAPI;
     private Border worldBorder;
     private Countdown gameTimer;
     private Countdown restockTimer;
@@ -38,11 +36,10 @@ public class GameStageHandler {
     private AttackerTimersHandler attackerTimersHandler;
     ArrayList<Team> teamList;
     ArrayList<PlayerTracker> trackerList;
-    public GameStageHandler(SurvivalGames plugin, Chests chests, PlayerPointsAPI ppAPI, Border worldBorder, ArrayList<Team> teamList, AttackerTimersHandler attackerTimersHandler, ArrayList<PlayerTracker> trackerList) {
+    public GameStageHandler(SurvivalGames plugin, Chests chests, Border worldBorder, ArrayList<Team> teamList, AttackerTimersHandler attackerTimersHandler, ArrayList<PlayerTracker> trackerList) {
         this.trackerList = trackerList;
         this.plugin = plugin;
         this.chests = chests;
-        this.ppAPI = ppAPI;
         this.worldBorder = worldBorder;
         this.teamList = teamList;
         this.attackerTimersHandler = attackerTimersHandler;

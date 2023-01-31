@@ -2,13 +2,9 @@ package io.github.cardsandhuskers.survivalgames.handlers;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.teams.objects.Team;
-import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -20,13 +16,11 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 public class PlayerDeathHandler {
     private ArrayList<Player> playerList;
     private ArrayList<Team> teamList;
-    private PlayerPointsAPI ppAPI;
     public static int numTeams;
     public static int numPlayers;
     SurvivalGames plugin;
     GameStageHandler gameStageHandler;
-    public PlayerDeathHandler(PlayerPointsAPI ppAPI, SurvivalGames plugin, GameStageHandler gameStageHandler, ArrayList<Team> teamList) {
-        this.ppAPI = ppAPI;
+    public PlayerDeathHandler(SurvivalGames plugin, GameStageHandler gameStageHandler, ArrayList<Team> teamList) {
         this.plugin = plugin;
         this.gameStageHandler = gameStageHandler;
         this.teamList = teamList;
@@ -69,7 +63,7 @@ public class PlayerDeathHandler {
         }
         if(teamList.size() <= 1) {
             gameStageHandler.endGame();
-            GameEndHandler gameEndHandler = new GameEndHandler(plugin, teamList, ppAPI);
+            GameEndHandler gameEndHandler = new GameEndHandler(plugin, teamList);
             gameEndHandler.gameEndTimer();
 
         }

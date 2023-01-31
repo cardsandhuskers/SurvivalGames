@@ -2,8 +2,6 @@ package io.github.cardsandhuskers.survivalgames.listeners;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
-import io.github.cardsandhuskers.teams.objects.Team;
-import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -12,28 +10,24 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 
 
 public class PlayerAttackListener implements Listener {
-    private PlayerPointsAPI ppAPI;
     private HashMap<Player, Player> storedAttackers;
     private HashMap<Player, Integer> attackerTimers;
     private PlayerDeathHandler deathHandler;
     private PlayerDamageListener playerDamageListener;
     private SurvivalGames plugin;
 
-    public PlayerAttackListener(PlayerPointsAPI ppAPI, PlayerDeathHandler deathHandler, HashMap<Player, Player> storedAttackers, HashMap<Player, Integer> attackerTimers, PlayerDamageListener playerDamageListener, SurvivalGames plugin) {
+    public PlayerAttackListener(PlayerDeathHandler deathHandler, HashMap<Player, Player> storedAttackers, HashMap<Player, Integer> attackerTimers, PlayerDamageListener playerDamageListener, SurvivalGames plugin) {
         this.attackerTimers = attackerTimers;
         this.storedAttackers = storedAttackers;
         this.deathHandler = deathHandler;
-        this.ppAPI = ppAPI;
         this.playerDamageListener = playerDamageListener;
         this.plugin = plugin;
     }

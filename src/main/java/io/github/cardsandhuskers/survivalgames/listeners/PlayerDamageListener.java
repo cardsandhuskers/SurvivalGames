@@ -2,7 +2,6 @@ package io.github.cardsandhuskers.survivalgames.listeners;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
-import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -19,13 +18,11 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.playerKills;
 
 public class PlayerDamageListener implements Listener {
     //Designed to listen for environment damage
-    PlayerPointsAPI ppAPI;
     PlayerDeathHandler playerDeathHandler;
     HashMap<Player, Player> storedAttackers;
     private SurvivalGames plugin = (SurvivalGames) Bukkit.getPluginManager().getPlugin("SurvivalGames");
-    public PlayerDamageListener(PlayerPointsAPI ppAPI, PlayerDeathHandler playerDeathHandler, HashMap<Player, Player> storedAttackers) {
+    public PlayerDamageListener(PlayerDeathHandler playerDeathHandler, HashMap<Player, Player> storedAttackers) {
         this.storedAttackers = storedAttackers;
-        this.ppAPI = ppAPI;
         this.playerDeathHandler = playerDeathHandler;
     }
 

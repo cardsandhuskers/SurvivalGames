@@ -67,10 +67,6 @@
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
         <repository>
-            <id>rosewood-repo</id>
-            <url>https://repo.rosewooddev.io/repository/public/</url>
-        </repository>
-        <repository>
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
@@ -85,12 +81,6 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>1.19-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.black_ixx</groupId>
-            <artifactId>playerpoints</artifactId>
-            <version>3.2.4</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
