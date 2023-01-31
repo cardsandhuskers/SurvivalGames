@@ -18,7 +18,7 @@ public class BlockBreakListener implements Listener {
         Material mat = e.getBlock().getType();
         //only SG has rules against breaking blocks
         if(SurvivalGames.gameType == SurvivalGames.GameType.SURVIVAL_GAMES) {
-            if (mat != null && mat != Material.COBWEB && mat != Material.FIRE && mat != Material.CAKE) {
+            if (mat != null && mat != Material.COBWEB && mat != Material.FIRE && mat != Material.CAKE && !isLeaves(mat)) {
                 e.setCancelled(true);
             }
         }
@@ -29,6 +29,22 @@ public class BlockBreakListener implements Listener {
             if(gameState != SurvivalGames.State.GAME_IN_PROGRESS) {
                 e.setCancelled(true);
             }
+        }
+    }
+    private boolean isLeaves(Material mat) {
+        switch(mat) {
+            case ACACIA_LEAVES:
+            case AZALEA_LEAVES:
+            case BIRCH_LEAVES:
+            case DARK_OAK_LEAVES:
+            case FLOWERING_AZALEA_LEAVES:
+            case JUNGLE_LEAVES:
+            case MANGROVE_LEAVES:
+            case OAK_LEAVES:
+            case SPRUCE_LEAVES:
+                return true;
+            default:
+                return false;
         }
     }
 }

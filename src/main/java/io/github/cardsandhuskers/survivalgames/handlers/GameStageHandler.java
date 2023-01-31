@@ -204,15 +204,7 @@ public class GameStageHandler {
                 //Timer End
                 () -> {
                     timeVar = 0;
-                    if(gameType == GameType.SURVIVAL_GAMES) {
-                        chests.populateSGChests();
-                    } else {
-                        try {
-                            chests.populateSkywarsChests();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
+                    chests.populateChests();
 
                     Bukkit.broadcastMessage(ChatColor.BLUE + "Chests Have Been Restocked!");
                     for(Player p:Bukkit.getOnlinePlayers()) {
@@ -379,17 +371,17 @@ public class GameStageHandler {
 
         Queue<Integer> spots = new LinkedList<>();
         spots.add(1);
-        spots.add(6);
-        spots.add(3);
-        spots.add(9);
-        spots.add(11);
-        spots.add(8);
+        spots.add(7);
         spots.add(4);
         spots.add(10);
-        spots.add(2);
+        spots.add(11);
         spots.add(5);
-        spots.add(7);
+        spots.add(8);
+        spots.add(2);
+        spots.add(9);
+        spots.add(3);
         spots.add(12);
+        spots.add(6);
 
         int counter = spots.remove();
         int index = 0;

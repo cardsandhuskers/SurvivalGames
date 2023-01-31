@@ -125,8 +125,8 @@ public class PlayerAttackListener implements Listener {
                         deathHandler.onPlayerDeath(attacked);
 
                         //give killer points
-                        ppAPI.give(attacker.getUniqueId(), (int) (plugin.getConfig().getInt(gameType + ".killPoints") * multiplier));
-                        handler.getPlayerTeam(attacker).addTempPoints(attacker, (int) (plugin.getConfig().getInt(gameType + ".killPoints") * multiplier));
+                        //ppAPI.give(attacker.getUniqueId(), (int) (plugin.getConfig().getInt(gameType + ".killPoints") * multiplier));
+                        handler.getPlayerTeam(attacker).addTempPoints(attacker, plugin.getConfig().getInt(gameType + ".killPoints") * multiplier);
 
                         if(playerKills.get(attacker) != null) {
                             playerKills.put(attacker, playerKills.get(attacker) + 1);

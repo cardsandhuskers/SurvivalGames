@@ -67,8 +67,8 @@ public final class SurvivalGames extends JavaPlugin {
         getCommand("setLobby").setExecutor(new SetLobbyCommand(this));
         getCommand("reloadSGArena").setExecutor(new ResetArenaCommand(this));
 
-        saveDefaultConfig();
         getConfig().options().copyDefaults(true);
+        saveDefaultConfig();
     }
 
     @Override

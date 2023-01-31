@@ -88,8 +88,8 @@ public class PlayerDeathHandler {
         p.setGameMode(GameMode.SPECTATOR);
         //give survival points to everyone alive
         for(Player player:playerList) {
-            handler.getPlayerTeam(player).addTempPoints(player, (int) (plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier));
-            ppAPI.give(player.getUniqueId(), (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier));
+            handler.getPlayerTeam(player).addTempPoints(player, plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier);
+            //ppAPI.give(player.getUniqueId(), (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier));
         }
     }
     public boolean isPlayerAlive(Player p) {

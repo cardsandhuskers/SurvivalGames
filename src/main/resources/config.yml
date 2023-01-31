@@ -27,21 +27,91 @@ SURVIVAL_GAMES:
     # POTION, [num], TYPE, time, amplifier
     # ENCHANTED_BOOK, [num], ENCHANT, level
     # ITEM, [num], ENCHANT, [level], ENCHANT, [level], ...
-    # Chance: 5/15
-    level1:
-      - leather_helmet
-    # Chance: 4/15
-    level2:
-      - string,2
-    # Chance: 3/15
-    level3:
-      - chainmail_chestplate
-    # Chance: 2/15
-    level4:
-      - iron_leggings
-    # Chance: 1/15
-    level5:
-      - iron_chestplate
+
+    #unimplemented
+    #l1Chance: 5
+    #l2Chance: 4
+    #l3Chance: 3
+    #l4Chance: 2
+    #l5Chance: 1
+
+    #chances should a percent value /100
+    #they don't all HAVE to add up to 100
+
+    #dropoff is the amount decreased
+    #chances should a percent value /100
+    #they don't all HAVE to add up to 100
+
+    #dropoff is the amount decreased
+    WEAPONS:
+      chance: 40
+      dropoff: 25
+      level1:
+        - leather_helmet
+      level2:
+        - string,2
+      level3:
+        - chainmail_chestplate
+      level4:
+        - iron_leggings
+      level5:
+        - iron_chestplate
+
+    ARMOR:
+      chance: 40
+      dropoff: 25
+      level1:
+        - leather_helmet
+      level2:
+        - string,2
+      level3:
+        - chainmail_chestplate
+      level4:
+        - iron_leggings
+      level5:
+        - iron_chestplate
+
+    FOOD:
+      chance: 40
+      dropoff: 25
+      level1:
+        - leather_helmet
+      level2:
+        - string,2
+      level3:
+        - chainmail_chestplate
+      level4:
+        - iron_leggings
+      level5:
+        - iron_chestplate
+
+    TOOLS:
+      chance: 40
+      dropoff: 25
+      level1:
+        - leather_helmet
+      level2:
+        - string,2
+      level3:
+        - chainmail_chestplate
+      level4:
+        - iron_leggings
+      level5:
+        - iron_chestplate
+
+    SPECIAL:
+      chance: 40
+      dropoff: 25
+      level1:
+        - leather_helmet
+      level2:
+        - string,2
+      level3:
+        - chainmail_chestplate
+      level4:
+        - iron_leggings
+      level5:
+        - iron_chestplate
 
 SKYWARS:
   PregameTime: 15
@@ -61,18 +131,97 @@ SKYWARS:
   chest:
     min: 13
     max: 19
-    # island only, chance 4/9
-    level1:
-      - water_bucket
-    # Island only, Chance 3/9
-    level2:
-      - diamond_pickaxe
-    # Island Chance: 2/9, Center Chance: 4/9
-    level3:
-      - golden_apple,4
-    # Center Only, Chance: 3/9
-    level4:
-      - slime_spawn_egg,6
-    # Center Only, Chance: 2/9
-    level5:
-      - crying_obsidian,5
+    #unimplemented
+    #l1Chance: 5
+    #l2Chance: 4
+    #l3Chance: 3
+    #l4Chance: 2
+    #l5Chance: 1
+
+    #chances should a percent value /100
+    #they don't all HAVE to add up to 100
+
+    #dropoff is the amount decreased
+    WEAPONS:
+      chance: 40
+      dropoff: 25
+      level1:
+        - leather_helmet
+      level2:
+        - string,2
+      level3:
+        - chainmail_chestplate
+      level4:
+        - iron_leggings
+      level5:
+        - iron_chestplate
+
+    ARMOR:
+      chance: 40
+      dropoff: 25
+      level1:
+        - leather_helmet
+      level2:
+        - string,2
+      level3:
+        - chainmail_chestplate
+      level4:
+        - iron_leggings
+      level5:
+        - iron_chestplate
+
+    BLOCKS:
+      chance: 40
+      dropoff: 25
+      level1:
+        - leather_helmet
+      level2:
+        - string,2
+      level3:
+        - chainmail_chestplate
+      level4:
+        - iron_leggings
+      level5:
+        - iron_chestplate
+
+    FOOD:
+      chance: 40
+      dropoff: 25
+      level1:
+        - leather_helmet
+      level2:
+        - string,2
+      level3:
+        - chainmail_chestplate
+      level4:
+        - iron_leggings
+      level5:
+        - iron_chestplate
+
+    TOOLS:
+      chance: 40
+      dropoff: 25
+      level1:
+        - leather_helmet
+      level2:
+        - string,2
+      level3:
+        - chainmail_chestplate
+      level4:
+        - iron_leggings
+      level5:
+        - iron_chestplate
+
+    SPECIAL:
+      chance: 40
+      dropoff: 25
+      level1:
+        - leather_helmet
+      level2:
+        - string,2
+      level3:
+        - chainmail_chestplate
+      level4:
+        - iron_leggings
+      level5:
+        - iron_chestplate

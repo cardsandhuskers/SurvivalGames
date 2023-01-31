@@ -1,15 +1,5 @@
 package io.github.cardsandhuskers.survivalgames.commands;
 
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.bukkit.BukkitWorld;
-import com.sk89q.worldedit.extent.clipboard.Clipboard;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
-import com.sk89q.worldedit.function.operation.Operation;
-import com.sk89q.worldedit.function.operation.Operations;
-import com.sk89q.worldedit.session.ClipboardHolder;
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.handlers.AttackerTimersHandler;
 import io.github.cardsandhuskers.survivalgames.handlers.GameStageHandler;
@@ -31,8 +21,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,6 +86,11 @@ public class StartGameCommand implements CommandExecutor {
 
     public void startGame() {
         playerKills = new HashMap<>();
+        try {
+            chests = new Chests(plugin);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         for(Player p:Bukkit.getOnlinePlayers()) {
             p.setHealth(20);
@@ -298,22 +291,7 @@ public class StartGameCommand implements CommandExecutor {
                     }
                     if(t.getSecondsLeft() == 3) {
                         //fill the chests
-                        if(gameType == GameType.SKYWARS) {
-                            try {
-                                chests = new Chests(plugin);
-                                chests.populateSkywarsChests();
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        if(gameType == GameType.SURVIVAL_GAMES) {
-                            try {
-                                chests = new Chests(plugin);
-                                chests.populateSGChests();
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
+                        chests.populateChests();
                     }
                 }
         );

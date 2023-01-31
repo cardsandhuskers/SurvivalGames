@@ -57,8 +57,8 @@ public class GameEndHandler {
                     int winPoints = plugin.getConfig().getInt(gameType + ".winPoints");
 
                     for(Player p: winner.getOnlinePlayers()) {
-                        winner.addTempPoints(p, (int) ((winPoints/numPlayers) * multiplier));
-                        ppAPI.give(p.getUniqueId(), (int) ((winPoints/numPlayers) * multiplier));
+                        winner.addTempPoints(p, (winPoints/numPlayers) * multiplier);
+                        //ppAPI.give(p.getUniqueId(), (int) ((winPoints/numPlayers) * multiplier));
                     }
                     gameState = SurvivalGames.State.GAME_OVER;
                     Bukkit.broadcastMessage(ChatColor.DARK_BLUE + "------------------------------");
@@ -234,12 +234,8 @@ public class GameEndHandler {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.teleport(lobby);
             }
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (p.isOp()) {
-                    p.performCommand("startRound");
-                    break;
-                }
-            }
+            //way to execute a command as console
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "startRound");
         }
     }
 }
