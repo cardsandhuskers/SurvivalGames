@@ -85,20 +85,6 @@ SURVIVAL_GAMES:
       level5:
         - iron_chestplate
 
-    TOOLS:
-      chance: 40
-      dropoff: 25
-      level1:
-        - leather_helmet
-      level2:
-        - string,2
-      level3:
-        - chainmail_chestplate
-      level4:
-        - iron_leggings
-      level5:
-        - iron_chestplate
-
     SPECIAL:
       chance: 40
       dropoff: 25

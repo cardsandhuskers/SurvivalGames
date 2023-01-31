@@ -47,9 +47,6 @@ public class SGChests {
         final int foodChance = plugin.getConfig().getInt("SURVIVAL_GAMES.chest.FOOD.chance");
         final int foodDropoff = plugin.getConfig().getInt("SURVIVAL_GAMES.chest.FOOD.dropoff");
 
-        final int toolsChance = plugin.getConfig().getInt("SURVIVAL_GAMES.chest.TOOLS.chance");
-        final int toolsDropoff = plugin.getConfig().getInt("SURVIVAL_GAMES.chest.TOOLS.dropoff");
-
         final int specialChance = plugin.getConfig().getInt("SURVIVAL_GAMES.chest.SPECIAL.chance");
         final int specialDropoff = plugin.getConfig().getInt("SURVIVAL_GAMES.chest.SPECIAL.dropoff");
 
@@ -59,7 +56,6 @@ public class SGChests {
             int tempWeaponsChance = weaponsChance;
             int tempArmorChance = armorChance;
             int tempFoodChance = foodChance;
-            int tempToolsChance = toolsChance;
             int tempSpecialChance = specialChance;
 
             if(block.getType() == Material.CHEST) {
@@ -77,13 +73,12 @@ public class SGChests {
                     if(tempWeaponsChance < 0) tempWeaponsChance = 0;
                     if(tempArmorChance < 0) tempArmorChance = 0;
                     if(tempFoodChance < 0) tempFoodChance = 0;
-                    if(tempToolsChance < 0) tempToolsChance = 0;
                     if(tempSpecialChance < 0) tempSpecialChance = 1;
 
                     //System.out.println(tempWeaponsChance + " " + tempArmorChance + " " + tempUtilChance);
 
                     //get category and quality
-                    int categoryValue = random.nextInt((tempWeaponsChance + tempArmorChance + tempFoodChance + tempToolsChance + tempSpecialChance));
+                    int categoryValue = random.nextInt((tempWeaponsChance + tempArmorChance + tempFoodChance + tempSpecialChance));
                     //System.out.println(categoryValue);
                     int quality = random.nextInt(15);
                     Chests.ItemCategory category = Chests.ItemCategory.WEAPONS;
@@ -97,10 +92,7 @@ public class SGChests {
                     } else if(categoryValue < (tempWeaponsChance + tempArmorChance + tempFoodChance)) {
                         category = Chests.ItemCategory.FOOD;
                         tempFoodChance -= foodDropoff;
-                    } else if(categoryValue < (tempWeaponsChance + tempArmorChance + tempFoodChance + tempToolsChance)) {
-                        category = Chests.ItemCategory.TOOLS;
-                        tempToolsChance -= toolsDropoff;
-                    } else if(categoryValue < (tempWeaponsChance + tempArmorChance + tempFoodChance + tempToolsChance + tempSpecialChance)) {
+                    } else if(categoryValue < (tempWeaponsChance + tempArmorChance + tempFoodChance + tempSpecialChance)) {
                         category = Chests.ItemCategory.SPECIAL;
                         tempSpecialChance -= specialDropoff;
                     }
