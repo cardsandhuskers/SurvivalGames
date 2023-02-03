@@ -1,6 +1,7 @@
 package io.github.cardsandhuskers.survivalgames.listeners;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,6 +18,7 @@ public class PlayerMoveListener implements Listener {
     public void onPlayerMove(PlayerMoveEvent e) {
         if(SurvivalGames.gameType == SurvivalGames.GameType.SKYWARS) {
             if(e.getPlayer().getLocation().getY() <= 0) {
+                if(e.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
                 playerDamageListener.onPlayerDeath(e.getPlayer());
                 Player p = e.getPlayer();
                 Location l = p.getLocation();

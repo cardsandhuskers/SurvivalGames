@@ -16,6 +16,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.*;
+import ru.xezard.glow.data.glow.Glow;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,11 +31,9 @@ public class GameStageHandler {
     private SurvivalGames plugin;
     private Chests chests;
     private Border worldBorder;
-    private Countdown gameTimer;
-    private Countdown restockTimer;
-    private Countdown deathmatchTimer;
-    private Countdown preDeathmatch;
+    private Countdown gameTimer, restockTimer, deathmatchTimer, preDeathmatch;
     private AttackerTimersHandler attackerTimersHandler;
+    private boolean deathMatchStarted = false;
     ArrayList<Team> teamList;
     ArrayList<PlayerTracker> trackerList;
     public GameStageHandler(SurvivalGames plugin, Chests chests, Border worldBorder, ArrayList<Team> teamList, AttackerTimersHandler attackerTimersHandler, ArrayList<PlayerTracker> trackerList) {
@@ -79,6 +79,23 @@ public class GameStageHandler {
         if(gameType == GameType.SURVIVAL_GAMES) {
             gracePeriodTimer();
         }
+
+
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        Scoreboard scoreboard = manager.getMainScoreboard();
+
+        if(scoreboard.getObjective("health") != null) {
+            scoreboard.getObjective("health").unregister();
+        }
+
+        Objective objective = scoreboard.registerNewObjective("health", Criterias.HEALTH, ChatColor.DARK_RED + "❤");
+        objective.setDisplaySlot(DisplaySlot.BELOW_NAME);
+        for(Player p:Bukkit.getOnlinePlayers()) {
+            p.setScoreboard(scoreboard);
+            objective.getScore(p.getDisplayName()).setScore(20);
+        }
+
+        setGlow();
     }
 
     public void endGame() {
@@ -223,7 +240,8 @@ public class GameStageHandler {
      * Begins the process of deathmatch
      */
     public void startDeathmatch() {
-
+        if(deathMatchStarted) return;
+        deathMatchStarted = true;
         int totalSeconds = plugin.getConfig().getInt(gameType + ".PreDeathmatchTime");
         preDeathmatch = new Countdown((JavaPlugin) plugin,
 
@@ -265,7 +283,7 @@ public class GameStageHandler {
     }
 
     /**
-     * Deathmatch timer, runs after the conclusion of the game timer
+     * Deathmatch prep timer, runs after the conclusion of the game timer
      */
     private void deathmatchPrepTimer() {
 //should be 15 seconds
@@ -322,13 +340,12 @@ public class GameStageHandler {
     }
 
     /**
-     * Deathmatch timer, runs after the conclusion of the game timer
+     * Deathmatch timer, runs after the conclusion of the deathmatch prep timer
      */
     private void deathmatchTimer() {
         //should be 120 seconds
         int totalSeconds = plugin.getConfig().getInt(gameType + ".DeathmatchTime");
         deathmatchTimer = new Countdown((JavaPlugin)plugin,
-
                 totalSeconds,
                 //Timer Start
                 () -> {
@@ -391,6 +408,24 @@ public class GameStageHandler {
             counter = spots.remove();
         }
     }
+
+    public void setGlow() {
+
+        for(Player p:Bukkit.getOnlinePlayers()) {
+            if(handler.getPlayerTeam(p) == null) continue;
+
+            Glow glow = Glow.builder()
+                    .color(handler.getPlayerTeam(p).getChatColor())
+                    .name(p.getDisplayName())
+                    .build();
+
+            glow.addHolders(p);
+            for(Player player:handler.getPlayerTeam(p).getOnlinePlayers()) {
+                if(!p.equals(player)) glow.display(player);
+            }
+        }
+    }
+
 
     /**
      * updates the glass boxes around the spawn points

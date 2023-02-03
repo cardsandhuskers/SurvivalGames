@@ -10,6 +10,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.xezard.glow.data.glow.manager.GlowsManager;
 
 import java.util.*;
 
@@ -214,16 +215,16 @@ public class GameEndHandler {
             }
         }
 
+
+        GlowsManager.getInstance().clear();
+
+        Bukkit.getScoreboardManager().getMainScoreboard().getObjective("health").unregister();
+
         HandlerList.unregisterAll(plugin);
         if (gameType == GameType.SKYWARS && gameNumber == 1) {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (p.isOp()) {
-                    gameNumber++;
-                    StartGameCommand startGameCommand = new StartGameCommand(plugin);
-                    startGameCommand.startGame();
-                    break;
-                }
-            }
+            gameNumber++;
+            StartGameCommand startGameCommand = new StartGameCommand(plugin);
+            startGameCommand.startGame();
         } else {
             gameNumber = 1;
             Location lobby = plugin.getConfig().getLocation("Lobby");

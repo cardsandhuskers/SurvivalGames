@@ -153,6 +153,20 @@ public class SkywarsChests {
                     usedLocations.add(slot);
                     //System.out.println("used locations " + usedLocations);
                     chestInv.setItem(slot, item);
+
+                    if(item.getType()==Material.BOW || item.getType() == Material.CROSSBOW) {
+                        int quantity;
+                        if(isIsland) quantity = 16;
+                        else quantity = 48;
+
+                        slot = random.nextInt(27);
+                        while (usedLocations != null && usedLocations.contains(slot)) {
+                            slot = random.nextInt(27);
+                        }
+                        usedLocations.add(slot);
+                        chestInv.setItem(slot, new ItemStack(Material.ARROW, quantity));
+                        i++;
+                    }
                 }
             }
         }
