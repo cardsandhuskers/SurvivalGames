@@ -34,6 +34,6 @@ note: GameType refers to either SURVIVAL_GAMES or SKYWARS, this lets you choose 
 - saves a schematic of the arena, which is the area bounded by the pos1 and pos2
 
 # Dependencies:
-PlaceholderAPI for scoreboard placeholders
-Teams Plugin (https://github.com/cardsandhuskers/TeamsPlugin)
-XGlow (https://github.com/Xezard/XGlow)
+- PlaceholderAPI for scoreboard placeholders
+- Teams Plugin (https://github.com/cardsandhuskers/TeamsPlugin)
+- XGlow (https://github.com/Xezard/XGlow)
