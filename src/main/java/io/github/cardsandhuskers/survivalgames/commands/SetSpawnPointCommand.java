@@ -29,7 +29,7 @@ public class SetSpawnPointCommand implements CommandExecutor {
 
                 plugin.getConfig().set(game + ".spawnPoint", location);
                 plugin.saveConfig();
-                p.sendMessage("Spawn point set at " + location.toString());
+                p.sendMessage("Spawn point set at " + location);
                 return true;
             } else {
                 return false;

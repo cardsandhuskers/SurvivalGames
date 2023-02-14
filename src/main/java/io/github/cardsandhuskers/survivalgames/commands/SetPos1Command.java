@@ -30,7 +30,7 @@ public class SetPos1Command implements CommandExecutor {
 
                 plugin.getConfig().set(game + ".pos1", location);
                 plugin.saveConfig();
-                p.sendMessage(game + " Location 1 Set at: " + location.toString());
+                p.sendMessage(game + " Location 1 Set at: " + location);
             } else {
                 return false;
             }

@@ -15,6 +15,13 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Sets the location of a team spawn box at the player's location.
+ * usage /setsgspawnbox [number] [GameType]
+ * where GameType is SKYWARS or SURVIVAL_GAMES
+ * @version 1.0
+ * @author cardsandhuskers
+ */
 public class SetTeamSpawnCommand implements CommandExecutor {
     SurvivalGames plugin;
     private SurvivalGames.GameType game;
@@ -29,15 +36,17 @@ public class SetTeamSpawnCommand implements CommandExecutor {
             if(args.length > 1) {
                 try {
                     game = SurvivalGames.GameType.valueOf(args[1].toUpperCase());
-
+                } catch(Exception e) {
+                    p.sendMessage(ChatColor.RED + "ERROR: game must be SKYWARS or SURVIVAL_GAMES");
+                } try {
                     int team = Integer.parseInt(args[0]);
                     saveLocation(p.getLocation(), team);
                     p.sendMessage("Team " + team + " saved at: " + p.getLocation());
                 } catch(Exception e) {
-                    p.sendMessage(ChatColor.RED + "ERROR: Argument must be an integer");
+                    p.sendMessage(ChatColor.RED + "ERROR: Team must be an integer");
                 }
             } else {
-                p.sendMessage(ChatColor.RED + "ERROR: Team Must be Specified");
+                p.sendMessage(ChatColor.RED + "ERROR: Must Specify team and GameType");
             }
         } else if (sender instanceof Player p) {
             p.sendMessage(ChatColor.RED + "You do not have permission.");

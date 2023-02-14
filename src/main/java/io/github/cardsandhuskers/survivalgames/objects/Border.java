@@ -12,7 +12,7 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameType;
 public class Border {
     public static int borderSize = 0;
     private WorldBorder worldBorder;
-    private SurvivalGames plugin;
+    private final SurvivalGames plugin;
 
     public Border(SurvivalGames plugin) {
         this.plugin = plugin;
@@ -20,22 +20,24 @@ public class Border {
 
     /**
      * Initializes a worldborder the size of the arena
-     * @param x coordinate of center
-     * @param z coordinate of center
+     * @param x X coordinate of center
+     * @param z X coordinate of center
      */
     public void buildWorldBorder(int x, int z) {
-        Location l = plugin.getConfig().getLocation(gameType + ".pos1");
-        worldBorder = Bukkit.getWorld(l.getWorld().getUID()).getWorldBorder();
+        Location l1 = plugin.getConfig().getLocation(gameType + ".pos1");
+        Location l2 = plugin.getConfig().getLocation(gameType + ".pos2");
+
+        worldBorder = Bukkit.getWorld(l1.getWorld().getUID()).getWorldBorder();
         worldBorder.setCenter(x, z);
 
-        worldBorder.setSize(Math.abs(l.getX() * 2));
+        worldBorder.setSize(Math.abs(l1.getX()) + Math.abs(l2.getX()));
         worldBorder.setDamageBuffer(0);
     }
 
     /**
      * Resizes the worldborder
-     * @param size
-     * @param time
+     * @param size end size of border
+     * @param time time for shrink
      */
     public void shrinkWorldBorder(int size, int time) {
         worldBorder.setSize(size, time);
@@ -44,10 +46,10 @@ public class Border {
 
     /**
      * updates a worldborder size variable every second
-     * @param time
+     * @param time to keep running the update for
      */
     private void updateBorderSize(int time) {
-        Countdown timer = new Countdown((JavaPlugin)plugin,
+        Countdown timer = new Countdown(plugin,
 
                 time,
                 //Timer Start

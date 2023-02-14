@@ -14,8 +14,8 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 
 public class PlayerJoinListener implements Listener {
 
-    private PlayerDeathHandler playerDeathHandler;
-    private SurvivalGames plugin;
+    private final PlayerDeathHandler playerDeathHandler;
+    private final SurvivalGames plugin;
 
     public PlayerJoinListener(PlayerDeathHandler playerDeathHandler, SurvivalGames plugin) {
         this.plugin = plugin;

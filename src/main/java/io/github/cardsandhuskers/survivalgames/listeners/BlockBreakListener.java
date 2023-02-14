@@ -23,7 +23,7 @@ public class BlockBreakListener implements Listener {
             }
         }
         if(gameType == SurvivalGames.GameType.SKYWARS) {
-            if(e.getBlock().getY() >= 120) {
+            if(e.getBlock().getY() >= 140) {
                 e.setCancelled(true);
             }
             if(gameState != SurvivalGames.State.GAME_IN_PROGRESS) {

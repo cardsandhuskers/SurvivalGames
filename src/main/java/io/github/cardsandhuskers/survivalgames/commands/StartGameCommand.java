@@ -28,7 +28,7 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 import static org.bukkit.Bukkit.getServer;
 
 public class StartGameCommand implements CommandExecutor {
-    private SurvivalGames plugin;
+    private final SurvivalGames plugin;
     private Chests chests;
     private GameStageHandler gameStageHandler;
     private PlayerDeathHandler playerDeathHandler;
@@ -127,14 +127,14 @@ public class StartGameCommand implements CommandExecutor {
             }
         }
         Border worldBorder = new Border(plugin);
-        if(gameType == GameType.SURVIVAL_GAMES) {
-            worldBorder.buildWorldBorder(0, -2);
-        }
-        if(gameType == GameType.SKYWARS) {
-            //TODO CHANGE COORDINATES BASED ON CENTER
-            //Skywars may not need a worldborder, not sure yet.
-            worldBorder.buildWorldBorder(0, 0);
-        }
+
+        Location pos1 = plugin.getConfig().getLocation(gameType + ".pos1");
+        Location pos2 = plugin.getConfig().getLocation(gameType + ".pos2");
+        int centerX = (int)(pos1.getX() + pos2.getX())/2;
+        int centerZ = (int)(pos1.getZ() + pos2.getZ())/2;
+
+        worldBorder.buildWorldBorder(centerX, centerZ);
+
 
         HashMap<Player, Player> storedAttackers = new HashMap<>();
         HashMap<Player, Integer> attackerTimers = new HashMap<>();
@@ -152,7 +152,7 @@ public class StartGameCommand implements CommandExecutor {
         //attacked, attacker (an attacked player can only have 1 attacker, vise versa is not true)
 
         PlayerDamageListener playerDamageListener = new PlayerDamageListener(playerDeathHandler, storedAttackers);
-        getServer().getPluginManager().registerEvents(new PlayerAttackListener(playerDeathHandler, storedAttackers, attackerTimers, playerDamageListener, plugin), plugin);
+        getServer().getPluginManager().registerEvents(new PlayerAttackListener(playerDeathHandler, storedAttackers, attackerTimers, plugin), plugin);
         getServer().getPluginManager().registerEvents(new BlockPlaceListener(plugin), plugin);
         getServer().getPluginManager().registerEvents(new BlockBreakListener(), plugin);
         getServer().getPluginManager().registerEvents(new ItemClickListener(), plugin);
@@ -163,10 +163,14 @@ public class StartGameCommand implements CommandExecutor {
         getServer().getPluginManager().registerEvents(new PlayerMoveListener(playerDamageListener), plugin);
         getServer().getPluginManager().registerEvents(new PearlThrowListener(), plugin);
 
-        if(gameType == GameType.SKYWARS) {
+        HashMap<Player, Location> playerDeathLocationMap = new HashMap<>();
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(plugin, playerDeathLocationMap, storedAttackers, playerDeathHandler), plugin);
+        getServer().getPluginManager().registerEvents(new PlayerRespawnListener(plugin, playerDeathLocationMap), plugin);
+
+        //if(gameType == GameType.SKYWARS) {
             ResetArenaCommand resetArenaCommand = new ResetArenaCommand(plugin);
-            resetArenaCommand.resetArena(GameType.SKYWARS);
-        }
+            resetArenaCommand.resetArena(gameType);
+        //}
         pregameTimer();
     }
 
@@ -178,7 +182,7 @@ public class StartGameCommand implements CommandExecutor {
         } else {
             time = 30;
         }
-        Countdown timer = new Countdown((JavaPlugin)plugin,
+        Countdown timer = new Countdown(plugin,
                 time,
                 //Timer Start
                 () -> {
@@ -256,7 +260,7 @@ public class StartGameCommand implements CommandExecutor {
                             }
                         }
                     }
-                    if(t.getSecondsLeft() == 3) {
+                    if(t.getSecondsLeft() == 14) {
                         //fill the chests
                         chests.populateChests();
                     }

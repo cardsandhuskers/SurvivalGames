@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 
 public class ResetArenaCommand implements CommandExecutor {
-    private SurvivalGames plugin;
+    private final SurvivalGames plugin;
     public ResetArenaCommand(SurvivalGames plugin) {
         this.plugin = plugin;
     }
@@ -66,37 +66,37 @@ public class ResetArenaCommand implements CommandExecutor {
         if(game == SurvivalGames.GameType.SKYWARS) {
             delay = 7;
         } else {
-            delay = 20;
+            delay = 5;//20 is real
         }
 
 
         BukkitWorld weWorld = new BukkitWorld(plugin.getConfig().getLocation(game + ".pos1").getWorld());
-        for (int i = 1; i <= 27; i++) {
-            int finalI = i;
-            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                Clipboard clipboard;
-                File file = new File("plugins/SurvivalGames/"+ game + finalI + ".schem");
+        //for (int i = 1; i <= 27; i++) {
+            //int finalI = i;
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            Clipboard clipboard;
+            File file = new File("plugins/SurvivalGames/"+ game + ".schem");
 
-                ClipboardFormat format = ClipboardFormats.findByFile(file);
-                try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
-                    clipboard = reader.read();
+            ClipboardFormat format = ClipboardFormats.findByFile(file);
+            try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
+                clipboard = reader.read();
 
-                    try (EditSession editSession = WorldEdit.getInstance().newEditSession(weWorld)) {
-                        Operation operation = new ClipboardHolder(clipboard)
-                                .createPaste(editSession)
-                                .to(clipboard.getOrigin())
-                                // configure here
-                                .build();
-                        Operations.complete(operation);
+                try (EditSession editSession = WorldEdit.getInstance().newEditSession(weWorld)) {
+                    Operation operation = new ClipboardHolder(clipboard)
+                            .createPaste(editSession)
+                            .to(clipboard.getOrigin())
+                            // configure here
+                            .build();
+                    Operations.complete(operation);
 
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
-                if(finalI == 27) {
-                    Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "ARENA RESET COMPLETE");
-                }
-            }, delay * i);
-        }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            //if(finalI == 27) {
+                Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "ARENA RESET COMPLETE");
+            //}
+        });
+        //}
     }
 }

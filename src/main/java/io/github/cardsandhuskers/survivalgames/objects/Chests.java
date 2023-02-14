@@ -26,7 +26,7 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameType;
 public class Chests {
     private ArrayList<Block> chestList;
     private HashMap<ItemCategory, HashMap<Integer, ArrayList<ItemStack>>> itemMap;
-    private SurvivalGames plugin;
+    private final SurvivalGames plugin;
     public Chests(SurvivalGames plugin) throws IOException {
         this.plugin = plugin;
         getChests();
@@ -67,7 +67,7 @@ public class Chests {
     }
 
     /**
-     * Fills the hashmap with the loot table
+     * Fills the hashmap with all the items in the loot table based on category and level
      */
     private void buildItemLists() {
         itemMap = new HashMap<>();
@@ -210,9 +210,12 @@ public class Chests {
             }
             itemMap.put(category, innerMap);
         }
-
     }
 
+    /**
+     * Item Categories for both gamemodes.
+     * Skywars uses all, SG does not use blocks or tools
+     */
     public enum ItemCategory {
         WEAPONS,
         ARMOR,

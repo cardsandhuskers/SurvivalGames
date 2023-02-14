@@ -17,8 +17,8 @@ import java.util.*;
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 
 public class GameEndHandler {
-    private SurvivalGames plugin;
-    private ArrayList<Team> teamList;
+    private final SurvivalGames plugin;
+    private final ArrayList<Team> teamList;
 
     public GameEndHandler(SurvivalGames plugin, ArrayList<Team> teamList) {
         this.teamList = teamList;
@@ -31,7 +31,7 @@ public class GameEndHandler {
         if(gameType == GameType.SKYWARS && gameNumber == 1) totalSeconds = 10;
         else totalSeconds = plugin.getConfig().getInt(gameType + ".GameEndTime");
 
-        Countdown timer = new Countdown((JavaPlugin)plugin,
+        Countdown timer = new Countdown(plugin,
 
                 totalSeconds,
                 //Timer Start
@@ -71,8 +71,8 @@ public class GameEndHandler {
                     Location pos1 = plugin.getConfig().getLocation(gameType + ".pos1");
                     Location pos2 = plugin.getConfig().getLocation(gameType + ".pos2");
                     int y;
-                    if(gameType == GameType.SURVIVAL_GAMES) y = 30;
-                    else y = 80;
+                    if(gameType == GameType.SURVIVAL_GAMES) y = 69;
+                    else y = 105;
                     Location spawn = new Location(pos1.getWorld(), (pos1.getX() + pos2.getX())/2, y, (pos1.getZ() + pos2.getZ())/2);
 
                     Location l1 = new Location(spawn.getWorld(), spawn.getX() + 10, spawn.getY() + 5, spawn.getZ() + 10);
@@ -218,8 +218,11 @@ public class GameEndHandler {
 
         GlowsManager.getInstance().clear();
 
-        Bukkit.getScoreboardManager().getMainScoreboard().getObjective("health").unregister();
-
+        try {
+            Bukkit.getScoreboardManager().getMainScoreboard().getObjective("health").unregister();
+        } catch(Exception e) {
+            
+        }
         HandlerList.unregisterAll(plugin);
         if (gameType == GameType.SKYWARS && gameNumber == 1) {
             gameNumber++;

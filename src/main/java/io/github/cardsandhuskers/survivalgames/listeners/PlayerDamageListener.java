@@ -14,30 +14,41 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import java.util.HashMap;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
-import static io.github.cardsandhuskers.survivalgames.SurvivalGames.playerKills;
 
 public class PlayerDamageListener implements Listener {
     //Designed to listen for environment damage
     PlayerDeathHandler playerDeathHandler;
     HashMap<Player, Player> storedAttackers;
-    private SurvivalGames plugin = (SurvivalGames) Bukkit.getPluginManager().getPlugin("SurvivalGames");
+    private final SurvivalGames plugin = (SurvivalGames) Bukkit.getPluginManager().getPlugin("SurvivalGames");
     public PlayerDamageListener(PlayerDeathHandler playerDeathHandler, HashMap<Player, Player> storedAttackers) {
         this.storedAttackers = storedAttackers;
         this.playerDeathHandler = playerDeathHandler;
     }
 
+    /**
+     * this Listener does nothing
+     * @param e
+     */
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent e) {
+        /*
         if(e.getEntity() instanceof Player p) {
             EntityDamageEvent.DamageCause cause =  e.getCause();
             if(cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
-                if(p.getHealth() - e.getDamage() <= 0 && p.getGameMode() != GameMode.SPECTATOR) {
-                    e.setCancelled(true);
-                    onPlayerDeath(p);
-                }
+                //if(p.getHealth() - p.getLastDamage() <= 0 && p.getGameMode() != GameMode.SPECTATOR) {
+                //    e.setCancelled(true);
+                //    onPlayerDeath(p);
+                //}
             }
         }
+         */
     }
+
+    /**
+     * This player death is for a void death or disconnect death, as they're not "real" deaths
+     * This should be transplanted somewhere else (probably PlayerDeathHandler), this class doesn't need to exist
+     * @param p
+     */
     public void onPlayerDeath(Player p) {
         if(storedAttackers.get(p) != null) {
             Player attacker = storedAttackers.get(p);
@@ -85,5 +96,6 @@ public class PlayerDamageListener implements Listener {
         //p.sendMessage("Dead");
 
         playerDeathHandler.onPlayerDeath(p);
+        p.setGameMode(GameMode.SPECTATOR);
     }
 }

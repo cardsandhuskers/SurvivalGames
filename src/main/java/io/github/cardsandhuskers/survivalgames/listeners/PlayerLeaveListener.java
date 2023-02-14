@@ -14,7 +14,7 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameState;
 import static io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler.numPlayers;
 
 public class PlayerLeaveListener implements Listener {
-    private PlayerDamageListener playerDamageListener;
+    private final PlayerDamageListener playerDamageListener;
 
     public PlayerLeaveListener(PlayerDamageListener playerDamageListener) {
         this.playerDamageListener = playerDamageListener;

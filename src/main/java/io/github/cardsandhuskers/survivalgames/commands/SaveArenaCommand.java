@@ -137,8 +137,8 @@ public class SaveArenaCommand implements CommandExecutor {
             int z2 = getCoordinate(higherz, 'z');
 
 
-            int counter = 1;
-
+            //int counter = 1;
+/*
             for(int i = 1; i <= 3; i++) {
                 int x = x1 + (x2-x1) /3 * i;
                 int pastx = x1 + (x2 - x1) / 3 * (i - 1);
@@ -148,35 +148,35 @@ public class SaveArenaCommand implements CommandExecutor {
                     for (int k = 1; k <= 3; k++) {
                         int z = z1 + (z2 - z1) / 3 * k;
                         int pastz = z1 + (z2 - z1) / 3 * (k-1);
+*/              Bukkit.getScheduler().runTaskAsynchronously(plugin, ()-> {
+                    Location loc1 = new Location(plugin.getConfig().getLocation(game + ".pos1").getWorld(), x1, y1, z1);
+                    Location loc2 = new Location(plugin.getConfig().getLocation(game + ".pos1").getWorld(), x2, y2, z2);
 
-                        Location loc1 = new Location(plugin.getConfig().getLocation(game + ".pos1").getWorld(), pastx, pasty, pastz);
-                        Location loc2 = new Location(plugin.getConfig().getLocation(game + ".pos1").getWorld(), x, y, z);
+                    BlockVector3 vector1 = BukkitAdapter.asBlockVector(loc1);
+                    BlockVector3 vector2 = BukkitAdapter.asBlockVector(loc2);
 
-                        BlockVector3 vector1 = BukkitAdapter.asBlockVector(loc1);
-                        BlockVector3 vector2 = BukkitAdapter.asBlockVector(loc2);
+                    BukkitWorld weWorld = new BukkitWorld(world);
 
-                        BukkitWorld weWorld = new BukkitWorld(world);
+                    CuboidRegion region = new CuboidRegion(weWorld, vector1, vector2);
+                    BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+                    EditSession editSession = WorldEdit.getInstance().newEditSession(weWorld);
 
-                        CuboidRegion region = new CuboidRegion(weWorld, vector1, vector2);
-                        BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-                        EditSession editSession = WorldEdit.getInstance().newEditSession(weWorld);
+                    ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard, region.getMinimumPoint());
 
-                        ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard, region.getMinimumPoint());
-
-                        //COPIED to clip board
-                        File file = new File("plugins/SurvivalGames/" + game + counter + ".schem");
-                        try (ClipboardWriter writer = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(file))) {
-                            Operations.complete(forwardExtentCopy);
-                            writer.write(clipboard);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            return false;
-                        }
-                        counter++;
-                        editSession.close();
+                    //COPIED to clip board
+                    File file = new File("plugins/SurvivalGames/" + game + ".schem");
+                    try (ClipboardWriter writer = BuiltInClipboardFormat.FAST.getWriter(new FileOutputStream(file))) {
+                        Operations.complete(forwardExtentCopy);
+                        writer.write(clipboard);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                }
-            }
+                    //counter++;
+                    editSession.close();
+                });
+                    //}
+                //}
+            //}
             Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "ARENA SAVED!");
         return true;
         }

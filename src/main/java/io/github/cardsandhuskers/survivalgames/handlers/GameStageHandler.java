@@ -21,18 +21,16 @@ import ru.xezard.glow.data.glow.Glow;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 
 public class GameStageHandler {
-    private SurvivalGames plugin;
-    private Chests chests;
-    private Border worldBorder;
+    private final SurvivalGames plugin;
+    private final Chests chests;
+    private final Border worldBorder;
     private Countdown gameTimer, restockTimer, deathmatchTimer, preDeathmatch;
-    private AttackerTimersHandler attackerTimersHandler;
+    private final AttackerTimersHandler attackerTimersHandler;
     private boolean deathMatchStarted = false;
     ArrayList<Team> teamList;
     ArrayList<PlayerTracker> trackerList;
@@ -63,6 +61,12 @@ public class GameStageHandler {
                 }
             }
         }
+
+        World world = plugin.getConfig().getLocation(gameType + ".spawnPoint").getWorld();
+        world.setGameRule(GameRule.KEEP_INVENTORY, true);
+        world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
+
+
         for(Player p:Bukkit.getOnlinePlayers()) {
             if(handler.getPlayerTeam(p) == null) {
                 p.setGameMode(GameMode.SPECTATOR);
@@ -123,7 +127,7 @@ public class GameStageHandler {
     private void gameTimer() {
         //should be 720 seconds
         int totalSeconds = plugin.getConfig().getInt(gameType + ".GameTime");
-        gameTimer = new Countdown((JavaPlugin)plugin,
+        gameTimer = new Countdown(plugin,
 
                 totalSeconds,
                 //Timer Start
@@ -176,7 +180,7 @@ public class GameStageHandler {
      * Time before PVP is enabled, part of the main gameTimer
      */
     private void gracePeriodTimer() {
-        Countdown timer = new Countdown((JavaPlugin)plugin,
+        Countdown timer = new Countdown(plugin,
                 //should be 45
                 plugin.getConfig().getInt(gameType + ".GracePeriod"),
                 //Timer Start
@@ -208,7 +212,7 @@ public class GameStageHandler {
      * Timer until restock, part of the main gameTimer
      */
     private void restockTimer() {
-        restockTimer = new Countdown((JavaPlugin)plugin,
+        restockTimer = new Countdown(plugin,
                 //should be 420 (7mins)
                 plugin.getConfig().getInt(gameType + ".RestockTime"),
                 //Timer Start
@@ -243,7 +247,7 @@ public class GameStageHandler {
         if(deathMatchStarted) return;
         deathMatchStarted = true;
         int totalSeconds = plugin.getConfig().getInt(gameType + ".PreDeathmatchTime");
-        preDeathmatch = new Countdown((JavaPlugin) plugin,
+        preDeathmatch = new Countdown(plugin,
 
                 totalSeconds,
                 //Timer Start
@@ -288,7 +292,7 @@ public class GameStageHandler {
     private void deathmatchPrepTimer() {
 //should be 15 seconds
         int totalSeconds = plugin.getConfig().getInt(gameType + ".DeathmatchPrepTime");
-        Countdown timer = new Countdown((JavaPlugin) plugin,
+        Countdown timer = new Countdown(plugin,
 
                 totalSeconds,
                 //Timer Start
@@ -345,7 +349,7 @@ public class GameStageHandler {
     private void deathmatchTimer() {
         //should be 120 seconds
         int totalSeconds = plugin.getConfig().getInt(gameType + ".DeathmatchTime");
-        deathmatchTimer = new Countdown((JavaPlugin)plugin,
+        deathmatchTimer = new Countdown(plugin,
                 totalSeconds,
                 //Timer Start
                 () -> {
@@ -397,11 +401,15 @@ public class GameStageHandler {
         spots.add(12);
         spots.add(6);
 
+        ArrayList<Team> randomTeamList = (ArrayList<Team>) teamList.clone();
+        Collections.shuffle(randomTeamList);
+
+
         int counter = spots.remove();
         int index = 0;
         while(arenaFileConfig.get("teamSpawn." + counter) != null && index < teamList.size()) {
             Location spawn = arenaFileConfig.getLocation("teamSpawn." + counter);
-            for(Player p: teamList.get(index).getOnlinePlayers()) {
+            for(Player p: randomTeamList.get(index).getOnlinePlayers()) {
                 p.teleport(spawn);
             }
             index++;
@@ -448,20 +456,15 @@ public class GameStageHandler {
                 //loop 3 times to handle the y
                 for (int y = 0; y <= 2; y++) {
                     Location loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
-                    loc.setX(loc.getX() - 1);
+                    loc.setX(loc.getX() - 2);
                     Block b = loc.getBlock();
                     b.setType(mat);
 
-                    loc.setZ(loc.getZ() + 1);
-                    b = loc.getBlock();
-                    b.setType(mat);
-
-                    loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
                     loc.setZ(loc.getZ() - 1);
                     b = loc.getBlock();
                     b.setType(mat);
 
-                    loc.setX(loc.getX() + 1);
+                    loc.setZ(loc.getZ() + 2);
                     b = loc.getBlock();
                     b.setType(mat);
 
@@ -470,18 +473,41 @@ public class GameStageHandler {
                     b = loc.getBlock();
                     b.setType(mat);
 
-                    loc.setZ(loc.getZ() + 1);
+                    loc.setZ(loc.getZ() - 1);
                     b = loc.getBlock();
                     b.setType(mat);
+
+                    loc.setZ(loc.getZ() + 2);
+                    b = loc.getBlock();
+                    b.setType(mat);
+
 
                     loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
                     loc.setZ(loc.getZ() + 2);
                     b = loc.getBlock();
                     b.setType(mat);
 
-                    loc.setX(loc.getX() + 1);
+                    loc.setX(loc.getX() - 1);
                     b = loc.getBlock();
                     b.setType(mat);
+
+                    loc.setX(loc.getX() + 2);
+                    b = loc.getBlock();
+                    b.setType(mat);
+
+                    loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
+                    loc.setZ(loc.getZ() - 2);
+                    b = loc.getBlock();
+                    b.setType(mat);
+
+                    loc.setX(loc.getX() - 1);
+                    b = loc.getBlock();
+                    b.setType(mat);
+
+                    loc.setX(loc.getX() + 2);
+                    b = loc.getBlock();
+                    b.setType(mat);
+
                 }
             }
             if(gameType == GameType.SKYWARS) {

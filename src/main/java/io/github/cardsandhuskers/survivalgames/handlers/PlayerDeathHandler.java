@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 
 public class PlayerDeathHandler {
-    private ArrayList<Player> playerList;
-    private ArrayList<Team> teamList;
+    private final ArrayList<Player> playerList;
+    private final ArrayList<Team> teamList;
     public static int numTeams;
     public static int numPlayers;
     SurvivalGames plugin;
@@ -40,14 +40,11 @@ public class PlayerDeathHandler {
 
     public void onPlayerDeath(Player p) {
         Team t = t = handler.getPlayerTeam(p);
-        if(playerList.contains(p)) {
-            playerList.remove(p);
-
-        }
+        playerList.remove(p);
         boolean found = false;
         for(Player player:playerList) {
             Team team = handler.getPlayerTeam(player);
-            if(team != null && t != null && team.equals(t)) {
+            if(team != null && team.equals(t)) {
                 found = true;
             }
         }
@@ -79,7 +76,7 @@ public class PlayerDeathHandler {
         }
 
         playerInv.clear();
-        p.setGameMode(GameMode.SPECTATOR);
+        //p.setGameMode(GameMode.SPECTATOR);
         //give survival points to everyone alive
         for(Player player:playerList) {
             handler.getPlayerTeam(player).addTempPoints(player, plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier);
@@ -87,8 +84,7 @@ public class PlayerDeathHandler {
         }
     }
     public boolean isPlayerAlive(Player p) {
-        if(playerList.contains(p)) return true;
-        return false;
+        return playerList.contains(p);
         /*
         for(Player player:playerList) {
             if(p.equals(player)) {

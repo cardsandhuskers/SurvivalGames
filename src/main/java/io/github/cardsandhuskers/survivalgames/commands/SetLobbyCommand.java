@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class SetLobbyCommand implements CommandExecutor {
-    private SurvivalGames plugin;
+    private final SurvivalGames plugin;
 
     public SetLobbyCommand(SurvivalGames plugin) {
         this.plugin = plugin;

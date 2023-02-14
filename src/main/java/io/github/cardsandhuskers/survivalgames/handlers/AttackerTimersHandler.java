@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class AttackerTimersHandler implements Runnable{
-    private SurvivalGames plugin;
-    private HashMap<Player, Player> storedAttackers;
-    private HashMap<Player, Integer> attackerTimers;
+    private final SurvivalGames plugin;
+    private final HashMap<Player, Player> storedAttackers;
+    private final HashMap<Player, Integer> attackerTimers;
     // Our scheduled task's assigned id, needed for canceling
     private Integer assignedTaskId;
 
