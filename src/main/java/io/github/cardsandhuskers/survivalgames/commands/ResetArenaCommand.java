@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 
 public class ResetArenaCommand implements CommandExecutor {
     private final SurvivalGames plugin;
@@ -62,20 +63,18 @@ public class ResetArenaCommand implements CommandExecutor {
     }
 
     public void resetArena(SurvivalGames.GameType game) {
-        int delay;
-        if(game == SurvivalGames.GameType.SKYWARS) {
-            delay = 7;
-        } else {
-            delay = 5;//20 is real
-        }
-
 
         BukkitWorld weWorld = new BukkitWorld(plugin.getConfig().getLocation(game + ".pos1").getWorld());
-        //for (int i = 1; i <= 27; i++) {
-            //int finalI = i;
+
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Clipboard clipboard;
+
             File file = new File("plugins/SurvivalGames/"+ game + ".schem");
+            if (!file.exists()) {
+                plugin.getLogger().warning("Arena Schematic does not exist! Cannot build arena until it is saved.");
+                return;
+            }
+
 
             ClipboardFormat format = ClipboardFormats.findByFile(file);
             try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
@@ -93,10 +92,8 @@ public class ResetArenaCommand implements CommandExecutor {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            //if(finalI == 27) {
-                Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "ARENA RESET COMPLETE");
-            //}
+
+            Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "ARENA RESET COMPLETE");
         });
-        //}
     }
 }

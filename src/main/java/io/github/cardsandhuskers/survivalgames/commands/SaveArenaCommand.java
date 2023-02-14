@@ -93,17 +93,15 @@ public class SaveArenaCommand implements CommandExecutor {
             File arenaFile = new File(Bukkit.getServer().getPluginManager().getPlugin("SurvivalGames").getDataFolder(), game + ".yml");
             if (!arenaFile.exists()) {
                 try {
-                    System.out.println("MAKING FILE");
+                    plugin.getLogger().info("Creating File");
                     arenaFile.createNewFile();
                 } catch (IOException e) {
-                    System.out.println("ERROR CREATING FILE");
+                    plugin.getLogger().severe("Could not Create File! ");
+                    e.printStackTrace();
                 }
             }
             FileConfiguration arenaFileConfig = YamlConfiguration.loadConfiguration(arenaFile);
 
-
-            //System.out.println(blockMap);
-            //arenaFileConfig.set("chests", chestList);
             int index = 0;
 
             for (Location l : chestList) {
@@ -136,48 +134,33 @@ public class SaveArenaCommand implements CommandExecutor {
             int z1 = getCoordinate(lowerz, 'z');
             int z2 = getCoordinate(higherz, 'z');
 
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, ()-> {
+                Location loc1 = new Location(plugin.getConfig().getLocation(game + ".pos1").getWorld(), x1, y1, z1);
+                Location loc2 = new Location(plugin.getConfig().getLocation(game + ".pos1").getWorld(), x2, y2, z2);
 
-            //int counter = 1;
-/*
-            for(int i = 1; i <= 3; i++) {
-                int x = x1 + (x2-x1) /3 * i;
-                int pastx = x1 + (x2 - x1) / 3 * (i - 1);
-                for(int j = 1; j <= 3; j++) {
-                    int y = y1 + (y2-y1)/3 * j;
-                    int pasty = y1 + (y2 - y1) / 3 * (j-1);
-                    for (int k = 1; k <= 3; k++) {
-                        int z = z1 + (z2 - z1) / 3 * k;
-                        int pastz = z1 + (z2 - z1) / 3 * (k-1);
-*/              Bukkit.getScheduler().runTaskAsynchronously(plugin, ()-> {
-                    Location loc1 = new Location(plugin.getConfig().getLocation(game + ".pos1").getWorld(), x1, y1, z1);
-                    Location loc2 = new Location(plugin.getConfig().getLocation(game + ".pos1").getWorld(), x2, y2, z2);
+                BlockVector3 vector1 = BukkitAdapter.asBlockVector(loc1);
+                BlockVector3 vector2 = BukkitAdapter.asBlockVector(loc2);
 
-                    BlockVector3 vector1 = BukkitAdapter.asBlockVector(loc1);
-                    BlockVector3 vector2 = BukkitAdapter.asBlockVector(loc2);
+                BukkitWorld weWorld = new BukkitWorld(world);
 
-                    BukkitWorld weWorld = new BukkitWorld(world);
+                CuboidRegion region = new CuboidRegion(weWorld, vector1, vector2);
+                BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+                EditSession editSession = WorldEdit.getInstance().newEditSession(weWorld);
 
-                    CuboidRegion region = new CuboidRegion(weWorld, vector1, vector2);
-                    BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-                    EditSession editSession = WorldEdit.getInstance().newEditSession(weWorld);
+                ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard, region.getMinimumPoint());
 
-                    ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard, region.getMinimumPoint());
+                //COPIED to clip board
+                File file = new File("plugins/SurvivalGames/" + game + ".schem");
+                try (ClipboardWriter writer = BuiltInClipboardFormat.FAST.getWriter(new FileOutputStream(file))) {
+                    Operations.complete(forwardExtentCopy);
+                    writer.write(clipboard);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-                    //COPIED to clip board
-                    File file = new File("plugins/SurvivalGames/" + game + ".schem");
-                    try (ClipboardWriter writer = BuiltInClipboardFormat.FAST.getWriter(new FileOutputStream(file))) {
-                        Operations.complete(forwardExtentCopy);
-                        writer.write(clipboard);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    //counter++;
-                    editSession.close();
-                });
-                    //}
-                //}
-            //}
-            Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "ARENA SAVED!");
+                editSession.close();
+                Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "ARENA SAVED!");
+            });
         return true;
         }
         return false;

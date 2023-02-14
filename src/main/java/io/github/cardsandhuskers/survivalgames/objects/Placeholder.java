@@ -77,7 +77,6 @@ public class Placeholder extends PlaceholderExpansion {
             }
         }
 
-
         if(gameType == GameType.SKYWARS) {
             if (s.equalsIgnoreCase("timer")) {
                 int time;
