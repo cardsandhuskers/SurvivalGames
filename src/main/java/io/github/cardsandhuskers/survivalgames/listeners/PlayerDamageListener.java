@@ -31,7 +31,17 @@ public class PlayerDamageListener implements Listener {
      */
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent e) {
-        if(gameState != State.GRACE_PERIOD && gameState != State.GAME_IN_PROGRESS && gameState != State.DEATHMATCH) e.setCancelled(true);
+        /*
+        if(e.getEntity() instanceof Player p) {
+            EntityDamageEvent.DamageCause cause =  e.getCause();
+            if(cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+                //if(p.getHealth() - p.getLastDamage() <= 0 && p.getGameMode() != GameMode.SPECTATOR) {
+                //    e.setCancelled(true);
+                //    onPlayerDeath(p);
+                //}
+            }
+        }
+         */
     }
 
     /**
@@ -68,6 +78,7 @@ public class PlayerDamageListener implements Listener {
                     }
                 }
             }
+
         } else {
             for(Player player:Bukkit.getOnlinePlayers()) {
                 if(!player.equals(p)) {

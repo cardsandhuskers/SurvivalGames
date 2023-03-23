@@ -4,7 +4,7 @@ main: io.github.cardsandhuskers.survivalgames.SurvivalGames
 api-version: 1.19
 authors: [ cardsandhuskers ]
 description: survival games plugin
-depend: [PlaceholderAPI, Teams, XGlow, FastAsyncWorldEdit]
+depend: [PlaceholderAPI, Teams, XGlow]
 commands:
   setSGPos1:
     description: sets position 1 of the arena
@@ -30,4 +30,10 @@ commands:
   reloadSGArena:
     description: resets the SG arena
     usage: /<command> [SURVIVAL_GAMES or SKYWARS]
+  pauseSGTimer:
+    description: pauses the timer
+    usage: /<command>
+  cancelSG:
+    description: cancels the game
+    usage: /<command>
 

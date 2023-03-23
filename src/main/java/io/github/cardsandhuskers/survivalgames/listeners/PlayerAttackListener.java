@@ -2,6 +2,10 @@ package io.github.cardsandhuskers.survivalgames.listeners;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Sound;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -75,7 +79,15 @@ public class PlayerAttackListener implements Listener {
                 Snowball snowball = (Snowball) e.getDamager();
                 attacker = (Player) snowball.getShooter();
                 damage(attacker, attacked, e);
+
+            }else {
+                if(attacked.getHealth() - e.getDamage() <= 0 && attacked.getGameMode() != GameMode.SPECTATOR) {
+                    //e.setCancelled(true);
+                    //playerDamageListener.onPlayerDeath(attacked);
+                }
             }
+        } else {
+            //e.setCancelled(true);
         }
     }
 
@@ -95,6 +107,7 @@ public class PlayerAttackListener implements Listener {
                     //s is an attacked player
                     storedAttackers.put(attacked, attacker);
                     attackerTimers.put(attacked, 0);
+
                 }
             }
         } else {

@@ -5,6 +5,9 @@ import io.github.cardsandhuskers.survivalgames.commands.StartGameCommand;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import io.github.cardsandhuskers.teams.objects.Team;
 import io.github.cardsandhuskers.teams.objects.TempPointsHolder;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.HandlerList;
@@ -12,9 +15,14 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.xezard.glow.data.glow.manager.GlowsManager;
 
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
+import static io.github.cardsandhuskers.teams.Teams.handler;
+import static io.github.cardsandhuskers.teams.Teams.ppAPI;
 
 public class GameEndHandler {
     private final SurvivalGames plugin;
@@ -112,6 +120,13 @@ public class GameEndHandler {
 
                         }, 20L * i);
                     }
+                    //save kills and winning team
+                    try {
+                        savePoints(winner);
+                    } catch (IOException e) {
+                        plugin.getLogger().warning("Unable to Save Kills");
+                    }
+
                 },
 
                 //Timer End
@@ -220,9 +235,7 @@ public class GameEndHandler {
 
         try {
             Bukkit.getScoreboardManager().getMainScoreboard().getObjective("health").unregister();
-        } catch(Exception e) {
-            
-        }
+        } catch(Exception e) {}
         HandlerList.unregisterAll(plugin);
         if (gameType == GameType.SKYWARS && gameNumber == 1) {
             gameNumber++;
@@ -230,12 +243,59 @@ public class GameEndHandler {
             startGameCommand.startGame();
         } else {
             gameNumber = 1;
-            Location lobby = plugin.getConfig().getLocation("Lobby");
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                p.teleport(lobby);
-            }
+            try {
+                Location lobby = plugin.getConfig().getLocation("Lobby");
+                for (Player p : Bukkit.getOnlinePlayers()) p.teleport(lobby);
+            } catch (Exception e) {Bukkit.broadcastMessage("Lobby does not exist!");}
             //way to execute a command as console
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "startRound");
         }
+    }
+    public void savePoints(Team winner) throws IOException {
+        for(Player p:playerKills.keySet()) if(p != null) System.out.println(p.getDisplayName() + ": " + playerKills.get(p));
+        System.out.println("~~~~~~~~~~~~~~~");
+        System.out.println(winner.getTeamName());
+        for(Player p:winner.getOnlinePlayers()) System.out.println(p.getDisplayName());
+
+
+        FileWriter writer = new FileWriter("plugins/SurvivalGames/stats.csv", true);
+        FileReader reader = new FileReader("plugins/SurvivalGames/stats.csv");
+
+        String[] headers = {"Event", "Type", "Team", "Name", "Kills"};
+
+        CSVFormat.Builder builder = CSVFormat.Builder.create();
+        builder.setHeader(headers);
+        CSVFormat format = builder.build();
+
+        CSVParser parser = new CSVParser(reader, format);
+
+        if(!parser.getRecords().isEmpty()) {
+            format = CSVFormat.DEFAULT;
+        }
+
+        CSVPrinter printer = new CSVPrinter(writer, format);
+
+        int eventNum = Bukkit.getPluginManager().getPlugin("LobbyPlugin").getConfig().getInt("eventNum");
+        //printer.printRecord(currentGame);
+        for(Player p:playerKills.keySet()) {
+            if(p == null) continue;
+            if(handler.getPlayerTeam(p) == null) continue;
+            printer.printRecord(eventNum, gameType, handler.getPlayerTeam(p).getTeamName(), p.getDisplayName(), playerKills.get(p));
+        }
+        for(Player p: winner.getOnlinePlayers()) {
+            if(p == null) continue;
+            if(handler.getPlayerTeam(p) == null) continue;
+            printer.printRecord(eventNum, gameType, winner.getTeamName(), p.getDisplayName(), "WINNER-");
+        }
+        writer.close();
+        try {
+            plugin.statCalculator.calculateStats();
+        } catch (Exception e) {
+            StackTraceElement[] trace = e.getStackTrace();
+            String str = "";
+            for(StackTraceElement element:trace) str += element.toString() + "\n";
+            plugin.getLogger().severe("ERROR Calculating Stats!\n" + str);
+        }
+
     }
 }

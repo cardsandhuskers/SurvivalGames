@@ -29,7 +29,7 @@ public class GameStageHandler {
     private final SurvivalGames plugin;
     private final Chests chests;
     private final Border worldBorder;
-    private Countdown gameTimer, restockTimer, deathmatchTimer, preDeathmatch;
+    private Countdown gameTimer, restockTimer, deathmatchTimer, preDeathmatch, deathmatchPrepTimer, gracePeriodTimer;
     private final AttackerTimersHandler attackerTimersHandler;
     private boolean deathMatchStarted = false;
     ArrayList<Team> teamList;
@@ -65,6 +65,9 @@ public class GameStageHandler {
         World world = plugin.getConfig().getLocation(gameType + ".spawnPoint").getWorld();
         world.setGameRule(GameRule.KEEP_INVENTORY, true);
         world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
+        world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+        world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+        world.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
 
 
         for(Player p:Bukkit.getOnlinePlayers()) {
@@ -103,24 +106,16 @@ public class GameStageHandler {
     }
 
     public void endGame() {
-        if(gameTimer != null) {
-            gameTimer.cancelTimer();
-        }
-        if(restockTimer != null) {
-            restockTimer.cancelTimer();
-        }
-        if(deathmatchTimer != null) {
-            deathmatchTimer.cancelTimer();
-        }
-        if(preDeathmatch != null) {
-            preDeathmatch.cancelTimer();
-        }
-        if(gameType == GameType.SURVIVAL_GAMES) {
-            worldBorder.shrinkWorldBorder(50, 1);
-        }
-        if(gameType == GameType.SKYWARS) {
-            worldBorder.buildWorldBorder(0,0);
-        }
+        if(gracePeriodTimer != null) gracePeriodTimer.cancelTimer();
+        if(gameTimer != null) gameTimer.cancelTimer();
+        if(restockTimer != null) restockTimer.cancelTimer();
+        if(deathmatchTimer != null) deathmatchTimer.cancelTimer();
+        if(preDeathmatch != null) preDeathmatch.cancelTimer();
+        if(deathmatchPrepTimer != null) deathmatchPrepTimer.cancelTimer();
+
+        if(gameType == GameType.SURVIVAL_GAMES) worldBorder.shrinkWorldBorder(50, 1);
+        if(gameType == GameType.SKYWARS) worldBorder.buildWorldBorder(0,0);
+
         attackerTimersHandler.cancelOperation();
     }
 
@@ -180,7 +175,7 @@ public class GameStageHandler {
      * Time before PVP is enabled, part of the main gameTimer
      */
     private void gracePeriodTimer() {
-        Countdown timer = new Countdown(plugin,
+        gracePeriodTimer = new Countdown(plugin,
                 //should be 45
                 plugin.getConfig().getInt(gameType + ".GracePeriod"),
                 //Timer Start
@@ -205,7 +200,7 @@ public class GameStageHandler {
         );
 
         // Start scheduling, don't use the "run" method unless you want to skip a second
-        timer.scheduleTimer();
+        gracePeriodTimer.scheduleTimer();
     }
 
     /**
@@ -252,7 +247,7 @@ public class GameStageHandler {
                 totalSeconds,
                 //Timer Start
                 () -> {
-                    Bukkit.broadcastMessage(ChatColor.RED + "Deathmatch Starts in " + ChatColor.YELLOW + "20" + ChatColor.RED + "seconds!");
+                    Bukkit.broadcastMessage(ChatColor.RED + "Deathmatch Starts in " + ChatColor.YELLOW + totalSeconds + ChatColor.RED + "seconds!");
                 },
 
                 //Timer End
@@ -292,7 +287,7 @@ public class GameStageHandler {
     private void deathmatchPrepTimer() {
 //should be 15 seconds
         int totalSeconds = plugin.getConfig().getInt(gameType + ".DeathmatchPrepTime");
-        Countdown timer = new Countdown(plugin,
+        deathmatchPrepTimer = new Countdown(plugin,
 
                 totalSeconds,
                 //Timer Start
@@ -340,7 +335,7 @@ public class GameStageHandler {
                     }
                 }
         );
-        timer.scheduleTimer();
+        deathmatchPrepTimer.scheduleTimer();
     }
 
     /**

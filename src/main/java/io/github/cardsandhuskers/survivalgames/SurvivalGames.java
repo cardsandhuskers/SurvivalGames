@@ -2,6 +2,7 @@ package io.github.cardsandhuskers.survivalgames;
 
 import io.github.cardsandhuskers.survivalgames.commands.*;
 import io.github.cardsandhuskers.survivalgames.objects.Placeholder;
+import io.github.cardsandhuskers.survivalgames.objects.StatCalculator;
 import io.github.cardsandhuskers.teams.Teams;
 import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import org.bukkit.Bukkit;
@@ -20,9 +21,19 @@ public final class SurvivalGames extends JavaPlugin {
     public static int gameNumber = 1;
     public static HashMap<Player, Integer> playerKills;
     public static GameType gameType = GameType.SURVIVAL_GAMES;
+    public StatCalculator statCalculator;
     @Override
     public void onEnable() {
         // Plugin startup logic
+        statCalculator = new StatCalculator(this);
+        try {
+            statCalculator.calculateStats();
+        } catch (Exception e) {
+            StackTraceElement[] trace = e.getStackTrace();
+            String str = "";
+            for(StackTraceElement element:trace) str += element.toString() + "\n";
+            this.getLogger().severe("ERROR Calculating Stats!\n" + str);
+        }
 
         //Placeholder API validation
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -53,9 +64,12 @@ public final class SurvivalGames extends JavaPlugin {
         getCommand("saveSGArena").setExecutor(new SaveArenaCommand(this));
         getCommand("setSGSpawnPoint").setExecutor(new SetSpawnPointCommand(this));
         getCommand("setSGSpawnBox").setExecutor(new SetTeamSpawnCommand(this));
-        getCommand("startSurvivalGames").setExecutor(new StartGameCommand(this));
+        StartGameCommand startGameCommand = new StartGameCommand(this);
+        getCommand("startSurvivalGames").setExecutor(startGameCommand);
         getCommand("setLobby").setExecutor(new SetLobbyCommand(this));
         getCommand("reloadSGArena").setExecutor(new ResetArenaCommand(this));
+        getCommand("pauseSGTimer").setExecutor(new PauseTimerCommand(this, startGameCommand));
+        getCommand("cancelSG").setExecutor(new CancelGameCommand(this, startGameCommand));
 
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();

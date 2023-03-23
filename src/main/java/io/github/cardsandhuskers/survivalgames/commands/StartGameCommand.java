@@ -33,6 +33,7 @@ public class StartGameCommand implements CommandExecutor {
     private GameStageHandler gameStageHandler;
     private PlayerDeathHandler playerDeathHandler;
     private ArrayList<PlayerTracker> trackerList;
+    public Countdown pregameTimer;
     public StartGameCommand(SurvivalGames plugin) {
         this.plugin = plugin;
     }
@@ -82,6 +83,11 @@ public class StartGameCommand implements CommandExecutor {
     }
 
     public void startGame() {
+        if(handler.getNumTeams() < 2) {
+            Bukkit.broadcastMessage(ChatColor.RED + "ERROR: There must be at least 2 teams!");
+            return;
+        }
+
         playerKills = new HashMap<>();
         try {
             chests = new Chests(plugin);
@@ -182,7 +188,7 @@ public class StartGameCommand implements CommandExecutor {
         } else {
             time = 30;
         }
-        Countdown timer = new Countdown(plugin,
+        pregameTimer = new Countdown(plugin,
                 time,
                 //Timer Start
                 () -> {
@@ -268,7 +274,11 @@ public class StartGameCommand implements CommandExecutor {
         );
 
         // Start scheduling, don't use the "run" method unless you want to skip a second
-        timer.scheduleTimer();
+        pregameTimer.scheduleTimer();
+    }
+
+    public void cancelGame() {
+        gameStageHandler.endGame();
     }
 
 }
