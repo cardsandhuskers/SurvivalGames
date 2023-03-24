@@ -124,7 +124,10 @@ public class GameEndHandler {
                     try {
                         savePoints(winner);
                     } catch (IOException e) {
-                        plugin.getLogger().warning("Unable to Save Kills");
+                        StackTraceElement[] trace = e.getStackTrace();
+                        String str = "";
+                        for(StackTraceElement element:trace) str += element.toString() + "\n";
+                        plugin.getLogger().severe("ERROR Calculating Stats!\n" + str);
                     }
 
                 },
@@ -252,11 +255,6 @@ public class GameEndHandler {
         }
     }
     public void savePoints(Team winner) throws IOException {
-        for(Player p:playerKills.keySet()) if(p != null) System.out.println(p.getDisplayName() + ": " + playerKills.get(p));
-        System.out.println("~~~~~~~~~~~~~~~");
-        System.out.println(winner.getTeamName());
-        for(Player p:winner.getOnlinePlayers()) System.out.println(p.getDisplayName());
-
 
         FileWriter writer = new FileWriter("plugins/SurvivalGames/stats.csv", true);
         FileReader reader = new FileReader("plugins/SurvivalGames/stats.csv");
