@@ -37,3 +37,4 @@ note: GameType refers to either SURVIVAL_GAMES or SKYWARS, this lets you choose 
 - PlaceholderAPI for scoreboard placeholders
 - Teams Plugin (https://github.com/cardsandhuskers/TeamsPlugin)
 - XGlow (https://github.com/Xezard/XGlow)
+- FastAsyncWorldedit
