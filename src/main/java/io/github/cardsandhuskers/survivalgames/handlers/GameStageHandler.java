@@ -429,77 +429,71 @@ public class GameStageHandler {
         protocolManager.addPacketListener(new PacketAdapter(plugin, PacketType.Play.Server.ENTITY_METADATA, PacketType.Play.Server.NAMED_ENTITY_SPAWN) {
             @Override
             public void onPacketSending(PacketEvent event) {
-                System.out.println(event.getPlayer());
-
                 //event.getPlayer() is the player being sent the packet
-
+                System.out.println(event.getPlayer());
                 //this should be right, finds all players that the packet recipient should be seeing glow
-                ArrayList<Player> seeGlow = handler.getPlayerTeam(event.getPlayer()).getOnlinePlayers();
-                seeGlow.remove(event.getPlayer());
+                ArrayList<Player> isGlowing = handler.getPlayerTeam(event.getPlayer()).getOnlinePlayers();
+                isGlowing.remove(event.getPlayer());
 
-                for (Player player : Bukkit.getOnlinePlayers()) {
+                //for each player the recipient of the packet should see glowing
+                boolean found = false;
+                for (Player player:isGlowing) {
+                    //entityID is a unique identifier for each entity
 
-                    //if the player is in the list, then set player glowing in the packet
-                    if (seeGlow.contains(player)) {
-                        //entityID is a unique identifier for each entity
-
-                        //check if player is in the packet
-                        if (/*has a player with*/player.getEntityId() == event.getPacket().getIntegers().read(0)) {
-                            System.out.println("A: " + event.getPlayer().getDisplayName() + ": " + player.getEntityId());
-                            System.out.println("B: " + player.getDisplayName() + ": " + event.getPacket().getIntegers().read(0));
-
-                            //entityMetadata and EntitySpawn packets work differently
-                            if (event.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
-                                List<WrappedWatchableObject> watchableObjectList = event.getPacket().getWatchableCollectionModifier().read(0);
-                                for (WrappedWatchableObject metadata : watchableObjectList) {
-                                    if (metadata.getIndex() == 0) {
-                                        byte b = (byte) metadata.getValue();
-                                        b |= 0b01000000;
-                                        metadata.setValue(b);
-                                    }
-                                }
-                            }
-                            else {
-                                WrappedDataWatcher watcher = event.getPacket().getDataWatcherModifier().read(0);
-                                if (watcher.hasIndex(0)) {
-                                    byte b = watcher.getByte(0);
+                    //check if player is in the packet
+                    if (player.getEntityId() == event.getPacket().getIntegers().read(0)) {
+                        System.out.println("A: " + event.getPlayer().getDisplayName() + ": " + event.getPlayer().getEntityId());
+                        System.out.println("B: " + player.getDisplayName() + ": " + event.getPacket().getIntegers().read(0) + " || " + player.getEntityId());
+                        found = true;
+                        //entityMetadata and EntitySpawn packets work differently
+                        if (event.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
+                            List<WrappedWatchableObject> watchableObjectList = event.getPacket().getWatchableCollectionModifier().read(0);
+                            for (WrappedWatchableObject metadata : watchableObjectList) {
+                                if (metadata.getIndex() == 0) {
+                                    byte b = (byte) metadata.getValue();
                                     b |= 0b01000000;
-                                    watcher.setObject(0, b);
+                                    metadata.setValue(b);
                                 }
                             }
                         }
-                        //maybe an else force unglow ????
-
-                    } else {
-                        //entityID is a unique identifier for each entity
-
-                        //check if player is in the packet
-                        if (/*has a player with*/player.getEntityId() == event.getPacket().getIntegers().read(0)) {
-                            System.out.println("A: " + event.getPlayer().getDisplayName() + ": " + player.getEntityId());
-                            System.out.println("B: " + player.getDisplayName() + ": " + event.getPacket().getIntegers().read(0));
-
-                            //entityMetadata and EntitySpawn packets work differently
-                            if (event.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
-                                List<WrappedWatchableObject> watchableObjectList = event.getPacket().getWatchableCollectionModifier().read(0);
-                                for (WrappedWatchableObject metadata : watchableObjectList) {
-                                    if (metadata.getIndex() == 0) {
-                                        byte b = (byte) metadata.getValue();
-                                        b |= 0b01000000;
-                                        metadata.setValue(b);
-                                    }
-                                }
-                            }
-                            else {
-                                WrappedDataWatcher watcher = event.getPacket().getDataWatcherModifier().read(0);
-                                if (watcher.hasIndex(0)) {
-                                    byte b = watcher.getByte(0);
-                                    b &= ~(1 << 7);
-                                    watcher.setObject(0, b);
-                                }
+                        else {
+                            WrappedDataWatcher watcher = event.getPacket().getDataWatcherModifier().read(0);
+                            if (watcher.hasIndex(0)) {
+                                byte b = watcher.getByte(0);
+                                b |= 0b01000000;
+                                watcher.setObject(0, b);
                             }
                         }
-                        //maybe an else force unglow ????
+                        break;
+                    }
+                    //maybe an else force unglow ????
 
+                }
+                if(!found) {
+                    //maybe try to cancel the packet, even though it won't work because other packet info needs to get through
+                    System.out.println("NOT FOUND");
+                    //event.setCancelled(true);
+                    if (event.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
+                        List<WrappedWatchableObject> watchableObjectList = event.getPacket().getWatchableCollectionModifier().read(0);
+                        for (WrappedWatchableObject metadata : watchableObjectList) {
+                            if (metadata.getIndex() == 0) {
+                                byte b = (byte) metadata.getValue();
+                                System.out.println(b);
+                                System.out.println(b & ~(1<<6));
+                                b &= ~(1 << 6);
+                                //b = 0;
+                                metadata.setValue(b);
+                            }
+                        }
+                    }
+                    else {
+                        WrappedDataWatcher watcher = event.getPacket().getDataWatcherModifier().read(0);
+                        if (watcher.hasIndex(0)) {
+                            byte b = watcher.getByte(0);
+                            b &= ~(1 << 6);
+                            //b = 0;
+                            watcher.setObject(0, b);
+                        }
                     }
                 }
             }

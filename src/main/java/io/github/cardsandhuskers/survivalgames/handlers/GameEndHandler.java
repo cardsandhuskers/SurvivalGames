@@ -1,5 +1,6 @@
 package io.github.cardsandhuskers.survivalgames.handlers;
 
+import com.comphenix.protocol.ProtocolLibrary;
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.commands.StartGameCommand;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
@@ -38,6 +39,8 @@ public class GameEndHandler {
 
         if(gameType == GameType.SKYWARS && gameNumber == 1) totalSeconds = 10;
         else totalSeconds = plugin.getConfig().getInt(gameType + ".GameEndTime");
+
+        ProtocolLibrary.getProtocolManager().removePacketListeners(plugin);
 
         Countdown timer = new Countdown(plugin,
 
