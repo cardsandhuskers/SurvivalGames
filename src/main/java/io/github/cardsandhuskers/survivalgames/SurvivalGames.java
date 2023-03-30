@@ -1,5 +1,8 @@
 package io.github.cardsandhuskers.survivalgames;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketAdapter;
 import io.github.cardsandhuskers.survivalgames.commands.*;
 import io.github.cardsandhuskers.survivalgames.objects.Placeholder;
 import io.github.cardsandhuskers.survivalgames.objects.StatCalculator;

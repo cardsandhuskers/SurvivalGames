@@ -180,6 +180,18 @@ public class Chests {
                                 stackArray.add(enchantedBook);
                             }
                             break;
+                        case MUSHROOM_STEW:
+                            stack = new ItemStack(itemMat, value);
+                            ItemMeta stewMeta = stack.getItemMeta();
+                            stewMeta.setDisplayName("Speed Soup");
+                            stewMeta.setLore(Collections.singletonList("Gives 15 seconds of speed, plus health!"));
+
+
+                            stack.setItemMeta(stewMeta);
+
+                            stackArray.add(stack);
+
+                            break;
                         default:
                             stack = new ItemStack(itemMat, value);
                             ItemMeta itemMeta = stack.getItemMeta();

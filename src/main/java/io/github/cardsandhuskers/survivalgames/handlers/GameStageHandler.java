@@ -1,5 +1,14 @@
 package io.github.cardsandhuskers.survivalgames.handlers;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher;
+import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.objects.Border;
 import io.github.cardsandhuskers.survivalgames.objects.Chests;
@@ -412,21 +421,90 @@ public class GameStageHandler {
         }
     }
 
+    /**
+     * Makes players glow to their teammates
+     */
     public void setGlow() {
+        var protocolManager = ProtocolLibrary.getProtocolManager();
+        protocolManager.addPacketListener(new PacketAdapter(plugin, PacketType.Play.Server.ENTITY_METADATA, PacketType.Play.Server.NAMED_ENTITY_SPAWN) {
+            @Override
+            public void onPacketSending(PacketEvent event) {
+                System.out.println(event.getPlayer());
 
-        for(Player p:Bukkit.getOnlinePlayers()) {
-            if(handler.getPlayerTeam(p) == null) continue;
+                //event.getPlayer() is the player being sent the packet
 
-            Glow glow = Glow.builder()
-                    .color(handler.getPlayerTeam(p).getChatColor())
-                    .name(p.getDisplayName())
-                    .build();
+                //this should be right, finds all players that the packet recipient should be seeing glow
+                ArrayList<Player> seeGlow = handler.getPlayerTeam(event.getPlayer()).getOnlinePlayers();
+                seeGlow.remove(event.getPlayer());
 
-            glow.addHolders(p);
-            for(Player player:handler.getPlayerTeam(p).getOnlinePlayers()) {
-                if(!p.equals(player)) glow.display(player);
+                for (Player player : Bukkit.getOnlinePlayers()) {
+
+                    //if the player is in the list, then set player glowing in the packet
+                    if (seeGlow.contains(player)) {
+                        //entityID is a unique identifier for each entity
+
+                        //check if player is in the packet
+                        if (/*has a player with*/player.getEntityId() == event.getPacket().getIntegers().read(0)) {
+                            System.out.println("A: " + event.getPlayer().getDisplayName() + ": " + player.getEntityId());
+                            System.out.println("B: " + player.getDisplayName() + ": " + event.getPacket().getIntegers().read(0));
+
+                            //entityMetadata and EntitySpawn packets work differently
+                            if (event.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
+                                List<WrappedWatchableObject> watchableObjectList = event.getPacket().getWatchableCollectionModifier().read(0);
+                                for (WrappedWatchableObject metadata : watchableObjectList) {
+                                    if (metadata.getIndex() == 0) {
+                                        byte b = (byte) metadata.getValue();
+                                        b |= 0b01000000;
+                                        metadata.setValue(b);
+                                    }
+                                }
+                            }
+                            else {
+                                WrappedDataWatcher watcher = event.getPacket().getDataWatcherModifier().read(0);
+                                if (watcher.hasIndex(0)) {
+                                    byte b = watcher.getByte(0);
+                                    b |= 0b01000000;
+                                    watcher.setObject(0, b);
+                                }
+                            }
+                        }
+                        //maybe an else force unglow ????
+
+                    } else {
+                        //entityID is a unique identifier for each entity
+
+                        //check if player is in the packet
+                        if (/*has a player with*/player.getEntityId() == event.getPacket().getIntegers().read(0)) {
+                            System.out.println("A: " + event.getPlayer().getDisplayName() + ": " + player.getEntityId());
+                            System.out.println("B: " + player.getDisplayName() + ": " + event.getPacket().getIntegers().read(0));
+
+                            //entityMetadata and EntitySpawn packets work differently
+                            if (event.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
+                                List<WrappedWatchableObject> watchableObjectList = event.getPacket().getWatchableCollectionModifier().read(0);
+                                for (WrappedWatchableObject metadata : watchableObjectList) {
+                                    if (metadata.getIndex() == 0) {
+                                        byte b = (byte) metadata.getValue();
+                                        b |= 0b01000000;
+                                        metadata.setValue(b);
+                                    }
+                                }
+                            }
+                            else {
+                                WrappedDataWatcher watcher = event.getPacket().getDataWatcherModifier().read(0);
+                                if (watcher.hasIndex(0)) {
+                                    byte b = watcher.getByte(0);
+                                    b &= ~(1 << 7);
+                                    watcher.setObject(0, b);
+                                }
+                            }
+                        }
+                        //maybe an else force unglow ????
+
+                    }
+                }
             }
-        }
+        });
+
     }
 
 

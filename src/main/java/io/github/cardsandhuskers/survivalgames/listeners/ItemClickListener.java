@@ -23,7 +23,7 @@ public class ItemClickListener implements Listener {
 
             p.setSaturation(p.getSaturation() + 7);
             p.setFoodLevel(p.getFoodLevel() + 6);
-            PotionEffect speed = new PotionEffect(PotionEffectType.SPEED, 400, 1);
+            PotionEffect speed = new PotionEffect(PotionEffectType.SPEED, 300, 1);
             PotionEffect regen = new PotionEffect(PotionEffectType.REGENERATION, 100, 2);
             p.addPotionEffect(speed);
             p.addPotionEffect(regen);
