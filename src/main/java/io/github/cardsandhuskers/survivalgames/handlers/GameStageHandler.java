@@ -1,15 +1,7 @@
 package io.github.cardsandhuskers.survivalgames.handlers;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.WrappedDataWatcher;
-import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
+import io.github.cardsandhuskers.survivalgames.listeners.GlowPacketListener;
 import io.github.cardsandhuskers.survivalgames.objects.Border;
 import io.github.cardsandhuskers.survivalgames.objects.Chests;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
@@ -22,11 +14,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.*;
-import ru.xezard.glow.data.glow.Glow;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,6 +61,10 @@ public class GameStageHandler {
             }
         }
 
+        for(org.bukkit.scoreboard.Team t:Bukkit.getScoreboardManager().getMainScoreboard().getTeams()) {
+            t.setOption(org.bukkit.scoreboard.Team.Option.COLLISION_RULE, org.bukkit.scoreboard.Team.OptionStatus.ALWAYS);
+        }
+
         World world = plugin.getConfig().getLocation(gameType + ".spawnPoint").getWorld();
         world.setGameRule(GameRule.KEEP_INVENTORY, true);
         world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
@@ -111,7 +105,9 @@ public class GameStageHandler {
             objective.getScore(p.getDisplayName()).setScore(20);
         }
 
-        setGlow();
+        //initialize glowing
+        GlowPacketListener glowPacketListener = new GlowPacketListener(plugin);
+        glowPacketListener.addGlow();
     }
 
     public void endGame() {
@@ -422,88 +418,8 @@ public class GameStageHandler {
     }
 
     /**
-     * Makes players glow to their teammates
-     */
-    public void setGlow() {
-        var protocolManager = ProtocolLibrary.getProtocolManager();
-        protocolManager.addPacketListener(new PacketAdapter(plugin, PacketType.Play.Server.ENTITY_METADATA, PacketType.Play.Server.NAMED_ENTITY_SPAWN) {
-            @Override
-            public void onPacketSending(PacketEvent event) {
-                //event.getPlayer() is the player being sent the packet
-                System.out.println(event.getPlayer());
-                //this should be right, finds all players that the packet recipient should be seeing glow
-                ArrayList<Player> isGlowing = handler.getPlayerTeam(event.getPlayer()).getOnlinePlayers();
-                isGlowing.remove(event.getPlayer());
-
-                //for each player the recipient of the packet should see glowing
-                boolean found = false;
-                for (Player player:isGlowing) {
-                    //entityID is a unique identifier for each entity
-
-                    //check if player is in the packet
-                    if (player.getEntityId() == event.getPacket().getIntegers().read(0)) {
-                        System.out.println("A: " + event.getPlayer().getDisplayName() + ": " + event.getPlayer().getEntityId());
-                        System.out.println("B: " + player.getDisplayName() + ": " + event.getPacket().getIntegers().read(0) + " || " + player.getEntityId());
-                        found = true;
-                        //entityMetadata and EntitySpawn packets work differently
-                        if (event.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
-                            List<WrappedWatchableObject> watchableObjectList = event.getPacket().getWatchableCollectionModifier().read(0);
-                            for (WrappedWatchableObject metadata : watchableObjectList) {
-                                if (metadata.getIndex() == 0) {
-                                    byte b = (byte) metadata.getValue();
-                                    b |= 0b01000000;
-                                    metadata.setValue(b);
-                                }
-                            }
-                        }
-                        else {
-                            WrappedDataWatcher watcher = event.getPacket().getDataWatcherModifier().read(0);
-                            if (watcher.hasIndex(0)) {
-                                byte b = watcher.getByte(0);
-                                b |= 0b01000000;
-                                watcher.setObject(0, b);
-                            }
-                        }
-                        break;
-                    }
-                    //maybe an else force unglow ????
-
-                }
-                if(!found) {
-                    //maybe try to cancel the packet, even though it won't work because other packet info needs to get through
-                    System.out.println("NOT FOUND");
-                    //event.setCancelled(true);
-                    if (event.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
-                        List<WrappedWatchableObject> watchableObjectList = event.getPacket().getWatchableCollectionModifier().read(0);
-                        for (WrappedWatchableObject metadata : watchableObjectList) {
-                            if (metadata.getIndex() == 0) {
-                                byte b = (byte) metadata.getValue();
-                                System.out.println(b);
-                                System.out.println(b & ~(1<<6));
-                                b &= ~(1 << 6);
-                                //b = 0;
-                                metadata.setValue(b);
-                            }
-                        }
-                    }
-                    else {
-                        WrappedDataWatcher watcher = event.getPacket().getDataWatcherModifier().read(0);
-                        if (watcher.hasIndex(0)) {
-                            byte b = watcher.getByte(0);
-                            b &= ~(1 << 6);
-                            //b = 0;
-                            watcher.setObject(0, b);
-                        }
-                    }
-                }
-            }
-        });
-
-    }
-
-
-    /**
      * updates the glass boxes around the spawn points
+     * This needs to be better written (more compact)
      * @param mat
      * @throws IOException
      */

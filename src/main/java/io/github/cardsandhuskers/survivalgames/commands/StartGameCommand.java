@@ -28,12 +28,40 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 import static org.bukkit.Bukkit.getServer;
 
 public class StartGameCommand implements CommandExecutor {
-    private final SurvivalGames plugin;
+    private SurvivalGames plugin;
     private Chests chests;
     private GameStageHandler gameStageHandler;
     private PlayerDeathHandler playerDeathHandler;
     private ArrayList<PlayerTracker> trackerList;
     public Countdown pregameTimer;
+
+    /**
+     * All of the strings for the pregame information
+     */
+    private String SURVIVAL_GAMES_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------\n" +
+                                StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Survival Games", 30) +
+                                ChatColor.BLUE + "" + ChatColor.BOLD + "\nHow To Play:" +
+                                "\nThis iconic survival games map returns!" +
+                                "\nWork with your teammates to take down the other teams and be the last one standing!" +
+                                "\nThe game will start with a 45 second grace period where PvP is disabled." +
+                                "\nThe worldborder will shrink over time. Don't get caught outside it, you will die." +
+                                ChatColor.STRIKETHROUGH + "\n----------------------------------------",
+                    SKYWARS_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------\n" +
+                                StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Skywars", 30) +
+                                ChatColor.BLUE + "" + ChatColor.BOLD + "\nHow To Play:" +
+                                "\nThere will be 2 rounds of Skywars on the famous Hypixel map: Elven" +
+                                "\nWork with your teammates to take down the other teams and be the last one standing!" +
+                                "\nEach island has chests to get geared up, while the middle has many chests with even better loot!" +
+                                "\nBe careful not to fall off the edge! The void will kill you." +
+                                ChatColor.STRIKETHROUGH + "\n----------------------------------------",
+                    POINTS_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------" +
+                                ChatColor.GOLD + "" + ChatColor.BOLD + "\nHow is the game Scored:" +
+                                "\nFor winning: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".winPoints") * multiplier) + ChatColor.RESET + " points divided among the team members" +
+                                "\nFor Each Kill: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".killPoints") * multiplier) + ChatColor.RESET + " points" +
+                                "\nFor each player you outlive: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + " points" +
+                                ChatColor.STRIKETHROUGH + "\n----------------------------------------";
+
+
     public StartGameCommand(SurvivalGames plugin) {
         this.plugin = plugin;
     }
@@ -216,38 +244,13 @@ public class StartGameCommand implements CommandExecutor {
                     timeVar = t.getSecondsLeft();
                     if(gameNumber == 1) {
                         if (gameType == GameType.SURVIVAL_GAMES) {
-                            if (t.getSecondsLeft() == t.getTotalSeconds() - 1) {
-                                Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
-                                Bukkit.broadcastMessage(StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Survival Games", 30));
-                                Bukkit.broadcastMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "How To Play:");
-                                Bukkit.broadcastMessage("This iconic survival games map returns!" +
-                                        "\nWork with your teammates to take down the other teams and be the last one standing!" +
-                                        "\nThe game will start with a 45 second grace period where PvP is disabled." +
-                                        "\nThe worldborder will shrink over time. Don't get caught outside it, you will die.");
-                                Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
-                            }
+                            if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcastMessage(SURVIVAL_GAMES_DESCRIPTION);
                         }
                         if (gameType == GameType.SKYWARS) {
-                            if (t.getSecondsLeft() == t.getTotalSeconds() - 1) {
-                                Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
-                                Bukkit.broadcastMessage(StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Skywars", 30));
-                                Bukkit.broadcastMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "How To Play:");
-                                Bukkit.broadcastMessage("Welcome to Skywars!" +
-                                        "\nWork with your teammates to take down the other teams and be the last one standing!" +
-                                        "\nEach island has chests so you can get geared up before heading to the center to fight." +
-                                        "\nBe careful not to fall off the edge! The void will kill you.");
-                                Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
-                            }
+                            if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcastMessage(SKYWARS_DESCRIPTION);
                         }
 
-                        if (t.getSecondsLeft() == t.getTotalSeconds() - 11) {
-                            Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
-                            Bukkit.broadcastMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "How is the game Scored:");
-                            Bukkit.broadcastMessage("For winning: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".winPoints") * multiplier) + ChatColor.RESET + " points divided among the team members" +
-                                    "\nFor Each Kill: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".killPoints") * multiplier) + ChatColor.RESET + " points" +
-                                    "\nFor each player you outlive: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + " points");
-                            Bukkit.broadcastMessage(ChatColor.STRIKETHROUGH + "----------------------------------------");
-                        }
+                        if (t.getSecondsLeft() == t.getTotalSeconds() - 11) Bukkit.broadcastMessage(POINTS_DESCRIPTION);
                     }
 
                     if (t.getSecondsLeft() == 15) {
