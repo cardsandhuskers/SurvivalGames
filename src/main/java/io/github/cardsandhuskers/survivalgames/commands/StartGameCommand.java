@@ -38,32 +38,36 @@ public class StartGameCommand implements CommandExecutor {
     /**
      * All of the strings for the pregame information
      */
-    private String SURVIVAL_GAMES_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------\n" +
-                                StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Survival Games", 30) +
-                                ChatColor.BLUE + "" + ChatColor.BOLD + "\nHow To Play:" +
-                                "\nThis iconic survival games map returns!" +
-                                "\nWork with your teammates to take down the other teams and be the last one standing!" +
-                                "\nThe game will start with a 45 second grace period where PvP is disabled." +
-                                "\nThe worldborder will shrink over time. Don't get caught outside it, you will die." +
-                                ChatColor.STRIKETHROUGH + "\n----------------------------------------",
-                    SKYWARS_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------\n" +
-                                StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Skywars", 30) +
-                                ChatColor.BLUE + "" + ChatColor.BOLD + "\nHow To Play:" +
-                                "\nThere will be 2 rounds of Skywars on the famous Hypixel map: Elven" +
-                                "\nWork with your teammates to take down the other teams and be the last one standing!" +
-                                "\nEach island has chests to get geared up, while the middle has many chests with even better loot!" +
-                                "\nBe careful not to fall off the edge! The void will kill you." +
-                                ChatColor.STRIKETHROUGH + "\n----------------------------------------",
-                    POINTS_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------" +
-                                ChatColor.GOLD + "" + ChatColor.BOLD + "\nHow is the game Scored:" +
-                                "\nFor winning: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".winPoints") * multiplier) + ChatColor.RESET + " points divided among the team members" +
-                                "\nFor Each Kill: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".killPoints") * multiplier) + ChatColor.RESET + " points" +
-                                "\nFor each player you outlive: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + " points" +
-                                ChatColor.STRIKETHROUGH + "\n----------------------------------------";
+    private String SURVIVAL_GAMES_DESCRIPTION, SKYWARS_DESCRIPTION, POINTS_DESCRIPTION;
 
 
     public StartGameCommand(SurvivalGames plugin) {
         this.plugin = plugin;
+
+        SURVIVAL_GAMES_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------\n" + ChatColor.RESET +
+                StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Survival Games", 30) +
+                ChatColor.BLUE + "" + ChatColor.BOLD + "\nHow To Play:" +
+                ChatColor.RESET + "\nThis iconic survival games map returns!" +
+                "\nWork with your teammates to take down the other teams and be the last one standing!" +
+                "\nThe game will start with a 45 second grace period where PvP is disabled." +
+                "\nThe worldborder will shrink over time. Don't get caught outside it, you will die." +
+                ChatColor.STRIKETHROUGH + "\n----------------------------------------";
+        SKYWARS_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------\n" + ChatColor.RESET +
+                StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Skywars", 30) +
+                ChatColor.BLUE + "" + ChatColor.BOLD + "\nHow To Play:" +
+                ChatColor.RESET + "\nThere will be 2 rounds of Skywars on the famous Hypixel map: Elven" +
+                "\nWork with your teammates to take down the other teams and be the last one standing!" +
+                "\nEach island has chests to get geared up, while the middle has many chests with even better loot!" +
+                "\nBe careful not to fall off the edge! The void will kill you." +
+                ChatColor.STRIKETHROUGH + "\n----------------------------------------";
+        POINTS_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------" +
+                ChatColor.GOLD + "" + ChatColor.BOLD + "\nHow is the game Scored:" +
+                ChatColor.RESET + "\nFor winning: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".winPoints") * multiplier) + ChatColor.RESET + " points divided among the team members" +
+                "\nFor Each Kill: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".killPoints") * multiplier) + ChatColor.RESET + " points" +
+                "\nFor each player you outlive: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + " points" +
+                ChatColor.STRIKETHROUGH + "\n----------------------------------------";
+
+
     }
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {

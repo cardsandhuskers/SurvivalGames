@@ -61,7 +61,7 @@ public class PlayerDeathHandler {
         if(teamList.size() <= 1) {
             gameStageHandler.endGame();
             GameEndHandler gameEndHandler = new GameEndHandler(plugin, teamList);
-            gameEndHandler.gameEndTimer();
+            gameEndHandler.gameEndTimer(gameStageHandler.glowPacketListener);
 
         }
         Inventory playerInv = p.getInventory();

@@ -33,6 +33,7 @@ public class GameStageHandler {
     private boolean deathMatchStarted = false;
     ArrayList<Team> teamList;
     ArrayList<PlayerTracker> trackerList;
+    public GlowPacketListener glowPacketListener;
     public GameStageHandler(SurvivalGames plugin, Chests chests, Border worldBorder, ArrayList<Team> teamList, AttackerTimersHandler attackerTimersHandler, ArrayList<PlayerTracker> trackerList) {
         this.trackerList = trackerList;
         this.plugin = plugin;
@@ -94,20 +95,22 @@ public class GameStageHandler {
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard scoreboard = manager.getMainScoreboard();
 
-        if(scoreboard.getObjective("health") != null) {
-            scoreboard.getObjective("health").unregister();
-        }
+        if(scoreboard.getObjective("belowNameHP") != null) scoreboard.getObjective("belowNameHP").unregister();
+        if(scoreboard.getObjective("listHP") != null) scoreboard.getObjective("listHP").unregister();
 
-        Objective objective = scoreboard.registerNewObjective("health", Criterias.HEALTH, ChatColor.DARK_RED + "❤");
-        objective.setDisplaySlot(DisplaySlot.BELOW_NAME);
+        Objective belowNameHP = scoreboard.registerNewObjective("belowNameHP", Criterias.HEALTH, ChatColor.DARK_RED + "❤");
+        Objective listHP = scoreboard.registerNewObjective("listHP", Criterias.HEALTH, ChatColor.YELLOW + "");
+        belowNameHP.setDisplaySlot(DisplaySlot.BELOW_NAME);
+        listHP.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         for(Player p:Bukkit.getOnlinePlayers()) {
             p.setScoreboard(scoreboard);
-            objective.getScore(p.getDisplayName()).setScore(20);
+            belowNameHP.getScore(p.getDisplayName()).setScore(20);
+            listHP.getScore(p.getDisplayName()).setScore(20);
         }
 
         //initialize glowing
-        GlowPacketListener glowPacketListener = new GlowPacketListener(plugin);
-        glowPacketListener.addGlow();
+        glowPacketListener = new GlowPacketListener(plugin);
+        glowPacketListener.enableGlow();
     }
 
     public void endGame() {

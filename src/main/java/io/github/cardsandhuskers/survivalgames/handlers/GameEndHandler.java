@@ -3,6 +3,7 @@ package io.github.cardsandhuskers.survivalgames.handlers;
 import com.comphenix.protocol.ProtocolLibrary;
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.commands.StartGameCommand;
+import io.github.cardsandhuskers.survivalgames.listeners.GlowPacketListener;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import io.github.cardsandhuskers.teams.objects.Team;
 import io.github.cardsandhuskers.teams.objects.TempPointsHolder;
@@ -13,8 +14,6 @@ import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.plugin.java.JavaPlugin;
-import ru.xezard.glow.data.glow.manager.GlowsManager;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -23,7 +22,6 @@ import java.util.*;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 import static io.github.cardsandhuskers.teams.Teams.handler;
-import static io.github.cardsandhuskers.teams.Teams.ppAPI;
 
 public class GameEndHandler {
     private final SurvivalGames plugin;
@@ -34,13 +32,13 @@ public class GameEndHandler {
         this.plugin = plugin;
     }
 
-    public void gameEndTimer() {
+    public void gameEndTimer(GlowPacketListener glowPacketListener) {
         int totalSeconds;
 
         if(gameType == GameType.SKYWARS && gameNumber == 1) totalSeconds = 10;
         else totalSeconds = plugin.getConfig().getInt(gameType + ".GameEndTime");
 
-        ProtocolLibrary.getProtocolManager().removePacketListeners(plugin);
+        glowPacketListener.disableGlow();
 
         Countdown timer = new Countdown(plugin,
 
@@ -236,11 +234,9 @@ public class GameEndHandler {
             }
         }
 
-
-        GlowsManager.getInstance().clear();
-
         try {
-            Bukkit.getScoreboardManager().getMainScoreboard().getObjective("health").unregister();
+            Bukkit.getScoreboardManager().getMainScoreboard().getObjective("belowNameHP").unregister();
+            Bukkit.getScoreboardManager().getMainScoreboard().getObjective("listHP").unregister();
         } catch(Exception e) {}
         HandlerList.unregisterAll(plugin);
         if (gameType == GameType.SKYWARS && gameNumber == 1) {

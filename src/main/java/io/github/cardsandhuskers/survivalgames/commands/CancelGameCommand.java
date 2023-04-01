@@ -12,7 +12,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-import ru.xezard.glow.data.glow.manager.GlowsManager;
 
 import java.util.Collection;
 
@@ -53,9 +52,9 @@ public class CancelGameCommand implements CommandExecutor {
             if (e.getType() != EntityType.PLAYER) e.remove();
         }
 
-        GlowsManager.getInstance().clear();
         try {
-            Bukkit.getScoreboardManager().getMainScoreboard().getObjective("health").unregister();
+            Bukkit.getScoreboardManager().getMainScoreboard().getObjective("belowNameHP").unregister();
+            Bukkit.getScoreboardManager().getMainScoreboard().getObjective("listHP").unregister();
         } catch(Exception e) {}
         HandlerList.unregisterAll(plugin);
 
