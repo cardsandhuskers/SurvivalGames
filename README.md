@@ -2,7 +2,7 @@
 Minecraft survival games and skywars plugin for 1.19.x
 Survival Games follows standard rules, only breakable blocks are leaves.
 Skywars lets you break and place any and all blocks.
-Chest loot, game timers, and points can be edited in the config to let you edit them however you want.
+Chest loot, game timers, and points can be edited in the config to let you change them however you want.
 
 # Commands:
 note: GameType refers to either SURVIVAL_GAMES or SKYWARS, this lets you choose which game to execute the command for.
@@ -28,13 +28,13 @@ note: GameType refers to either SURVIVAL_GAMES or SKYWARS, this lets you choose 
 
 **/reloadsgarena [GameType]**
 - places in the saved schematic to regen the game map
-- this process happens automatically in skywars, but must be done manually in survival games due to the lag caused by the larger map (I hope to fix this soon)
+- this process happens automatically at the beginning of both games
 
 **/savesgarena [GameType]**
 - saves a schematic of the arena, which is the area bounded by the pos1 and pos2
 
 # Dependencies:
-- PlaceholderAPI for scoreboard placeholders
 - Teams Plugin (https://github.com/cardsandhuskers/TeamsPlugin)
-- XGlow (https://github.com/Xezard/XGlow)
+- PlaceholderAPI for scoreboard placeholders
+- Protocollib
 - FastAsyncWorldedit

@@ -159,17 +159,22 @@ public class StatCalculator {
     }
 
     public ArrayList<PlayerKillsHolder> getPlayerKillsHolders(SurvivalGames.GameType type) {
+        ArrayList<PlayerKillsHolder> pkh = new ArrayList<>(playerKillsHolders);
+
         Comparator playerKillsCompare = new PlayerKillsComparator(type);
-        playerKillsHolders.sort(playerKillsCompare);
-        Collections.reverse(playerKillsHolders);
-        return new ArrayList<>(playerKillsHolders);
+        pkh.sort(playerKillsCompare);
+        Collections.reverse(pkh);
+        return pkh;
+
     }
 
     public ArrayList<TotalKillsHolder> getTotalKillsHolders(SurvivalGames.GameType game, TotalKillsComparator.SortType type) {
+        ArrayList<TotalKillsHolder> tkh = new ArrayList<>(totalKillsHolders);
+        
         Comparator totalKillsCompare = new TotalKillsComparator(game, type);
-        totalKillsHolders.sort(totalKillsCompare);
-        Collections.reverse(totalKillsHolders);
-        return  new ArrayList<>(totalKillsHolders);
+        tkh.sort(totalKillsCompare);
+        Collections.reverse(tkh);
+        return tkh;
     }
 
 
@@ -217,6 +222,11 @@ public class StatCalculator {
         public String name;
         public int skywarsWins = 0;
         public int sgWins = 0;
+
+        @Override
+        public String toString() {
+            return name + ": \n" + "SGK: "  +sgKills + " SkywarsK: " + skywarsKills + "SGW: "  +sgWins + " SkywarsW: " + skywarsWins;
+        }
     }
     class TotalKillsComparator implements Comparator<TotalKillsHolder> {
         public SurvivalGames.GameType game;
@@ -244,6 +254,7 @@ public class StatCalculator {
             if (compare == 0) compare = h1.name.compareTo(h2.name);
             return compare;
         }
+
     }
 
 

@@ -156,6 +156,7 @@ public class Placeholder extends PlaceholderExpansion {
                 int num = Integer.parseInt(values[2])-1;
                 if(values[1].equalsIgnoreCase("skywars")) {
                     ArrayList<StatCalculator.PlayerKillsHolder> killsHolders = plugin.statCalculator.getPlayerKillsHolders(GameType.SKYWARS);
+
                     if(num >= killsHolders.size()) return "";
                     StatCalculator.PlayerKillsHolder holder = killsHolders.get(num);
 
@@ -165,6 +166,7 @@ public class Placeholder extends PlaceholderExpansion {
                 }
                 if(values[1].equalsIgnoreCase("sg")) {
                     ArrayList<StatCalculator.PlayerKillsHolder> killsHolders = plugin.statCalculator.getPlayerKillsHolders(GameType.SURVIVAL_GAMES);
+
                     if(num >= killsHolders.size()) return "";
                     StatCalculator.PlayerKillsHolder holder = killsHolders.get(num);
 
@@ -183,6 +185,7 @@ public class Placeholder extends PlaceholderExpansion {
                 int num = Integer.parseInt(values[2])-1;
                 if(values[1].equalsIgnoreCase("skywars")) {
                     ArrayList<StatCalculator.TotalKillsHolder> killsHolders = plugin.statCalculator.getTotalKillsHolders(GameType.SKYWARS, StatCalculator.TotalKillsComparator.SortType.KILLS);
+
                     if(num >= killsHolders.size()) return "";
                     StatCalculator.TotalKillsHolder holder = killsHolders.get(num);
 
@@ -192,6 +195,7 @@ public class Placeholder extends PlaceholderExpansion {
                 }
                 if(values[1].equalsIgnoreCase("sg")) {
                     ArrayList<StatCalculator.TotalKillsHolder> killsHolders = plugin.statCalculator.getTotalKillsHolders(GameType.SURVIVAL_GAMES, StatCalculator.TotalKillsComparator.SortType.KILLS);
+
                     if(num >= killsHolders.size()) return "";
                     StatCalculator.TotalKillsHolder holder = killsHolders.get(num);
 

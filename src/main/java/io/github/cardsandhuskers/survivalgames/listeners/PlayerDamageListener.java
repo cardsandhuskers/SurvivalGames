@@ -31,6 +31,7 @@ public class PlayerDamageListener implements Listener {
      */
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent e) {
+        if(gameState == State.GAME_OVER) e.setCancelled(true);
         /*
         if(e.getEntity() instanceof Player p) {
             EntityDamageEvent.DamageCause cause =  e.getCause();
@@ -48,6 +49,7 @@ public class PlayerDamageListener implements Listener {
      * This player death is for a void death or disconnect death, as they're not "real" deaths
      * This should be transplanted somewhere else (probably PlayerDeathHandler), this class doesn't need to exist
      * @param p
+     * @deprecated
      */
     public void onPlayerDeath(Player p) {
         if(storedAttackers.get(p) != null) {
@@ -72,7 +74,7 @@ public class PlayerDamageListener implements Listener {
                 if(!player.equals(attacker) && !player.equals(p)) {
                     //System.out.println(player.getName() + "   " + playerDeathHandler.isPlayerAlive(player));
                     if(playerDeathHandler.isPlayerAlive(player)) {
-                        player.sendMessage(handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + " [+" + ChatColor.YELLOW + ChatColor.BOLD + (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
+                        player.sendMessage(handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + " [+" + ChatColor.YELLOW + ChatColor.BOLD + (plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
                     } else {
                         player.sendMessage(handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + ".");
                     }
@@ -84,7 +86,7 @@ public class PlayerDamageListener implements Listener {
                 if(!player.equals(p)) {
                     //System.out.println(player.getName() + "   " + playerDeathHandler.isPlayerAlive(player));
                     if(playerDeathHandler.isPlayerAlive(player)) {
-                        player.sendMessage(handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " died [+" + ChatColor.YELLOW + ChatColor.BOLD + (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
+                        player.sendMessage(handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " died [+" + ChatColor.YELLOW + ChatColor.BOLD + (plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
                     } else {
                         player.sendMessage(handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " died.");
                     }

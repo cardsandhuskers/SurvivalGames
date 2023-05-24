@@ -62,9 +62,9 @@ public class GameStageHandler {
             }
         }
 
-        for(org.bukkit.scoreboard.Team t:Bukkit.getScoreboardManager().getMainScoreboard().getTeams()) {
-            t.setOption(org.bukkit.scoreboard.Team.Option.COLLISION_RULE, org.bukkit.scoreboard.Team.OptionStatus.ALWAYS);
-        }
+        //for(org.bukkit.scoreboard.Team t:Bukkit.getScoreboardManager().getMainScoreboard().getTeams()) {
+        //    t.setOption(org.bukkit.scoreboard.Team.Option.COLLISION_RULE, org.bukkit.scoreboard.Team.OptionStatus.ALWAYS);
+        //}
 
         World world = plugin.getConfig().getLocation(gameType + ".spawnPoint").getWorld();
         world.setGameRule(GameRule.KEEP_INVENTORY, true);
@@ -110,7 +110,8 @@ public class GameStageHandler {
 
         //initialize glowing
         glowPacketListener = new GlowPacketListener(plugin);
-        glowPacketListener.enableGlow();
+        //glowPacketListener.enableGlow();
+        glowPacketListener.startOperation();
     }
 
     public void endGame() {

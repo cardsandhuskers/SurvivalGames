@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameState;
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.handler;
 import static io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler.numPlayers;
 
 public class PlayerLeaveListener implements Listener {
@@ -22,7 +23,10 @@ public class PlayerLeaveListener implements Listener {
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
         Player p = e.getPlayer();
+        if(handler.getPlayerTeam(p) == null) return;
+
         if(gameState != SurvivalGames.State.GAME_OVER) {
+            //use playerDeathListener onOtherDeath()
             playerDamageListener.onPlayerDeath(p);
         }
         //numPlayers--;

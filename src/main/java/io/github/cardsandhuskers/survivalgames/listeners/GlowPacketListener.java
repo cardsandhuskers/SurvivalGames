@@ -22,9 +22,10 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.handler;
 /**
  * Class that handles glowing through packets so that only specific players will be glowing for others
  */
-public class GlowPacketListener {
+public class GlowPacketListener implements Runnable{
     SurvivalGames plugin;
     PacketAdapter glowListener = null;
+    private Integer assignedTaskId;
 
 
     public GlowPacketListener(SurvivalGames plugin) {
@@ -78,6 +79,7 @@ public class GlowPacketListener {
                     //this should be right, finds all players that the packet recipient should be seeing glow
                     if (handler.getPlayerTeam(event.getPlayer()) == null) return;
                     ArrayList<Player> isGlowing = getGlows(event.getPlayer());
+                    System.out.println(event.getPlayer().getDisplayName() + ": " + isGlowing + "\n\n");
 
                     //for each player the recipient of the packet should see glowing
                     boolean found = false;
@@ -173,5 +175,48 @@ public class GlowPacketListener {
         }
 
 
+    }
+
+    public void sendArtificialGlowPackets() {
+        var protocolManager = ProtocolLibrary.getProtocolManager();
+
+        for(Team t: handler.getTeams()) {
+            for(Player p:t.getOnlinePlayers()) {
+                ArrayList<Player> isGlowing = getGlows(p);
+
+                for(Player pl:isGlowing) {
+                    PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
+                    packet.getIntegers().write(0, pl.getEntityId()); //Set packet's entity id
+                    WrappedDataWatcher watcher = new WrappedDataWatcher(); //Create data watcher, the Entity Metadata packet requires this
+                    WrappedDataWatcher.Serializer serializer = WrappedDataWatcher.Registry.get(Byte.class); //Found this through google, needed for some stupid reason
+                    watcher.setEntity(pl); //Set the new data watcher's target
+                    watcher.setObject(0, serializer, (byte) (0x40)); //Set status to glowing, found on protocol page
+                    packet.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects()); //Make the packet's datawatcher the one we created
+
+                    try {
+                        protocolManager.sendServerPacket(p, packet);
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        }
+    }
+
+    @Override
+    public void run() {
+        sendArtificialGlowPackets();
+    }
+
+    /**
+     * Schedules this instance to run every tick
+     */
+    public void startOperation() {
+        // Initialize our assigned task's id, for later use so we can cancel
+        this.assignedTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this, 0L, 1L);
+    }
+    public void cancelOperation() {
+        if (assignedTaskId != null) Bukkit.getScheduler().cancelTask(assignedTaskId);
     }
 }
