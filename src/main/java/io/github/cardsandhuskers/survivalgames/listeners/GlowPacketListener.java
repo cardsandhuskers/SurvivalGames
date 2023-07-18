@@ -64,7 +64,7 @@ public class GlowPacketListener implements Runnable{
 
                     try {
                         protocolManager.sendServerPacket(p, packet);
-                    } catch (InvocationTargetException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -166,7 +166,7 @@ public class GlowPacketListener implements Runnable{
 
                     try {
                         protocolManager.sendServerPacket(p, packet);
-                    } catch (InvocationTargetException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -195,7 +195,7 @@ public class GlowPacketListener implements Runnable{
 
                     try {
                         protocolManager.sendServerPacket(p, packet);
-                    } catch (InvocationTargetException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
