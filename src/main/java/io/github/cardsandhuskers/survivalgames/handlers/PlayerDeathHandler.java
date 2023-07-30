@@ -82,6 +82,12 @@ public class PlayerDeathHandler {
             //ppAPI.give(player.getUniqueId(), (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier));
         }
     }
+
+    /**
+     * return whether the player is still alive
+     * @param p
+     * @return boolean alive state
+     */
     public boolean isPlayerAlive(Player p) {
         return playerList.contains(p);
         /*

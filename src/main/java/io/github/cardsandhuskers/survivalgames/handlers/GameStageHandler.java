@@ -259,7 +259,7 @@ public class GameStageHandler {
                 totalSeconds,
                 //Timer Start
                 () -> {
-                    Bukkit.broadcastMessage(ChatColor.RED + "Deathmatch Starts in " + ChatColor.YELLOW + totalSeconds + ChatColor.RED + "seconds!");
+                    Bukkit.broadcastMessage(ChatColor.RED + "Deathmatch Starts in " + ChatColor.YELLOW + totalSeconds + ChatColor.RED + " seconds!");
                 },
 
                 //Timer End

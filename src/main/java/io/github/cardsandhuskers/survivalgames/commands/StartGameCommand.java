@@ -154,21 +154,24 @@ public class StartGameCommand implements CommandExecutor {
         playerDeathHandler = new PlayerDeathHandler(plugin, gameStageHandler, teamList);
         //attacked, attacker (an attacked player can only have 1 attacker, vise versa is not true)
 
-        PlayerDamageListener playerDamageListener = new PlayerDamageListener(playerDeathHandler, storedAttackers);
+        //PlayerDamageListener playerDamageListener = new PlayerDamageListener(playerDeathHandler, storedAttackers);
         getServer().getPluginManager().registerEvents(new PlayerAttackListener(playerDeathHandler, storedAttackers, attackerTimers, plugin), plugin);
         getServer().getPluginManager().registerEvents(new BlockPlaceListener(plugin), plugin);
         getServer().getPluginManager().registerEvents(new BlockBreakListener(), plugin);
         getServer().getPluginManager().registerEvents(new ItemClickListener(), plugin);
 
-        getServer().getPluginManager().registerEvents(playerDamageListener, plugin);
-        getServer().getPluginManager().registerEvents(new PlayerLeaveListener(playerDamageListener), plugin);
+        //getServer().getPluginManager().registerEvents(playerDamageListener, plugin);
+
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(playerDeathHandler, plugin), plugin);
-        getServer().getPluginManager().registerEvents(new PlayerMoveListener(playerDamageListener), plugin);
+
         getServer().getPluginManager().registerEvents(new PearlThrowListener(), plugin);
 
         HashMap<Player, Location> playerDeathLocationMap = new HashMap<>();
-        getServer().getPluginManager().registerEvents(new PlayerDeathListener(plugin, playerDeathLocationMap, storedAttackers, playerDeathHandler), plugin);
+        PlayerDeathListener playerDeathListener = new PlayerDeathListener(plugin, playerDeathLocationMap, storedAttackers, playerDeathHandler);
+        getServer().getPluginManager().registerEvents(playerDeathListener, plugin);
+        getServer().getPluginManager().registerEvents(new PlayerMoveListener(playerDeathListener), plugin);
         getServer().getPluginManager().registerEvents(new PlayerRespawnListener(plugin, playerDeathLocationMap), plugin);
+        getServer().getPluginManager().registerEvents(new PlayerLeaveListener(playerDeathListener), plugin);
 
         //if(gameType == GameType.SKYWARS) {
             ResetArenaCommand resetArenaCommand = new ResetArenaCommand(plugin);

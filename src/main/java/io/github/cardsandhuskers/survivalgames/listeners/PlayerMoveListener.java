@@ -9,9 +9,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 public class PlayerMoveListener implements Listener {
-    private final PlayerDamageListener playerDamageListener;
-    public PlayerMoveListener(PlayerDamageListener playerDamageListener) {
-        this.playerDamageListener = playerDamageListener;
+    private final PlayerDeathListener playerDeathListener;
+    public PlayerMoveListener(PlayerDeathListener playerDeathListener) {
+        this.playerDeathListener = playerDeathListener;
     }
 
     @EventHandler
@@ -24,8 +24,13 @@ public class PlayerMoveListener implements Listener {
 
         if(SurvivalGames.gameType == SurvivalGames.GameType.SKYWARS) {
             if(e.getPlayer().getLocation().getY() <= 0) {
-                if(e.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
-                playerDamageListener.onPlayerDeath(e.getPlayer());
+                if(e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
+                    Location l = e.getPlayer().getLocation();
+                    l.setY(80);
+                    e.getPlayer().teleport(l);
+                    return;
+                }
+                playerDeathListener.onOtherDeath(e.getPlayer());
                 Player p = e.getPlayer();
                 Location l = p.getLocation();
                 l.setY(80);

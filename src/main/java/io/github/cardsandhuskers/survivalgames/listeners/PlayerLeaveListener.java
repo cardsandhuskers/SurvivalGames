@@ -10,10 +10,10 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameState;
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.handler;
 
 public class PlayerLeaveListener implements Listener {
-    private final PlayerDamageListener playerDamageListener;
+    private final PlayerDeathListener playerDeathListener;
 
-    public PlayerLeaveListener(PlayerDamageListener playerDamageListener) {
-        this.playerDamageListener = playerDamageListener;
+    public PlayerLeaveListener(PlayerDeathListener playerDeathListener) {
+        this.playerDeathListener = playerDeathListener;
     }
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
@@ -21,8 +21,7 @@ public class PlayerLeaveListener implements Listener {
         if(handler.getPlayerTeam(p) == null) return;
 
         if(gameState != SurvivalGames.State.GAME_OVER) {
-            //use playerDeathListener onOtherDeath()
-            playerDamageListener.onPlayerDeath(p);
+            playerDeathListener.onOtherDeath(p);
         }
         //numPlayers--;
     }

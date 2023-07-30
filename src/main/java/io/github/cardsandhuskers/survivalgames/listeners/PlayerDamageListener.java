@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 
+@Deprecated
 public class PlayerDamageListener implements Listener {
     //Designed to listen for environment damage
     PlayerDeathHandler playerDeathHandler;

@@ -35,17 +35,17 @@ public class PlayerJoinListener implements Listener {
                         break;
                     }
                 }
-            }, 10L);
+            }, 2L);
                 if(!playerDeathHandler.isPlayerAlive(p)) {
                     playerDeathHandler.addPlayer(p);
                 }
         } else {
-            if(plugin.getConfig().getLocation("spawnPoint") != null) {
+            if(plugin.getConfig().getLocation(gameType + ".spawnPoint") != null) {
                 p.teleport(plugin.getConfig().getLocation(gameType + ".spawnPoint"));
             }
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()-> {
                 p.setGameMode(GameMode.SPECTATOR);
-            }, 10L);
+            }, 2L);
         }
 
 

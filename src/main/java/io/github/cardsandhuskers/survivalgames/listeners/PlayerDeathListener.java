@@ -44,11 +44,11 @@ public class PlayerDeathListener implements Listener {
         } else {
             onOtherDeath(attacked);
         }
-        playerDeathHandler.onPlayerDeath(attacked);
     }
 
 
     public void onKillByPlayer(Player attacker, Player attacked) {
+        if(!playerDeathHandler.isPlayerAlive(attacked)) return;
 
         //give killer points
         //ppAPI.give(attacker.getUniqueId(), (int) (plugin.getConfig().getInt(gameType + ".killPoints") * multiplier));
@@ -78,13 +78,16 @@ public class PlayerDeathListener implements Listener {
 
         attacked.sendMessage("You were killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + "!");
         attacked.playSound(attacked.getLocation(), Sound.ENTITY_ENDER_DRAGON_AMBIENT, 1, 2);
+
+        playerDeathHandler.onPlayerDeath(attacked);
     }
 
 
     public void onOtherDeath(Player attacked) {
+        if(!playerDeathHandler.isPlayerAlive(attacked)) return;
+
         if(storedAttackers.get(attacked) != null) {
             Player attacker = storedAttackers.get(attacked);
-            //ppAPI.give(attacker.getUniqueId(), (int)(plugin.getConfig().getInt(gameType + ".killPoints") * multiplier));
             handler.getPlayerTeam(attacker).addTempPoints(attacker, plugin.getConfig().getInt(gameType + ".killPoints") * multiplier);
 
             if(playerKills.get(attacker) != null) {
@@ -124,5 +127,7 @@ public class PlayerDeathListener implements Listener {
             attacked.sendMessage(ChatColor.GRAY + "You died.");
             attacked.playSound(attacked.getLocation(), Sound.ENTITY_ENDER_DRAGON_AMBIENT,1,2);
         }
+
+        playerDeathHandler.onPlayerDeath(attacked);
     }
 }
