@@ -5,6 +5,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.WrappedDataValue;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
@@ -13,7 +14,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +44,7 @@ public class GlowPacketListener implements Runnable{
     }
 
     /**
+     * @deprecated packet listeners appear to be broken
      * Sets correct players as glowing and enables the packet listener that will keep them glowing
      */
     public void enableGlow() {
@@ -156,25 +157,11 @@ public class GlowPacketListener implements Runnable{
                 ArrayList<Player> isGlowing = getGlows(p);
 
                 for(Player pl:isGlowing) {
-                    PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
-                    packet.getIntegers().write(0, pl.getEntityId()); //Set packet's entity id
-                    WrappedDataWatcher watcher = new WrappedDataWatcher(); //Create data watcher, the Entity Metadata packet requires this
-                    WrappedDataWatcher.Serializer serializer = WrappedDataWatcher.Registry.get(Byte.class); //Found this through google, needed for some stupid reason
-                    watcher.setEntity(pl); //Set the new data watcher's target
-                    watcher.setObject(0, serializer, (byte) (0x0)); //Set status to glowing, found on protocol page
-                    packet.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects()); //Make the packet's datawatcher the one we created
-
-                    try {
-                        protocolManager.sendServerPacket(p, packet);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    sendFakePacket(pl, p, (byte) 0x0);
                 }
 
             }
         }
-
-
     }
 
     public void sendArtificialGlowPackets() {
@@ -185,22 +172,30 @@ public class GlowPacketListener implements Runnable{
                 ArrayList<Player> isGlowing = getGlows(p);
 
                 for(Player pl:isGlowing) {
-                    PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
-                    packet.getIntegers().write(0, pl.getEntityId()); //Set packet's entity id
-                    WrappedDataWatcher watcher = new WrappedDataWatcher(); //Create data watcher, the Entity Metadata packet requires this
-                    WrappedDataWatcher.Serializer serializer = WrappedDataWatcher.Registry.get(Byte.class); //Found this through google, needed for some stupid reason
-                    watcher.setEntity(pl); //Set the new data watcher's target
-                    watcher.setObject(0, serializer, (byte) (0x40)); //Set status to glowing, found on protocol page
-                    packet.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects()); //Make the packet's datawatcher the one we created
-
-                    try {
-                        protocolManager.sendServerPacket(p, packet);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    sendFakePacket(pl, p, (byte) 0x40);
                 }
-
             }
+        }
+    }
+
+    public void sendFakePacket(Player target, Player recipient, byte type) {
+        var protocolManager = ProtocolLibrary.getProtocolManager();
+
+        PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
+        packet.getIntegers().write(0, target.getEntityId()); //Set packet's entity id
+        WrappedDataWatcher watcher = new WrappedDataWatcher(); //Create data watcher, the Entity Metadata packet requires this
+        WrappedDataWatcher.Serializer serializer = WrappedDataWatcher.Registry.get(Byte.class); //Found this through google, needed for some stupid reason
+        watcher.setEntity(target); //Set the new data watcher's target
+        //watcher.setObject(0, serializer, (byte) (0x40)); //Set status to glowing, found on protocol page
+        //packet.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects()); //Make the packet's datawatcher the one we created
+        packet.getDataValueCollectionModifier().write(0, List.of(
+                new WrappedDataValue(0, WrappedDataWatcher.Registry.get(Byte.class), (byte) (type))
+        ));
+
+        try {
+            protocolManager.sendServerPacket(recipient, packet);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

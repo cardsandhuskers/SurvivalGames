@@ -1,8 +1,11 @@
+enableGlow: true
 SURVIVAL_GAMES:
   PregameTime: 30
   # total game time, excluding deathmatch
-  GameTime: 120
+  GameTime: 420
+  #time at the start of the game before you can PVP
   GracePeriod: 45
+  #time before chests will be restocked
   RestockTime: 90
   # countdown from when there are 2 teams left
   PreDeathmatchTime: 20
@@ -103,6 +106,7 @@ SKYWARS:
   PregameTime: 15
   # total game time
   GameTime: 720
+  #time before chests will be restocked
   RestockTime: 360
   GameEndTime: 10
 

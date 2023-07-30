@@ -1,8 +1,5 @@
 package io.github.cardsandhuskers.survivalgames;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketAdapter;
 import io.github.cardsandhuskers.survivalgames.commands.*;
 import io.github.cardsandhuskers.survivalgames.objects.Placeholder;
 import io.github.cardsandhuskers.survivalgames.objects.StatCalculator;
@@ -51,8 +48,8 @@ public final class SurvivalGames extends JavaPlugin {
              * We inform about the fact that PlaceholderAPI isn't installed and then
              * disable this plugin to prevent issues.
              */
-            System.out.println("Could not find PlaceholderAPI! This plugin is required.");
-            Bukkit.getPluginManager().disablePlugin(this);
+            System.out.println("Could not find PlaceholderAPI!");
+            //Bukkit.getPluginManager().disablePlugin(this);
         }
 
         handler = Teams.handler;
@@ -73,6 +70,7 @@ public final class SurvivalGames extends JavaPlugin {
         getCommand("reloadSGArena").setExecutor(new ResetArenaCommand(this));
         getCommand("pauseSGTimer").setExecutor(new PauseTimerCommand(this, startGameCommand));
         getCommand("cancelSG").setExecutor(new CancelGameCommand(this, startGameCommand));
+        getCommand("reloadSG").setExecutor(new ReloadConfigCommand(this));
 
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();

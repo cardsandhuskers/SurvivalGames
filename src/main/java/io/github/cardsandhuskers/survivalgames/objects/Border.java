@@ -4,7 +4,6 @@ import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.WorldBorder;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.altTimeVar;
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameType;

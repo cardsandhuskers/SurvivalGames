@@ -1,24 +1,27 @@
 package io.github.cardsandhuskers.survivalgames.handlers;
 
-import com.comphenix.protocol.ProtocolLibrary;
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.commands.StartGameCommand;
 import io.github.cardsandhuskers.survivalgames.listeners.GlowPacketListener;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
+import io.github.cardsandhuskers.survivalgames.objects.GameMessages;
 import io.github.cardsandhuskers.teams.objects.Team;
-import io.github.cardsandhuskers.teams.objects.TempPointsHolder;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.bukkit.*;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Firework;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.meta.FireworkMeta;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 import static io.github.cardsandhuskers.teams.Teams.handler;
@@ -26,6 +29,7 @@ import static io.github.cardsandhuskers.teams.Teams.handler;
 public class GameEndHandler {
     private final SurvivalGames plugin;
     private final ArrayList<Team> teamList;
+    private Countdown gameEndTimer;
 
     public GameEndHandler(SurvivalGames plugin, ArrayList<Team> teamList) {
         this.teamList = teamList;
@@ -38,9 +42,9 @@ public class GameEndHandler {
         if(gameType == GameType.SKYWARS && gameNumber == 1) totalSeconds = 10;
         else totalSeconds = plugin.getConfig().getInt(gameType + ".GameEndTime");
 
-        glowPacketListener.disableGlow();
+        if(plugin.getConfig().getBoolean("enableGlow")) glowPacketListener.disableGlow();
 
-        Countdown timer = new Countdown(plugin,
+        gameEndTimer = new Countdown(plugin,
 
                 totalSeconds,
                 //Timer Start
@@ -66,11 +70,11 @@ public class GameEndHandler {
                         winner.addTempPoints(p, (winPoints/numPlayers) * multiplier);
                         //ppAPI.give(p.getUniqueId(), (int) ((winPoints/numPlayers) * multiplier));
                     }
+
+                    glowPacketListener.cancelOperation();
+
                     gameState = SurvivalGames.State.GAME_OVER;
-                    Bukkit.broadcastMessage(ChatColor.DARK_BLUE + "------------------------------");
-                    Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Winner:");
-                    Bukkit.broadcastMessage(winner.color + winner.getTeamName());
-                    Bukkit.broadcastMessage(ChatColor.DARK_BLUE + "------------------------------");
+                    Bukkit.broadcastMessage(GameMessages.getWinnerDescription(winner));
 
                     //put title on screen
                     for(Player p:Bukkit.getOnlinePlayers()) {
@@ -150,79 +154,14 @@ public class GameEndHandler {
 
                     if (!(gameType == GameType.SKYWARS && gameNumber == 1)) {
                         //show each player their team performance
-                        if (t.getSecondsLeft() == t.getTotalSeconds() - 5) {
-                            for (Team team : handler.getTeams()) {
-                                ArrayList<TempPointsHolder> tempPointsList = new ArrayList<>();
-                                for (Player p : team.getOnlinePlayers()) {
-                                    if (team.getPlayerTempPoints(p) != null) {
-                                        tempPointsList.add(team.getPlayerTempPoints(p));
-                                    }
-                                }
-                                Collections.sort(tempPointsList, Comparator.comparing(TempPointsHolder::getPoints));
-                                Collections.reverse(tempPointsList);
-
-                                for (Player p : team.getOnlinePlayers()) {
-                                    p.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Your Team Standings:");
-                                    p.sendMessage(ChatColor.DARK_BLUE + "------------------------------");
-                                    int number = 1;
-                                    for (TempPointsHolder h : tempPointsList) {
-                                        p.sendMessage(number + ". " + handler.getPlayerTeam(p).color + h.getPlayer().getName() + ChatColor.RESET + "    Points: " + (int)h.getPoints());
-                                        number++;
-                                    }
-                                    p.sendMessage(ChatColor.DARK_BLUE + "------------------------------\n");
-                                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-                                }
-                            }
-                        }
-                        if (t.getSecondsLeft() == t.getTotalSeconds() - 10) {
-                            ArrayList<TempPointsHolder> tempPointsList = new ArrayList<>();
-                            for (Team team : handler.getTeams()) {
-                                for (Player p : team.getOnlinePlayers()) {
-                                    tempPointsList.add(team.getPlayerTempPoints(p));
-                                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-                                }
-                            }
-                            Collections.sort(tempPointsList, Comparator.comparing(TempPointsHolder::getPoints));
-                            Collections.reverse(tempPointsList);
-
-                            int max;
-                            if (tempPointsList.size() >= 5) {
-                                max = 4;
-                            } else {
-                                max = tempPointsList.size() - 1;
-                            }
-
-                            Bukkit.broadcastMessage("\n" + ChatColor.RED + "" + ChatColor.BOLD + "Top 5 Players:");
-                            Bukkit.broadcastMessage(ChatColor.DARK_RED + "------------------------------");
-                            int number = 1;
-                            for (int i = 0; i <= max; i++) {
-                                TempPointsHolder h = tempPointsList.get(i);
-                                Bukkit.broadcastMessage(number + ". " + handler.getPlayerTeam(h.getPlayer()).color + h.getPlayer().getName() + ChatColor.RESET + "    Points: " + (int)h.getPoints());
-                                number++;
-                            }
-                            Bukkit.broadcastMessage(ChatColor.DARK_RED + "------------------------------");
-                        }
-
-                        if (t.getSecondsLeft() == t.getTotalSeconds() - 15) {
-                            ArrayList<Team> teamList = handler.getTempPointsSortedList();
-
-                            Bukkit.broadcastMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "Team Performance:");
-                            Bukkit.broadcastMessage(ChatColor.GREEN + "------------------------------");
-                            int counter = 1;
-                            for (Team team : teamList) {
-                                Bukkit.broadcastMessage(counter + ". " + team.color + ChatColor.BOLD + team.getTeamName() + ChatColor.RESET + " Points: " + (int)team.getTempPoints());
-                                counter++;
-                            }
-                            Bukkit.broadcastMessage(ChatColor.GREEN + "------------------------------");
-                            for (Player p : Bukkit.getOnlinePlayers()) {
-                                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-                            }
-                        }
+                        if (t.getSecondsLeft() == t.getTotalSeconds() - 5) GameMessages.announceTopPlayers();
+                        if (t.getSecondsLeft() == t.getTotalSeconds() - 10) GameMessages.announceTeamPlayers();
+                        if (t.getSecondsLeft() == t.getTotalSeconds() - 15) GameMessages.announceTeamLeaderboard();
                     }
                 }
         );
         // Start scheduling, don't use the "run" method unless you want to skip a second
-        timer.scheduleTimer();
+        gameEndTimer.scheduleTimer();
     }
 
     public void endGame() {

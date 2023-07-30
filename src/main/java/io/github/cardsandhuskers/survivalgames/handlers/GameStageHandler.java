@@ -8,7 +8,6 @@ import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import io.github.cardsandhuskers.survivalgames.objects.PlayerTracker;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -20,7 +19,10 @@ import org.bukkit.scoreboard.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 
@@ -108,10 +110,11 @@ public class GameStageHandler {
             listHP.getScore(p.getDisplayName()).setScore(20);
         }
 
-        //initialize glowing
-        glowPacketListener = new GlowPacketListener(plugin);
-        //glowPacketListener.enableGlow();
-        glowPacketListener.startOperation();
+        if(plugin.getConfig().getBoolean("enableGlow")) {
+            //initialize glowing
+            glowPacketListener = new GlowPacketListener(plugin);
+            glowPacketListener.startOperation();
+        }
     }
 
     public void endGame() {
@@ -409,8 +412,19 @@ public class GameStageHandler {
         Collections.shuffle(randomTeamList);
 
 
+        int testCtr = 1;
+        while(arenaFileConfig.get("teamSpawn." + testCtr) != null) {
+            testCtr++;
+        }
+        if(testCtr < 12) {
+            for(Integer i:spots) {
+                if(i > testCtr) spots.remove(i);
+            }
+        }
+
         int counter = spots.remove();
         int index = 0;
+
         while(arenaFileConfig.get("teamSpawn." + counter) != null && index < teamList.size()) {
             Location spawn = arenaFileConfig.getLocation("teamSpawn." + counter);
             for(Player p: randomTeamList.get(index).getOnlinePlayers()) {
@@ -437,98 +451,26 @@ public class GameStageHandler {
         int counter = 1;
         while(arenaFileConfig.get("teamSpawn." + counter) != null) {
             Location spawn = arenaFileConfig.getLocation("teamSpawn." + counter);
-            //spawn is on northwest corner (-x -y corner)
-            //x-1 {z+1}, z-1{x+1}
-            if (gameType == GameType.SURVIVAL_GAMES) {
-                //loop 3 times to handle the y
+            int[] listX = {0,0,0,1,2,3,4,4,4,1,2,3};
+            int[] listZ = {1,2,3,0,0,0,1,2,3,4,4,4};
+
+
+            for(int i = 0; i < listX.length; i++) {
                 for (int y = 0; y <= 2; y++) {
-                    Location loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
-                    loc.setX(loc.getX() - 2);
-                    Block b = loc.getBlock();
-                    b.setType(mat);
-
-                    loc.setZ(loc.getZ() - 1);
-                    b = loc.getBlock();
-                    b.setType(mat);
-
-                    loc.setZ(loc.getZ() + 2);
-                    b = loc.getBlock();
-                    b.setType(mat);
-
-                    loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
-                    loc.setX(loc.getX() + 2);
-                    b = loc.getBlock();
-                    b.setType(mat);
-
-                    loc.setZ(loc.getZ() - 1);
-                    b = loc.getBlock();
-                    b.setType(mat);
-
-                    loc.setZ(loc.getZ() + 2);
-                    b = loc.getBlock();
-                    b.setType(mat);
-
-
-                    loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
-                    loc.setZ(loc.getZ() + 2);
-                    b = loc.getBlock();
-                    b.setType(mat);
-
-                    loc.setX(loc.getX() - 1);
-                    b = loc.getBlock();
-                    b.setType(mat);
-
-                    loc.setX(loc.getX() + 2);
-                    b = loc.getBlock();
-                    b.setType(mat);
-
-                    loc = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() + y, spawn.getZ());
-                    loc.setZ(loc.getZ() - 2);
-                    b = loc.getBlock();
-                    b.setType(mat);
-
-                    loc.setX(loc.getX() - 1);
-                    b = loc.getBlock();
-                    b.setType(mat);
-
-                    loc.setX(loc.getX() + 2);
-                    b = loc.getBlock();
-                    b.setType(mat);
-
+                    Location loc = new Location(spawn.getWorld(), spawn.getX() + listX[i] - 2, spawn.getY() + y, spawn.getZ() + listZ[i] - 2);
+                    loc.getBlock().setType(mat);
                 }
             }
+
             if(gameType == GameType.SKYWARS) {
-                Location baseBlock = new Location(spawn.getWorld(), spawn.getX(), spawn.getY() - 1, spawn.getZ());
-                Block b = baseBlock.getBlock();
-                b.setType(mat);
-
-
-                for(int y = 0; y <= 2; y++) {
-                    Location loc = new Location(spawn.getWorld(), spawn.getX(),spawn.getY(),spawn.getZ());
-                    loc.setY(loc.getY() + y);
-                    loc.setX(loc.getX() - 1);
-                    b = loc.getBlock();
-                    b.setType(mat);
-                    loc.setX(spawn.getX());
-
-                    loc.setX(loc.getX() + 1);
-                    b = loc.getBlock();
-                    b.setType(mat);
-                    loc.setX(spawn.getX());
-
-
-                    loc.setZ(loc.getZ() - 1);
-                    b = loc.getBlock();
-                    b.setType(mat);
-                    loc.setZ(spawn.getZ());
-
-                    loc.setZ(loc.getZ() + 1);
-                    b = loc.getBlock();
-                    b.setType(mat);
-                    loc.setZ(spawn.getZ());
-
+                for(int x = -1; x <= 1; x++) {
+                    for(int z = -1; z <= 1; z++) {
+                        Location loc = new Location(spawn.getWorld(), spawn.getX() + x, spawn.getY() - 1, spawn.getZ() + z);
+                        loc.getBlock().setType(mat);
+                    }
                 }
             }
+
             counter++;
         }
     }

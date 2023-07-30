@@ -12,12 +12,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
-import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameType;
 
 public class PlayerDeathListener implements Listener {
     HashMap<Player, Location> playerLocationMap;

@@ -1,10 +1,10 @@
 # SurvivalGames
-Minecraft survival games and skywars plugin for 1.19.x
+Minecraft survival games and skywars plugin for 1.20.1
 Survival Games follows standard rules, only breakable blocks are leaves.
 Skywars lets you break and place any and all blocks.
 Chest loot, game timers, and points can be edited in the config to let you change them however you want.
 
-# Commands:
+## Commands:
 note: GameType refers to either SURVIVAL_GAMES or SKYWARS, this lets you choose which game to execute the command for.
 
 **/startsurvivalgames [multiplier] [GameType]** 
@@ -33,8 +33,29 @@ note: GameType refers to either SURVIVAL_GAMES or SKYWARS, this lets you choose 
 **/savesgarena [GameType]**
 - saves a schematic of the arena, which is the area bounded by the pos1 and pos2
 
-# Dependencies:
+##Setup:
+1. use the setsgpos commands to mark the corners of an arena
+2. make sure to use /savesgarena to create a schematic of the area inside the corners that the game will use to reset the arena
+3. use /setsgspawnbox to set each of the spawn points in the game, it's designed to support up to 12
+
+## PlaceholderAPI Hooks:
+%Survivalgames_timer% - returns current time remaining
+<br>%Survivalgames_timerstage% - returns the stage of the game
+<br>%Survivalgames_teamsleft% - returns the number of teams left alive
+<br>%Survivalgames_playersleft% - returns the number of players left alive
+<br>%Survivalgames_border% - returns the size of the border
+<br>%Survivalgames_playerkills% - returns the number of kills the player has
+<br>%Survivalgames_round% - returns the round number (used in skywars which has multiple rounds to a game)
+
+### Stat Leaderboard Hooks:
+%Survivalgames_playerkills_[sg or skywars]_[index]% - returns the number of single-game kills the person in that place has (single-game kills leaderboard)
+<br>%Survivalgames_totalKills_[sg or skywars]_[index]% - returns the number of total kills the person in that place has (lifetime kills leaderboard)
+<br>%Survivalgames_wins_[sg or skywars]_[index]% - returns the number of wins the person in that place has (lifetime wins leaderboard)
+
+
+## Dependencies:
 - Teams Plugin (https://github.com/cardsandhuskers/TeamsPlugin)
-- PlaceholderAPI for scoreboard placeholders
+  - note: this must be manually set up as a local library on your machine to build this plugin
 - Protocollib
 - FastAsyncWorldedit
+- optional: PlaceholderAPI for scoreboard placeholders

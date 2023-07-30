@@ -47,7 +47,7 @@ public class AttackerTimersHandler implements Runnable{
 
 
     /**
-     * Schedules this instance to "run" every tick
+     * Schedules this instance to "run" every second
      */
     public void startOperation() {
         // Initialize our assigned task's id, for later use so we can cancel

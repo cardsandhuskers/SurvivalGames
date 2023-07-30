@@ -15,8 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
-import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameState;
-import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameType;
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 
 public class CancelGameCommand implements CommandExecutor {
     SurvivalGames plugin;
@@ -39,6 +38,7 @@ public class CancelGameCommand implements CommandExecutor {
     }
 
     public void cancelGame() {
+        gameNumber = 1;
         if(gameState == SurvivalGames.State.GAME_STARTING) {
             startGameCommand.pregameTimer.cancelTimer();
         } else if(gameState == SurvivalGames.State.GAME_OVER) {

@@ -5,19 +5,14 @@ import io.github.cardsandhuskers.survivalgames.handlers.AttackerTimersHandler;
 import io.github.cardsandhuskers.survivalgames.handlers.GameStageHandler;
 import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
 import io.github.cardsandhuskers.survivalgames.listeners.*;
-import io.github.cardsandhuskers.survivalgames.objects.Border;
-import io.github.cardsandhuskers.survivalgames.objects.Chests;
-import io.github.cardsandhuskers.survivalgames.objects.Countdown;
-import io.github.cardsandhuskers.survivalgames.objects.PlayerTracker;
+import io.github.cardsandhuskers.survivalgames.objects.*;
 import io.github.cardsandhuskers.teams.objects.Team;
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -34,12 +29,6 @@ public class StartGameCommand implements CommandExecutor {
     private PlayerDeathHandler playerDeathHandler;
     private ArrayList<PlayerTracker> trackerList;
     public Countdown pregameTimer;
-
-    /**
-     * All of the strings for the pregame information
-     */
-    private String SURVIVAL_GAMES_DESCRIPTION, SKYWARS_DESCRIPTION, POINTS_DESCRIPTION;
-
 
     public StartGameCommand(SurvivalGames plugin) {
         this.plugin = plugin;
@@ -91,7 +80,6 @@ public class StartGameCommand implements CommandExecutor {
     }
 
     public void startGame() {
-        updateMessages();
         if(handler.getNumTeams() < 2) {
             Bukkit.broadcastMessage(ChatColor.RED + "ERROR: There must be at least 2 teams!");
             return;
@@ -225,13 +213,12 @@ public class StartGameCommand implements CommandExecutor {
                     timeVar = t.getSecondsLeft();
                     if(gameNumber == 1) {
                         if (gameType == GameType.SURVIVAL_GAMES) {
-                            if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcastMessage(SURVIVAL_GAMES_DESCRIPTION);
+                            if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcastMessage(GameMessages.getSGDescription());
                         }
                         if (gameType == GameType.SKYWARS) {
-                            if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcastMessage(SKYWARS_DESCRIPTION);
+                            if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcastMessage(GameMessages.getSkywarsDescription());
                         }
-
-                        if (t.getSecondsLeft() == t.getTotalSeconds() - 11) Bukkit.broadcastMessage(POINTS_DESCRIPTION);
+                        if (t.getSecondsLeft() == t.getTotalSeconds() - 11) Bukkit.broadcastMessage(GameMessages.getPointsDescription(plugin));
                     }
 
                     if (t.getSecondsLeft() == 15) {
@@ -263,31 +250,6 @@ public class StartGameCommand implements CommandExecutor {
 
     public void cancelGame() {
         gameStageHandler.endGame();
-    }
-
-    private void updateMessages() {
-        SURVIVAL_GAMES_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------\n" + ChatColor.RESET +
-                StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Survival Games", 30) +
-                ChatColor.BLUE + "" + ChatColor.BOLD + "\nHow To Play:" +
-                ChatColor.RESET + "\nThis iconic survival games map returns!" +
-                "\nWork with your teammates to take down the other teams and be the last one standing!" +
-                "\nThe game will start with a 45 second grace period where PvP is disabled." +
-                "\nThe worldborder will shrink over time. Don't get caught outside it, you will die." +
-                ChatColor.STRIKETHROUGH + "\n----------------------------------------";
-        SKYWARS_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------\n" + ChatColor.RESET +
-                StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Skywars", 30) +
-                ChatColor.BLUE + "" + ChatColor.BOLD + "\nHow To Play:" +
-                ChatColor.RESET + "\nThere will be 2 rounds of Skywars on the famous Hypixel map: Elven" +
-                "\nWork with your teammates to take down the other teams and be the last one standing!" +
-                "\nEach island has chests to get geared up, while the middle has many chests with even better loot!" +
-                "\nBe careful not to fall off the edge! The void will kill you." +
-                ChatColor.STRIKETHROUGH + "\n----------------------------------------";
-        POINTS_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------" +
-                ChatColor.GOLD + "" + ChatColor.BOLD + "\nHow is the game Scored:" +
-                ChatColor.RESET + "\nFor winning: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".winPoints") * multiplier) + ChatColor.RESET + " points divided among the team members" +
-                "\nFor Each Kill: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".killPoints") * multiplier) + ChatColor.RESET + " points" +
-                "\nFor each player you outlive: " + ChatColor.GOLD + (plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + " points" +
-                ChatColor.STRIKETHROUGH + "\n----------------------------------------";
     }
 
 }

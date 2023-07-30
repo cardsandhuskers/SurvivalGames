@@ -1,18 +1,13 @@
 package io.github.cardsandhuskers.survivalgames.listeners;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
-import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameState;
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.handler;
-import static io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler.numPlayers;
 
 public class PlayerLeaveListener implements Listener {
     private final PlayerDamageListener playerDamageListener;

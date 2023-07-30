@@ -8,7 +8,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.State;
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameState;
 
 public class PauseTimerCommand implements CommandExecutor {
     private boolean isPaused = false;

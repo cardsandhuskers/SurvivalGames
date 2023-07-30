@@ -88,8 +88,8 @@
         <dependencies>
             <dependency>
                 <groupId>com.intellectualsites.bom</groupId>
-                <artifactId>bom-1.18.x</artifactId>
-                <version>1.28</version>
+                <artifactId>bom-newest</artifactId>
+                <version>1.34</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -99,7 +99,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.19.4-R0.1-SNAPSHOT</version>
+            <version>1.20.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

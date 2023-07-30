@@ -4,8 +4,8 @@ main: io.github.cardsandhuskers.survivalgames.SurvivalGames
 api-version: 1.19
 authors: [ cardsandhuskers ]
 description: survival games plugin
-depend: [PlaceholderAPI, Teams]
-softdepend: [Multiverse-Core]
+depend: [Teams]
+softdepend: [Multiverse-Core, PlaceholderAPI]
 commands:
   setSGPos1:
     description: sets position 1 of the arena
@@ -37,4 +37,6 @@ commands:
   cancelSG:
     description: cancels the game
     usage: /<command>
-
+  reloadSG:
+    description: reloads config for the dropper
+    usage: /<command>
