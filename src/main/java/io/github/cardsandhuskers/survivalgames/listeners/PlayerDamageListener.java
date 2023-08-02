@@ -15,7 +15,6 @@ import java.util.HashMap;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 
-@Deprecated
 public class PlayerDamageListener implements Listener {
     //Designed to listen for environment damage
     PlayerDeathHandler playerDeathHandler;
@@ -25,6 +24,9 @@ public class PlayerDamageListener implements Listener {
         this.storedAttackers = storedAttackers;
         this.playerDeathHandler = playerDeathHandler;
     }
+    public PlayerDamageListener() {
+
+    }
 
     /**
      * this Listener does nothing
@@ -32,7 +34,7 @@ public class PlayerDamageListener implements Listener {
      */
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent e) {
-        if(gameState == State.GAME_OVER) e.setCancelled(true);
+        if(gameState == State.GAME_OVER || gameState == State.GAME_STARTING) e.setCancelled(true);
         /*
         if(e.getEntity() instanceof Player p) {
             EntityDamageEvent.DamageCause cause =  e.getCause();

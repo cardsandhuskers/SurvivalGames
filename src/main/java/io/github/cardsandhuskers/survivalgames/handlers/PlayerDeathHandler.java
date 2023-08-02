@@ -2,6 +2,7 @@ package io.github.cardsandhuskers.survivalgames.handlers;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.teams.objects.Team;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -38,7 +39,7 @@ public class PlayerDeathHandler {
     }
 
     public void onPlayerDeath(Player p) {
-        Team t = t = handler.getPlayerTeam(p);
+        Team t = handler.getPlayerTeam(p);
         playerList.remove(p);
         boolean found = false;
         for(Player player:playerList) {
@@ -81,6 +82,8 @@ public class PlayerDeathHandler {
             handler.getPlayerTeam(player).addTempPoints(player, plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier);
             //ppAPI.give(player.getUniqueId(), (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier));
         }
+
+        p.setGameMode(GameMode.SPECTATOR);
     }
 
     /**
