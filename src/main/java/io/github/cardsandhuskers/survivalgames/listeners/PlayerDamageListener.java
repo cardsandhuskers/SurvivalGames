@@ -35,17 +35,6 @@ public class PlayerDamageListener implements Listener {
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent e) {
         if(gameState == State.GAME_OVER || gameState == State.GAME_STARTING) e.setCancelled(true);
-        /*
-        if(e.getEntity() instanceof Player p) {
-            EntityDamageEvent.DamageCause cause =  e.getCause();
-            if(cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
-                //if(p.getHealth() - p.getLastDamage() <= 0 && p.getGameMode() != GameMode.SPECTATOR) {
-                //    e.setCancelled(true);
-                //    onPlayerDeath(p);
-                //}
-            }
-        }
-         */
     }
 
     /**
@@ -67,7 +56,7 @@ public class PlayerDamageListener implements Listener {
             }
 
             attacker.sendTitle("Killed " + handler.getPlayerTeam(p).color + p.getName(), "", 2, 16, 2);
-            attacker.sendMessage("[+" + ChatColor.YELLOW + ChatColor.BOLD + plugin.getConfig().getInt(gameType + ".killPoints") * multiplier + ChatColor.RESET + "] points" + handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName());
+            attacker.sendMessage("[+" + ChatColor.YELLOW + ChatColor.BOLD + plugin.getConfig().getInt(gameType + ".killPoints") * multiplier + ChatColor.RESET + "] Points " + handler.getPlayerTeam(p).color + p.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName());
             attacker.playSound(attacker.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1f, 2f);
 
             p.sendMessage("You were killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + "!");

@@ -42,7 +42,10 @@ public class GameEndHandler {
         if(gameType == GameType.SKYWARS && gameNumber == 1) totalSeconds = 10;
         else totalSeconds = plugin.getConfig().getInt(gameType + ".GameEndTime");
 
-        if(plugin.getConfig().getBoolean("enableGlow")) glowPacketListener.disableGlow();
+        if(plugin.getConfig().getBoolean("enableGlow")) {
+            glowPacketListener.disableGlow();
+            glowPacketListener.cancelOperation();
+        }
 
         gameEndTimer = new Countdown(plugin,
 
@@ -70,8 +73,6 @@ public class GameEndHandler {
                         winner.addTempPoints(p, (winPoints/numPlayers) * multiplier);
                         //ppAPI.give(p.getUniqueId(), (int) ((winPoints/numPlayers) * multiplier));
                     }
-
-                    glowPacketListener.cancelOperation();
 
                     gameState = SurvivalGames.State.GAME_OVER;
                     Bukkit.broadcastMessage(GameMessages.getWinnerDescription(winner));
