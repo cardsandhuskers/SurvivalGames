@@ -129,6 +129,12 @@ public class GameStageHandler {
         if(gameType == GameType.SKYWARS) worldBorder.buildWorldBorder(0,0);
 
         attackerTimersHandler.cancelOperation();
+
+        if(plugin.getConfig().getBoolean("enableGlow")) {
+            glowPacketListener.disableGlow();
+            glowPacketListener.cancelOperation();
+        }
+
     }
 
     private void gameTimer() {

@@ -31,7 +31,7 @@ public class Border {
 
         worldBorder.setSize(Math.abs(l1.getX()) + Math.abs(l2.getX()));
         worldBorder.setDamageBuffer(0);
-        worldBorder.setDamageAmount(.4);
+        worldBorder.setDamageAmount(1);
     }
 
     /**
