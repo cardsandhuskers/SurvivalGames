@@ -35,7 +35,7 @@ public class BlockPlaceListener implements Listener {
             }
         }
         if(gameType == SurvivalGames.GameType.SKYWARS) {
-            if(e.getBlock().getY() >= 140) {
+            if(e.getBlock().getY() >= 95) {
                 e.setCancelled(true);
             }
             if(gameState != SurvivalGames.State.GAME_IN_PROGRESS) {

@@ -117,6 +117,9 @@ public class GameStageHandler {
         }
     }
 
+    /**
+     * Called when the main game timer ends
+     */
     public void endGame() {
         if(gracePeriodTimer != null) gracePeriodTimer.cancelTimer();
         if(gameTimer != null) gameTimer.cancelTimer();
@@ -137,6 +140,9 @@ public class GameStageHandler {
 
     }
 
+    /**
+     * Main game timer, in sg deathmatch is triggered when this ends
+     */
     private void gameTimer() {
         //should be 720 seconds
         int totalSeconds = plugin.getConfig().getInt(gameType + ".GameTime");
@@ -161,13 +167,13 @@ public class GameStageHandler {
                     if(gameType == GameType.SURVIVAL_GAMES) {
                         startDeathmatch();
                     }
-                    if(gameType == GameType.SKYWARS) {
+                    /*if(gameType == GameType.SKYWARS) {
                         Bukkit.broadcastMessage(ChatColor.RED + "" + ChatColor.BOLD + "OVERTIME! BORDER WILL SHRINK RAPIDLY");
                         for(Player p:Bukkit.getOnlinePlayers()) {
                             p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_AMBIENT, 1F, .5F);
                         }
                         worldBorder.shrinkWorldBorder(2,60);
-                    }
+                    }*/
                 },
 
                 //Each Second
@@ -225,9 +231,10 @@ public class GameStageHandler {
      * Timer until restock, part of the main gameTimer
      */
     private void restockTimer() {
+        int restockTime = plugin.getConfig().getInt(gameType + ".RestockTime");
         restockTimer = new Countdown(plugin,
                 //should be 420 (7mins)
-                plugin.getConfig().getInt(gameType + ".RestockTime"),
+                restockTime,
                 //Timer Start
                 () -> {
                 },
@@ -240,6 +247,13 @@ public class GameStageHandler {
                     Bukkit.broadcastMessage(ChatColor.BLUE + "Chests Have Been Restocked!");
                     for(Player p:Bukkit.getOnlinePlayers()) {
                         p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1F);
+                    }
+
+                    //triggers shrink in skywars
+                    if(gameType == GameType.SKYWARS) {
+                        Bukkit.broadcastMessage(ChatColor.RED + "" + ChatColor.BOLD + "BORDER WILL BEGIN SHRINKING");
+
+                        worldBorder.shrinkWorldBorder(2,restockTime);
                     }
                 },
 
