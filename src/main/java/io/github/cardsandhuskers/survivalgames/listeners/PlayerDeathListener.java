@@ -2,6 +2,8 @@ package io.github.cardsandhuskers.survivalgames.listeners;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
+import io.github.cardsandhuskers.survivalgames.objects.Stats;
+import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -16,17 +18,20 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import java.util.HashMap;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
+import static io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler.numPlayers;
 
 public class PlayerDeathListener implements Listener {
     HashMap<Player, Location> playerLocationMap;
     HashMap<Player, Player> storedAttackers;
     SurvivalGames plugin;
     PlayerDeathHandler playerDeathHandler;
-    public PlayerDeathListener(SurvivalGames plugin, HashMap playerLocationMap, HashMap<Player, Player> storedAttackers, PlayerDeathHandler playerDeathHandler) {
+    private Stats stats;
+    public PlayerDeathListener(SurvivalGames plugin, HashMap playerLocationMap, HashMap<Player, Player> storedAttackers, PlayerDeathHandler playerDeathHandler, Stats stats) {
         this.playerLocationMap = playerLocationMap;
         this.plugin = plugin;
         this.storedAttackers = storedAttackers;
         this.playerDeathHandler = playerDeathHandler;
+        this.stats = stats;
     }
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
@@ -48,7 +53,10 @@ public class PlayerDeathListener implements Listener {
 
 
     public void onKillByPlayer(Player attacker, Player attacked) {
+        TeamHandler handler = TeamHandler.getInstance();
+
         if(!playerDeathHandler.isPlayerAlive(attacked)) return;
+        stats.addEntry(gameNumber + "," + handler.getPlayerTeam(attacked).getTeamName() + "," + attacked.getName() + "," + handler.getPlayerTeam(attacker).getTeamName() + "," + attacker.getName() + "," + (numPlayers));
 
         //give killer points
         //ppAPI.give(attacker.getUniqueId(), (int) (plugin.getConfig().getInt(gameType + ".killPoints") * multiplier));
@@ -64,7 +72,7 @@ public class PlayerDeathListener implements Listener {
         for (Player p : Bukkit.getOnlinePlayers()) {
             if(!p.equals(attacker) && !p.equals(attacked)) {
                 if(playerDeathHandler.isPlayerAlive(p)) {
-                    p.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + "[+" + ChatColor.YELLOW + ChatColor.BOLD + (plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
+                    p.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + " [+" + ChatColor.YELLOW + ChatColor.BOLD + (plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
                 } else {
                     p.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + ".");
                 }
@@ -86,9 +94,11 @@ public class PlayerDeathListener implements Listener {
     public void onOtherDeath(Player attacked) {
         if(!playerDeathHandler.isPlayerAlive(attacked)) return;
 
+
         if(storedAttackers.get(attacked) != null) {
             Player attacker = storedAttackers.get(attacked);
             handler.getPlayerTeam(attacker).addTempPoints(attacker, plugin.getConfig().getInt(gameType + ".killPoints") * multiplier);
+            stats.addEntry(gameNumber + "," + handler.getPlayerTeam(attacked).getTeamName() + "," + attacked.getName() + "," + handler.getPlayerTeam(attacker).getTeamName() + "," + attacker.getDisplayName() + "," + (numPlayers));
 
             if(playerKills.get(attacker) != null) {
                 playerKills.put(attacker, playerKills.get(attacker) + 1);
@@ -106,9 +116,9 @@ public class PlayerDeathListener implements Listener {
             for(Player player: Bukkit.getOnlinePlayers()) {
                 if(!player.equals(attacker) && !player.equals(attacked)) {
                     if(playerDeathHandler.isPlayerAlive(player)) {
-                        player.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + " [+" + ChatColor.YELLOW + ChatColor.BOLD + (int)(plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
+                        player.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + " [+" + ChatColor.YELLOW + ChatColor.BOLD + (plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
                     } else {
-                        player.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + ChatColor.RESET + ".");
+                        player.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName());
                     }
                 }
             }
@@ -120,12 +130,13 @@ public class PlayerDeathListener implements Listener {
                     if(playerDeathHandler.isPlayerAlive(player)) {
                         player.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " died [+" + ChatColor.YELLOW + ChatColor.BOLD + (int)(plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
                     } else {
-                        player.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " died.");
+                        player.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " died");
                     }
                 }
             }
             attacked.sendMessage(ChatColor.GRAY + "You died.");
             attacked.playSound(attacked.getLocation(), Sound.ENTITY_ENDER_DRAGON_AMBIENT,1,2);
+            stats.addEntry(gameNumber + "," + handler.getPlayerTeam(attacked).getTeamName() + "," + attacked.getName() + ",Environment-,Environment-," + (numPlayers + 1));
         }
 
         playerDeathHandler.onPlayerDeath(attacked);

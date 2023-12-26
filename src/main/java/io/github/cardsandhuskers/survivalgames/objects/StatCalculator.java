@@ -4,259 +4,265 @@ import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.bukkit.Bukkit;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameType;
+
 public class StatCalculator {
-    SurvivalGames plugin;
-    ArrayList<PlayerKillsHolder> playerKillsHolders;
-    ArrayList<TeamKillsHolder> teamKillsHolders;
-    ArrayList<TotalKillsHolder> totalKillsHolders;
+    private SurvivalGames plugin;
+    private ArrayList<PlayerStatsHolder> playerStatsHolders;
+    private ArrayList<EventKillsHolder> sgKillsHolders, skywarsKillsHolders;
+    private int currentEvent;
 
     public StatCalculator(SurvivalGames plugin) {
         this.plugin = plugin;
+        try {currentEvent = Bukkit.getPluginManager().getPlugin("LobbyPlugin").getConfig().getInt("eventNum");}
+        catch (Exception e) {currentEvent = 1;}
     }
 
-    public void calculateStats() throws Exception {
-        playerKillsHolders = new ArrayList<>();
-        teamKillsHolders = new ArrayList<>();
-
-        FileReader reader = null;
-        try {
-            reader = new FileReader(plugin.getDataFolder() + "/stats.csv");
-        } catch (IOException e) {
-            plugin.getLogger().warning("Stats file not found!");
-            return;
-        }
-
-        String[] headers = {"Event", "Type", "Team", "Name", "Kills"};
-        CSVFormat.Builder builder = CSVFormat.Builder.create();
-        builder.setHeader(headers);
-        CSVFormat format = builder.build();
-
-        CSVParser parser;
-        try {
-            parser = new CSVParser(reader, format);
-        } catch (IOException e) {
-            throw new Exception(e);
-        }
-        List<CSVRecord> recordList = parser.getRecords();
-
-        try {
-            reader.close();
-        } catch (IOException e) {
-            throw new Exception(e);
-        }
-
-        //maps records to each event number
-        HashMap<Integer, ArrayList<CSVRecord>> recordsMap = new HashMap<>();
-        int totalEvents = 0;
-        for (CSVRecord r : recordList) {
-            //skip header
-            if (r.getRecordNumber() == 1) continue;
-
-            //have totalEvents be value of "last event"
-            totalEvents = Math.max(totalEvents, Integer.parseInt(r.get(0)));
-
-            //if event number isn't in map, put new arraylist in spot at map
-            if(!recordsMap.containsKey(Integer.valueOf(r.get(0)))) recordsMap.put(Integer.valueOf(r.get(0)), new ArrayList<>());
-            //append to arraylist
-            recordsMap.get(Integer.valueOf(r.get(0))).add(r);
-        }
+    public void calculateStats() throws IOException {
+        int initialEvent = 1;
 
 
-        ArrayList<CSVRecord> winningRecords = new ArrayList<>();
+        HashMap<String, PlayerStatsHolder> playerStatsMap = new HashMap<>();
+        FileReader reader;
 
-        for(int i = 1; i <= totalEvents; i++) {
-            if(!recordsMap.containsKey(i)) continue;
-            for(CSVRecord r:recordsMap.get(i)) {
-                SurvivalGames.GameType type = SurvivalGames.GameType.valueOf(r.get(1));
-                String team = r.get(2);
-                String player = r.get(3);
+        for(int i = initialEvent; i <= currentEvent; i++) {
+            for(SurvivalGames.GameType type : SurvivalGames.GameType.values()) {
 
-                if(r.get(4).equals("WINNER-")) {
-                    winningRecords.add(r);
+                try {
+                    reader = new FileReader(plugin.getDataFolder() + "/" + type + "Stats" + i + ".csv");
+                } catch (IOException e) {
+                    plugin.getLogger().warning("Stats file not found!");
                     continue;
                 }
-                int kills = Integer.parseInt(r.get(4));
+                String[] headers = {"round", "deadTeam", "deadName", "killerTeam", "killerName"};
+
+                CSVFormat.Builder builder = CSVFormat.Builder.create();
+                builder.setHeader(headers);
+                CSVFormat format = builder.build();
+
+                CSVParser parser;
+                parser = new CSVParser(reader, format);
+
+                List<CSVRecord> recordList = parser.getRecords();
+                reader.close();
 
 
-                boolean exists = false;
-                for(PlayerKillsHolder h:playerKillsHolders) {
-                    if(h.name.equalsIgnoreCase(player) && h.eventNum == i) {
-                        if(type == SurvivalGames.GameType.SKYWARS) h.skywarsKills += kills;
-                        if(type == SurvivalGames.GameType.SURVIVAL_GAMES) h.sgKills += kills;
+                for(CSVRecord r:recordList) {
+                    if (r.getRecordNumber() == 1) continue;
 
-                        exists = true;
-                        break;
+                    String killer = r.get(4);
+                    String died = r.get(2);
+
+                    //win condition, this isn't a death but means the player won
+                    if(killer.equals("Winner-")) {
+                        continue;
                     }
-                }
-                if(!exists) {
-                    PlayerKillsHolder holder = new PlayerKillsHolder();
-                    holder.eventNum = i;
-                    holder.name = player;
-                    holder.team = team;
-                    if(type == SurvivalGames.GameType.SKYWARS) holder.skywarsKills = kills;
-                    if(type == SurvivalGames.GameType.SURVIVAL_GAMES) holder.sgKills = kills;
 
-                    playerKillsHolders.add(holder);
-                }
+                    if(!killer.equals("Environment-")) {
+                        if (playerStatsMap.containsKey(killer)) {
+                            playerStatsMap.get(killer).addKill(i, died, type);
 
-                exists = false;
-                for(TeamKillsHolder h:teamKillsHolders) {
-                    if(h.team.equalsIgnoreCase(team) && h.eventNum == i) {
-                        if(type == SurvivalGames.GameType.SKYWARS) h.skywarsKills += kills;
-                        if(type == SurvivalGames.GameType.SURVIVAL_GAMES) h.sgKills += kills;
-
-                        exists = true;
-                        break;
+                        } else {
+                            PlayerStatsHolder statsHolder = new PlayerStatsHolder(killer);
+                            statsHolder.addKill(i, died, type);
+                            playerStatsMap.put(killer, statsHolder);
+                        }
                     }
+                        if (playerStatsMap.containsKey(died)) {
+                            playerStatsMap.get(died).addDeath(i, killer, type);
+                        } else {
+                            PlayerStatsHolder statsHolder = new PlayerStatsHolder(died);
+                            statsHolder.addDeath(i, killer, type);
+                            playerStatsMap.put(died, statsHolder);
+                        }
                 }
-                if(!exists) {
-                    TeamKillsHolder holder = new TeamKillsHolder();
-                    holder.eventNum = i;
-                    holder.team = team;
-                    if(type == SurvivalGames.GameType.SKYWARS) holder.skywarsKills = kills;
-                    if(type == SurvivalGames.GameType.SURVIVAL_GAMES) holder.sgKills = kills;
-
-                    teamKillsHolders.add(holder);
-                }
-
             }
 
         }
+        playerStatsHolders = new ArrayList<>(playerStatsMap.values());
+        System.out.println(playerStatsHolders);
 
-        HashMap<String, TotalKillsHolder> killsHolderHashMap = new HashMap<>();
-        for(PlayerKillsHolder h:playerKillsHolders) {
-            //use this to sum total kills for each player
-            if(killsHolderHashMap.containsKey(h.name)) {
-                TotalKillsHolder holder = killsHolderHashMap.get(h.name);
-                holder.sgKills += h.sgKills;
-                holder.skywarsKills += h.skywarsKills;
+        sgKillsHolders = new ArrayList<>();
+        skywarsKillsHolders = new ArrayList<>();
+
+        for(PlayerStatsHolder psh: playerStatsHolders) sgKillsHolders.addAll(psh.getEventKills(SurvivalGames.GameType.SURVIVAL_GAMES));
+        for(PlayerStatsHolder psh: playerStatsHolders) skywarsKillsHolders.addAll(psh.getEventKills(SurvivalGames.GameType.SKYWARS));
+
+        System.out.println(sgKillsHolders);
+        System.out.println(skywarsKillsHolders);
+
+    }
+
+    public EventKillsHolder getEventKills(int place, SurvivalGames.GameType gameType) {
+        ArrayList<EventKillsHolder> returnableList;
+        if(gameType == SurvivalGames.GameType.SKYWARS) returnableList = new ArrayList<>(skywarsKillsHolders);
+        else returnableList = new ArrayList<>(sgKillsHolders);
+
+        Collections.sort(returnableList, new EventKillsComparator(gameType));
+        Collections.reverse(returnableList);
+
+        if(place > returnableList.size()) return null;
+        else return returnableList.get(place-1);
+
+    }
+
+    public PlayerStatsHolder getTotalKills(int place, SurvivalGames.GameType gameType) {
+        ArrayList<PlayerStatsHolder> returnableList = new ArrayList<>(playerStatsHolders);
+        Collections.sort(returnableList, new TotalKillsComparator(gameType));
+        Collections.reverse(returnableList);
+
+        if(place > returnableList.size()) return null;
+        else return returnableList.get(place-1);
+
+    }
+
+    public class PlayerStatsHolder {
+        String name;
+
+        //integer is eventNum, arraylist is list of players they killed in that event
+        private HashMap<Integer, ArrayList<String>> sgKills, sgDeaths;
+        private HashMap<Integer, ArrayList<String>> skywarsKills, skywarsDeaths;
+
+        public PlayerStatsHolder(String name) {
+            this.name = name;
+            sgKills = new HashMap<>();
+            sgDeaths = new HashMap<>();
+
+            skywarsKills = new HashMap<>();
+            skywarsDeaths = new HashMap<>();
+        }
+
+        public void addDeath(int event, String killer, SurvivalGames.GameType gameType) {
+            if(gameType == SurvivalGames.GameType.SKYWARS) {
+                if(skywarsDeaths.containsKey(event)) {
+                    skywarsDeaths.get(event).add(killer);
+                } else {
+                    ArrayList<String> players = new ArrayList<>();
+                    players.add(killer);
+                    skywarsDeaths.put(event, players);
+                }
+
             } else {
-                TotalKillsHolder holder = new TotalKillsHolder();
-                holder.name = h.name;
-                holder.sgKills = h.sgKills;
-                holder.skywarsKills = h.skywarsKills;
-
-                killsHolderHashMap.put(h.name, holder);
-            }
-
-        }
-        for(CSVRecord r: winningRecords) {
-            String name = r.get(3);
-            SurvivalGames.GameType type = SurvivalGames.GameType.valueOf(r.get(1));
-            if(killsHolderHashMap.containsKey(name)) {
-                if(type == SurvivalGames.GameType.SKYWARS) killsHolderHashMap.get(name).skywarsWins++;
-                else killsHolderHashMap.get(name).sgWins++;
+                if(sgDeaths.containsKey(event)) {
+                    sgDeaths.get(event).add(killer);
+                } else {
+                    ArrayList<String> players = new ArrayList<>();
+                    players.add(killer);
+                    sgDeaths.put(event, players);
+                }
             }
         }
+        public void addKill(int event, String killed, SurvivalGames.GameType gameType) {
+            if(gameType == SurvivalGames.GameType.SKYWARS) {
+                if(skywarsKills.containsKey(event)) {
+                    skywarsKills.get(event).add(killed);
+                } else {
+                    ArrayList<String> players = new ArrayList<>();
+                    players.add(killed);
+                    skywarsKills.put(event, players);
+                }
 
-        totalKillsHolders = new ArrayList<>(killsHolderHashMap.values());
-
-    }
-
-    public ArrayList<PlayerKillsHolder> getPlayerKillsHolders(SurvivalGames.GameType type) {
-        ArrayList<PlayerKillsHolder> pkh = new ArrayList<>(playerKillsHolders);
-
-        Comparator playerKillsCompare = new PlayerKillsComparator(type);
-        pkh.sort(playerKillsCompare);
-        Collections.reverse(pkh);
-        return pkh;
-
-    }
-
-    public ArrayList<TotalKillsHolder> getTotalKillsHolders(SurvivalGames.GameType game, TotalKillsComparator.SortType type) {
-        ArrayList<TotalKillsHolder> tkh = new ArrayList<>(totalKillsHolders);
-        
-        Comparator totalKillsCompare = new TotalKillsComparator(game, type);
-        tkh.sort(totalKillsCompare);
-        Collections.reverse(tkh);
-        return tkh;
-    }
-
-
-    class PlayerKillsHolder {
-        public int eventNum;
-        public int skywarsKills;
-        public int sgKills;
-        public String name;
-        public String team;
-
-        @Override
-        public String toString() {
-            return name + "  Team: " + team + ": \n" + "Event: " + eventNum + " SG: "  +sgKills + " Skywars: " + skywarsKills;
-        }
-    }
-    class PlayerKillsComparator implements Comparator<PlayerKillsHolder> {
-        public SurvivalGames.GameType game;
-        public PlayerKillsComparator(SurvivalGames.GameType game) {
-            this.game = game;
-        }
-
-
-        public int compare(PlayerKillsHolder h1, PlayerKillsHolder h2) {
-            int compare;
-            if (game == SurvivalGames.GameType.SKYWARS) compare = Integer.compare(h1.skywarsKills, h2.skywarsKills);
-            else compare = Integer.compare(h1.sgKills, h2.sgKills);
-            if (compare == 0) compare = h1.name.compareTo(h2.name);
-            if (compare == 0) compare = Integer.compare(h1.eventNum, h2.eventNum);
-            return compare;
-        }
-    }
-
-
-    class TeamKillsHolder {
-        public int eventNum;
-        public int skywarsKills;
-        public int sgKills;
-        public String team;
-
-    }
-
-    class TotalKillsHolder {
-        public int sgKills;
-        public int skywarsKills;
-        public String name;
-        public int skywarsWins = 0;
-        public int sgWins = 0;
-
-        @Override
-        public String toString() {
-            return name + ": \n" + "SGK: "  +sgKills + " SkywarsK: " + skywarsKills + "SGW: "  +sgWins + " SkywarsW: " + skywarsWins;
-        }
-    }
-    class TotalKillsComparator implements Comparator<TotalKillsHolder> {
-        public SurvivalGames.GameType game;
-        public SortType type;
-        enum SortType {
-            KILLS,
-            WINS
-        }
-        public TotalKillsComparator(SurvivalGames.GameType game, SortType type) {
-            this.game = game;
-            this.type = type;
-        }
-
-
-        public int compare(TotalKillsHolder h1, TotalKillsHolder h2) {
-            int compare;
-            if(type == SortType.KILLS) {
-                if (game == SurvivalGames.GameType.SKYWARS) compare = Integer.compare(h1.skywarsKills, h2.skywarsKills);
-                else compare = Integer.compare(h1.sgKills, h2.sgKills);
+            } else {
+                if(sgKills.containsKey(event)) {
+                    sgKills.get(event).add(killed);
+                } else {
+                    ArrayList<String> players = new ArrayList<>();
+                    players.add(killed);
+                    sgKills.put(event, players);
+                }
             }
-            else {
-                if (game == SurvivalGames.GameType.SKYWARS) compare = Integer.compare(h1.skywarsWins, h2.skywarsWins);
-                else compare = Integer.compare(h1.sgWins, h2.sgWins);
+        }
+        /*public int getEventKills(int eventNum, SurvivalGames.GameType gameType) {
+            if(gameType == SurvivalGames.GameType.SKYWARS) {
+                if(skywarsKills.containsKey(eventNum)) return skywarsKills.get(eventNum).size();
+                else return 0;
             }
+            if(gameType == SurvivalGames.GameType.SURVIVAL_GAMES) {
+                if(sgKills.containsKey(eventNum)) return sgKills.get(eventNum).size();
+                else return 0;
+            }
+            return 0;
+        }*/
+
+        public int getKills(SurvivalGames.GameType gameType) {
+            int kills = 0;
+            if(gameType == SurvivalGames.GameType.SKYWARS) {
+                for(int i = 1; i <= currentEvent; i++) {
+                    if(skywarsKills.containsKey(i)) {
+                        kills += skywarsKills.get(i).size();
+                    }
+                }
+            }
+            if(gameType == SurvivalGames.GameType.SURVIVAL_GAMES) {
+                for(int i = 1; i <= currentEvent; i++) {
+                    if(sgKills.containsKey(i)) {
+                        kills += sgKills.get(i).size();
+                    }
+                }
+            }
+            return kills;
+        }
+
+        public ArrayList<EventKillsHolder> getEventKills(SurvivalGames.GameType gameType) {
+            ArrayList<EventKillsHolder> eventKills = new ArrayList<>();
+
+            if(gameType == SurvivalGames.GameType.SKYWARS) {
+                for (int i = 1; i <= currentEvent; i++) {
+                    if (skywarsKills.containsKey(i)) {
+                        eventKills.add(new EventKillsHolder(name, i, skywarsKills.get(i).size()));
+                    }
+                }
+            }
+            if(gameType == SurvivalGames.GameType.SURVIVAL_GAMES) {
+                for (int i = 1; i <= currentEvent; i++) {
+                    if (sgKills.containsKey(i)) {
+                        eventKills.add(new EventKillsHolder(name, i, sgKills.get(i).size()));
+                    }
+                }
+            }
+            return eventKills;
+        }
+    }
+
+    public class TotalKillsComparator implements Comparator<PlayerStatsHolder> {
+        private SurvivalGames.GameType gameType;
+        public TotalKillsComparator(SurvivalGames.GameType gameType) {
+            this.gameType = gameType;
+        }
+
+        public int compare(PlayerStatsHolder h1, PlayerStatsHolder h2) {
+            int compare = Integer.compare(h1.getKills(gameType), h2.getKills(gameType));
             if (compare == 0) compare = h1.name.compareTo(h2.name);
             return compare;
         }
-
     }
 
+    public class EventKillsHolder {
+        String name;
+        int event, kills;
+        public EventKillsHolder(String name, int event, int kills) {
+            this.name = name;
+            this.event = event;
+            this.kills = kills;
+        }
+    }
 
+    public class EventKillsComparator implements Comparator<EventKillsHolder> {
+        private SurvivalGames.GameType gameType;
+        public EventKillsComparator(SurvivalGames.GameType gameType) {
+            this.gameType = gameType;
+        }
 
+        public int compare(EventKillsHolder h1, EventKillsHolder h2) {
+            int compare = Integer.compare(h1.kills, h2.kills);
+            if(compare == 0) compare = h1.name.compareTo(h2.name);
+            return compare;
+        }
+    }
 }

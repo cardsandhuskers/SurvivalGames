@@ -1,6 +1,8 @@
 package io.github.cardsandhuskers.survivalgames.objects;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
+import io.github.cardsandhuskers.teams.handlers.TeamHandler;
+import io.github.cardsandhuskers.teams.objects.Team;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -10,6 +12,8 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.GameType.SKYWARS;
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.GameType.SURVIVAL_GAMES;
 import static io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler.numPlayers;
 import static io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler.numTeams;
 import static io.github.cardsandhuskers.survivalgames.objects.Border.borderSize;
@@ -82,7 +86,7 @@ public class Placeholder extends PlaceholderExpansion {
         }
 
 
-        if(gameType == GameType.SKYWARS) {
+        if(gameType == SKYWARS) {
             if (s.equalsIgnoreCase("timer")) {
                 int time;
                 if ((gameState == State.GAME_IN_PROGRESS && timeVar == 0) || gameState == State.DEATHMATCH && timeVar == 0) {
@@ -136,80 +140,59 @@ public class Placeholder extends PlaceholderExpansion {
             return " +- " + borderSize;
         }
         if(s.equalsIgnoreCase("playerkills")) {
-            if(playerKills.get(p) != null) {
-                return playerKills.get(p) + "";
-            } else {
+            if (playerKills.containsKey((Player) p)) {
                 playerKills.put((Player) p, 0);
             }
+            return playerKills.get(p) + "";
         }
         if(s.equalsIgnoreCase("round")) {
             return gameNumber + "";
         }
 
         String[] values = s.split("_");
-        //playerKills, teamKills, playerSumKills
+        //playerKills, totalKills, wins
         //sg / skywars
         // num
         //playerKills_sg_1
         try {
             if(values[0].equalsIgnoreCase("playerKills")) {
-                int num = Integer.parseInt(values[2])-1;
-                if(values[1].equalsIgnoreCase("skywars")) {
-                    ArrayList<StatCalculator.PlayerKillsHolder> killsHolders = plugin.statCalculator.getPlayerKillsHolders(GameType.SKYWARS);
+                int place = Integer.parseInt(values[2]);
+                GameType type = SKYWARS;
+                if(values[1].equalsIgnoreCase("skywars")) type = SKYWARS;
+                if(values[1].equalsIgnoreCase("sg")) type = SURVIVAL_GAMES;
 
-                    if(num >= killsHolders.size()) return "";
-                    StatCalculator.PlayerKillsHolder holder = killsHolders.get(num);
+                StatCalculator.EventKillsHolder holder = plugin.statCalculator.getEventKills(place, type);
+                if (holder == null) return "";
 
-                    String color = "";
-                    if(handler.getPlayerTeam(Bukkit.getPlayer(holder.name)) != null) color = handler.getPlayerTeam(Bukkit.getPlayer(holder.name)).color;
-                    return color + holder.name + ChatColor.RESET + " Event " + holder.eventNum + ": " + holder.skywarsKills;
-                }
-                if(values[1].equalsIgnoreCase("sg")) {
-                    ArrayList<StatCalculator.PlayerKillsHolder> killsHolders = plugin.statCalculator.getPlayerKillsHolders(GameType.SURVIVAL_GAMES);
-
-                    if(num >= killsHolders.size()) return "";
-                    StatCalculator.PlayerKillsHolder holder = killsHolders.get(num);
-
-                    String color = "";
-                    if(handler.getPlayerTeam(Bukkit.getPlayer(holder.name)) != null) color = handler.getPlayerTeam(Bukkit.getPlayer(holder.name)).color;
-                    return color + holder.name + ChatColor.RESET + " Event " + holder.eventNum + ": " + holder.sgKills;
-
-                }
+                Team team = TeamHandler.getInstance().getPlayerTeam(Bukkit.getPlayer(holder.name));
+                String color = "";
+                if(team != null) color = team.getColor();
+                return color + holder.name + ChatColor.RESET + " Event " + holder.event + ": " + holder.kills;
 
             }
-        } catch (Exception e) {};
-
+        } catch (Exception e) {e.printStackTrace();};
 
         try {
             if(values[0].equalsIgnoreCase("totalKills")) {
-                int num = Integer.parseInt(values[2])-1;
-                if(values[1].equalsIgnoreCase("skywars")) {
-                    ArrayList<StatCalculator.TotalKillsHolder> killsHolders = plugin.statCalculator.getTotalKillsHolders(GameType.SKYWARS, StatCalculator.TotalKillsComparator.SortType.KILLS);
+                int place = Integer.parseInt(values[2]);
+                GameType type = SKYWARS;
 
-                    if(num >= killsHolders.size()) return "";
-                    StatCalculator.TotalKillsHolder holder = killsHolders.get(num);
+                if(values[1].equalsIgnoreCase("skywars")) type = SKYWARS;
+                if(values[1].equalsIgnoreCase("sg")) type = SURVIVAL_GAMES;
 
-                    String color = "";
-                    if(handler.getPlayerTeam(Bukkit.getPlayer(holder.name)) != null) color = handler.getPlayerTeam(Bukkit.getPlayer(holder.name)).color;
-                    return color + holder.name + ChatColor.RESET + ": " + holder.skywarsKills;
-                }
-                if(values[1].equalsIgnoreCase("sg")) {
-                    ArrayList<StatCalculator.TotalKillsHolder> killsHolders = plugin.statCalculator.getTotalKillsHolders(GameType.SURVIVAL_GAMES, StatCalculator.TotalKillsComparator.SortType.KILLS);
+                StatCalculator.PlayerStatsHolder holder = plugin.statCalculator.getTotalKills(place, type);
+                if (holder == null) return "";
 
-                    if(num >= killsHolders.size()) return "";
-                    StatCalculator.TotalKillsHolder holder = killsHolders.get(num);
-
-                    String color = "";
-                    if(handler.getPlayerTeam(Bukkit.getPlayer(holder.name)) != null) color = handler.getPlayerTeam(Bukkit.getPlayer(holder.name)).color;
-                    return color + holder.name + ChatColor.RESET + ": " + holder.sgKills;
-
-                }
+                Team team = TeamHandler.getInstance().getPlayerTeam(Bukkit.getPlayer(holder.name));
+                String color = "";
+                if(team != null) color = team.getColor();
+                return color + holder.name + ChatColor.RESET + ": " + holder.getKills(type);
 
             }
-        } catch (Exception e) {};
+        } catch (Exception e) {e.printStackTrace();};
 
         try {
-            if(values[0].equalsIgnoreCase("wins")) {
+            /*if(values[0].equalsIgnoreCase("wins")) {
                 int num = Integer.parseInt(values[2])-1;
                 if(values[1].equalsIgnoreCase("skywars")) {
                     ArrayList<StatCalculator.TotalKillsHolder> killsHolders = plugin.statCalculator.getTotalKillsHolders(GameType.SKYWARS, StatCalculator.TotalKillsComparator.SortType.WINS);
@@ -231,7 +214,7 @@ public class Placeholder extends PlaceholderExpansion {
 
                 }
 
-            }
+            }*/
         } catch (Exception e) {};
 
 

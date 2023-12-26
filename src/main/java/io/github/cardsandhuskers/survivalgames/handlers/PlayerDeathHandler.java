@@ -1,6 +1,7 @@
 package io.github.cardsandhuskers.survivalgames.handlers;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
+import io.github.cardsandhuskers.survivalgames.objects.Stats;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -18,12 +19,15 @@ public class PlayerDeathHandler {
     private final ArrayList<Team> teamList;
     public static int numTeams;
     public static int numPlayers;
-    SurvivalGames plugin;
-    GameStageHandler gameStageHandler;
-    public PlayerDeathHandler(SurvivalGames plugin, GameStageHandler gameStageHandler, ArrayList<Team> teamList) {
+    private SurvivalGames plugin;
+    private GameStageHandler gameStageHandler;
+    private Stats stats;
+
+    public PlayerDeathHandler(SurvivalGames plugin, GameStageHandler gameStageHandler, ArrayList<Team> teamList, Stats stats) {
         this.plugin = plugin;
         this.gameStageHandler = gameStageHandler;
         this.teamList = teamList;
+        this.stats = stats;
 
         playerList = new ArrayList<>();
 
@@ -36,6 +40,7 @@ public class PlayerDeathHandler {
         }
         numPlayers = playerList.size();
         numTeams = teamList.size();
+
     }
 
     public void onPlayerDeath(Player p) {
@@ -60,7 +65,7 @@ public class PlayerDeathHandler {
         }
         if(teamList.size() <= 1) {
             gameStageHandler.endGame();
-            GameEndHandler gameEndHandler = new GameEndHandler(plugin, teamList);
+            GameEndHandler gameEndHandler = new GameEndHandler(plugin, teamList, stats);
             gameEndHandler.gameEndTimer(gameStageHandler.glowPacketListener);
 
         }
@@ -80,7 +85,6 @@ public class PlayerDeathHandler {
         //give survival points to everyone alive
         for(Player player:playerList) {
             handler.getPlayerTeam(player).addTempPoints(player, plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier);
-            //ppAPI.give(player.getUniqueId(), (int)(plugin.getConfig().getInt(gameType + ".survivalPoints") * multiplier));
         }
 
         p.setGameMode(GameMode.SPECTATOR);
@@ -93,15 +97,8 @@ public class PlayerDeathHandler {
      */
     public boolean isPlayerAlive(Player p) {
         return playerList.contains(p);
-        /*
-        for(Player player:playerList) {
-            if(p.equals(player)) {
-                return true;
-            }
-        }
-        return false;
-         */
     }
+
     public void addPlayer(Player p) {
         playerList.add(p);
         Team t = handler.getPlayerTeam(p);

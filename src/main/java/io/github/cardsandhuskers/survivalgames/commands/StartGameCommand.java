@@ -29,6 +29,7 @@ public class StartGameCommand implements CommandExecutor {
     private PlayerDeathHandler playerDeathHandler;
     private ArrayList<PlayerTracker> trackerList;
     public Countdown pregameTimer;
+    private static Stats stats;
 
     public StartGameCommand(SurvivalGames plugin) {
         this.plugin = plugin;
@@ -151,7 +152,8 @@ public class StartGameCommand implements CommandExecutor {
 
         gameStageHandler = new GameStageHandler(plugin, chests, worldBorder, teamList, attackerTimersHandler, trackerList);
 
-        playerDeathHandler = new PlayerDeathHandler(plugin, gameStageHandler, teamList);
+        if(gameNumber == 1) stats = new Stats("round,deadTeam,deadName,killerTeam,killerName,place");
+        playerDeathHandler = new PlayerDeathHandler(plugin, gameStageHandler, teamList, stats);
         //attacked, attacker (an attacked player can only have 1 attacker, vise versa is not true)
 
         //PlayerDamageListener playerDamageListener = new PlayerDamageListener(playerDeathHandler, storedAttackers);
@@ -167,7 +169,7 @@ public class StartGameCommand implements CommandExecutor {
         getServer().getPluginManager().registerEvents(new PearlThrowListener(), plugin);
 
         HashMap<Player, Location> playerDeathLocationMap = new HashMap<>();
-        PlayerDeathListener playerDeathListener = new PlayerDeathListener(plugin, playerDeathLocationMap, storedAttackers, playerDeathHandler);
+        PlayerDeathListener playerDeathListener = new PlayerDeathListener(plugin, playerDeathLocationMap, storedAttackers, playerDeathHandler, stats);
         getServer().getPluginManager().registerEvents(playerDeathListener, plugin);
         getServer().getPluginManager().registerEvents(new PlayerMoveListener(playerDeathListener), plugin);
         getServer().getPluginManager().registerEvents(new PlayerRespawnListener(plugin, playerDeathLocationMap), plugin);

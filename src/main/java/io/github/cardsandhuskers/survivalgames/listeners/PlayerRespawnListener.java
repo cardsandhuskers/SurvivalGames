@@ -11,7 +11,11 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
 
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameType;
+
 public class PlayerRespawnListener implements Listener {
+
+    //update to UUID???
     HashMap<Player, Location> playerLocationMap;
     Plugin plugin;
     public PlayerRespawnListener(Plugin plugin, HashMap playerLocationMap) {
@@ -22,9 +26,12 @@ public class PlayerRespawnListener implements Listener {
     public void onPlayerRespawn(PlayerRespawnEvent e) {
 
         Player p = e.getPlayer();
-        System.out.println(playerLocationMap.get(p));
-        e.setRespawnLocation(playerLocationMap.get(p));
-        //p.setGameMode(GameMode.SPECTATOR);
+        if(playerLocationMap.containsKey(p)) {
+            e.setRespawnLocation(playerLocationMap.get(p));
+        } else {
+            e.setRespawnLocation(plugin.getConfig().getLocation(gameType + ".spawnPoint"));
+        }
+
         p.setGameMode(GameMode.SURVIVAL);
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()->p.setGameMode(GameMode.SPECTATOR), 1);
 

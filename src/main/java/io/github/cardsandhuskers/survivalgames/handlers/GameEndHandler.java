@@ -5,6 +5,7 @@ import io.github.cardsandhuskers.survivalgames.commands.StartGameCommand;
 import io.github.cardsandhuskers.survivalgames.listeners.GlowPacketListener;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import io.github.cardsandhuskers.survivalgames.objects.GameMessages;
+import io.github.cardsandhuskers.survivalgames.objects.Stats;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -30,10 +31,12 @@ public class GameEndHandler {
     private final SurvivalGames plugin;
     private final ArrayList<Team> teamList;
     private Countdown gameEndTimer;
+    private Stats stats;
 
-    public GameEndHandler(SurvivalGames plugin, ArrayList<Team> teamList) {
+    public GameEndHandler(SurvivalGames plugin, ArrayList<Team> teamList, Stats stats) {
         this.teamList = teamList;
         this.plugin = plugin;
+        this.stats = stats;
     }
 
     public void gameEndTimer(GlowPacketListener glowPacketListener) {
@@ -67,6 +70,7 @@ public class GameEndHandler {
                     for(Player p: winner.getOnlinePlayers()) {
                         winner.addTempPoints(p, (winPoints/numPlayers) * multiplier);
                         //ppAPI.give(p.getUniqueId(), (int) ((winPoints/numPlayers) * multiplier));
+                        p.setGameMode(GameMode.SPECTATOR);
                     }
 
                     gameState = SurvivalGames.State.GAME_OVER;
@@ -121,15 +125,14 @@ public class GameEndHandler {
 
                         }, 20L * i);
                     }
-                    //save kills and winning team
-                    try {
-                        savePoints(winner);
-                    } catch (IOException e) {
-                        StackTraceElement[] trace = e.getStackTrace();
-                        String str = "";
-                        for(StackTraceElement element:trace) str += element.toString() + "\n";
-                        plugin.getLogger().severe("ERROR Calculating Stats!\n" + str);
+                    //save stats to file
+                    for(Player p: winner.getOnlinePlayers()) {
+                        stats.addEntry(gameNumber + "," + winner.getTeamName() + "," + p.getName() + ",Winner-,Winner-,1");
                     }
+
+                    int eventNum;
+                    try {eventNum = Bukkit.getPluginManager().getPlugin("LobbyPlugin").getConfig().getInt("eventNum");} catch (Exception e) {eventNum = 1;}
+                    if(!(gameType == GameType.SKYWARS && gameNumber == 1)) stats.writeToFile(plugin.getDataFolder().toPath().toString(), gameType + "Stats" + eventNum);
 
                 },
 
@@ -141,12 +144,6 @@ public class GameEndHandler {
                 //Each Second
                 (t) -> {
                     timeVar = t.getSecondsLeft();
-
-                    if (t.getSecondsLeft() == t.getTotalSeconds() - 2) {
-                        for (Player p : Bukkit.getOnlinePlayers()) {
-                            p.setGameMode(GameMode.SPECTATOR);
-                        }
-                    }
 
                     if (!(gameType == GameType.SKYWARS && gameNumber == 1)) {
                         //show each player their team performance
@@ -187,47 +184,5 @@ public class GameEndHandler {
             //way to execute a command as console
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "startRound");
         }
-    }
-    public void savePoints(Team winner) throws IOException {
-
-        FileWriter writer = new FileWriter("plugins/SurvivalGames/stats.csv", true);
-        FileReader reader = new FileReader("plugins/SurvivalGames/stats.csv");
-
-        String[] headers = {"Event", "Type", "Team", "Name", "Kills"};
-
-        CSVFormat.Builder builder = CSVFormat.Builder.create();
-        builder.setHeader(headers);
-        CSVFormat format = builder.build();
-
-        CSVParser parser = new CSVParser(reader, format);
-
-        if(!parser.getRecords().isEmpty()) {
-            format = CSVFormat.DEFAULT;
-        }
-
-        CSVPrinter printer = new CSVPrinter(writer, format);
-
-        int eventNum = Bukkit.getPluginManager().getPlugin("LobbyPlugin").getConfig().getInt("eventNum");
-        //printer.printRecord(currentGame);
-        for(Player p:playerKills.keySet()) {
-            if(p == null) continue;
-            if(handler.getPlayerTeam(p) == null) continue;
-            printer.printRecord(eventNum, gameType, handler.getPlayerTeam(p).getTeamName(), p.getDisplayName(), playerKills.get(p));
-        }
-        for(Player p: winner.getOnlinePlayers()) {
-            if(p == null) continue;
-            if(handler.getPlayerTeam(p) == null) continue;
-            printer.printRecord(eventNum, gameType, winner.getTeamName(), p.getDisplayName(), "WINNER-");
-        }
-        writer.close();
-        try {
-            plugin.statCalculator.calculateStats();
-        } catch (Exception e) {
-            StackTraceElement[] trace = e.getStackTrace();
-            String str = "";
-            for(StackTraceElement element:trace) str += element.toString() + "\n";
-            plugin.getLogger().severe("ERROR Calculating Stats!\n" + str);
-        }
-
     }
 }

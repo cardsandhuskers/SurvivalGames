@@ -7,6 +7,9 @@ description: survival games plugin
 depend: [Teams]
 softdepend: [Multiverse-Core, PlaceholderAPI]
 commands:
+  startSurvivalGames:
+    description: starts the game
+    usage: /<command> [multiplier] [SURVIVAL_GAMES or SKYWARS]
   setSGPos1:
     description: sets position 1 of the arena
     usage: /<command> [SURVIVAL_GAMES or SKYWARS]
@@ -19,9 +22,6 @@ commands:
   setSGSpawnPoint:
     description: sets the spawn point
     usage: /<command> [SURVIVAL_GAMES or SKYWARS]
-  startSurvivalGames:
-    description: starts the game
-    usage: /<command> [multiplier] [SURVIVAL_GAMES or SKYWARS]
   setSGSpawnBox:
     description: sets the spawn box for the team
     usage: /<command> [team] [SURVIVAL_GAMES or SKYWARS]
