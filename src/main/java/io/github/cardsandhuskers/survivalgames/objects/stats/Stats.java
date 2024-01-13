@@ -1,4 +1,4 @@
-package io.github.cardsandhuskers.survivalgames.objects;
+package io.github.cardsandhuskers.survivalgames.objects.stats;
 
 import java.io.PrintWriter;
 import java.nio.file.Files;

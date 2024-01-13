@@ -59,9 +59,11 @@ note: GameType refers to either SURVIVAL_GAMES or SKYWARS, this lets you choose 
 <br>%Survivalgames_round% - returns the round number (used in skywars which has multiple rounds to a game)
 
 ### Stat Leaderboard Hooks:
-%Survivalgames_playerkills_[sg or skywars]_[index]% - returns the number of single-game kills the person in that place has (single-game kills leaderboard)
-<br>%Survivalgames_totalKills_[sg or skywars]_[index]% - returns the number of total kills the person in that place has (lifetime kills leaderboard)
-<br>%Survivalgames_wins_[sg or skywars]_[index]% - returns the number of wins the person in that place has (lifetime wins leaderboard)
+%Survivalgames_playerkills_[gametype]_[index]% - returns the number of single-game kills the person in that place has (single-game kills leaderboard)
+<br>%Survivalgames_totalKills_[gametype]_[index]% - returns the number of total kills the person in that place has (lifetime kills leaderboard)
+<br>%Survivalgames_wins_[gametype]_[index]% - returns the number of wins the person in that place has (lifetime wins leaderboard)
+<br>%Survivalgames_kd_[gametype]_[index]%
+<br>**gametype = "sg" or "skywars"**
 
 
 ## Dependencies:

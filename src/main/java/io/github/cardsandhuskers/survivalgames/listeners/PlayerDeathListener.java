@@ -2,7 +2,7 @@ package io.github.cardsandhuskers.survivalgames.listeners;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
-import io.github.cardsandhuskers.survivalgames.objects.Stats;
+import io.github.cardsandhuskers.survivalgames.objects.stats.Stats;
 import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -107,7 +107,7 @@ public class PlayerDeathListener implements Listener {
             }
 
             attacker.sendTitle("Killed " + handler.getPlayerTeam(attacked).color + attacked.getName(), "", 2, 16, 2);
-            attacker.sendMessage("[+" + ChatColor.YELLOW + ChatColor.BOLD + plugin.getConfig().getInt(gameType + ".killPoints") * multiplier + ChatColor.RESET + "] points" + handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName());
+            attacker.sendMessage("[+" + ChatColor.YELLOW + ChatColor.BOLD + plugin.getConfig().getInt(gameType + ".killPoints") * multiplier + ChatColor.RESET + "] points " + handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " was killed by " + handler.getPlayerTeam(attacker).color + attacker.getName());
             attacker.playSound(attacker.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1f, 2f);
 
             attacked.sendMessage("You were killed by " + handler.getPlayerTeam(attacker).color + attacker.getName() + "!");
@@ -136,7 +136,7 @@ public class PlayerDeathListener implements Listener {
             }
             attacked.sendMessage(ChatColor.GRAY + "You died.");
             attacked.playSound(attacked.getLocation(), Sound.ENTITY_ENDER_DRAGON_AMBIENT,1,2);
-            stats.addEntry(gameNumber + "," + handler.getPlayerTeam(attacked).getTeamName() + "," + attacked.getName() + ",Environment-,Environment-," + (numPlayers + 1));
+            stats.addEntry(gameNumber + "," + handler.getPlayerTeam(attacked).getTeamName() + "," + attacked.getName() + ",Environment-,Environment-," + (numPlayers));
         }
 
         playerDeathHandler.onPlayerDeath(attacked);

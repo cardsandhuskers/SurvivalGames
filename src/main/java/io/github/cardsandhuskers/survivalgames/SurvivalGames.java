@@ -2,7 +2,7 @@ package io.github.cardsandhuskers.survivalgames;
 
 import io.github.cardsandhuskers.survivalgames.commands.*;
 import io.github.cardsandhuskers.survivalgames.objects.Placeholder;
-import io.github.cardsandhuskers.survivalgames.objects.StatCalculator;
+import io.github.cardsandhuskers.survivalgames.objects.stats.StatCalculator;
 import io.github.cardsandhuskers.teams.Teams;
 import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import org.bukkit.Bukkit;

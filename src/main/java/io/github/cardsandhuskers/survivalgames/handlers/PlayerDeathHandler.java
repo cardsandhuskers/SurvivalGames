@@ -1,7 +1,7 @@
 package io.github.cardsandhuskers.survivalgames.handlers;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
-import io.github.cardsandhuskers.survivalgames.objects.Stats;
+import io.github.cardsandhuskers.survivalgames.objects.stats.Stats;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.GameMode;
 import org.bukkit.Material;

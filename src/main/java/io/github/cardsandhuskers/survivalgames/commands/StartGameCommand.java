@@ -6,6 +6,7 @@ import io.github.cardsandhuskers.survivalgames.handlers.GameStageHandler;
 import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
 import io.github.cardsandhuskers.survivalgames.listeners.*;
 import io.github.cardsandhuskers.survivalgames.objects.*;
+import io.github.cardsandhuskers.survivalgames.objects.stats.Stats;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.*;
 import org.bukkit.command.Command;
