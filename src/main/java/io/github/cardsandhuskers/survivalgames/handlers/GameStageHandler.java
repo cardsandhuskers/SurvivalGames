@@ -2,7 +2,7 @@ package io.github.cardsandhuskers.survivalgames.handlers;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.listeners.GlowPacketListener;
-import io.github.cardsandhuskers.survivalgames.objects.Border;
+import io.github.cardsandhuskers.survivalgames.objects.border.BorderOld;
 import io.github.cardsandhuskers.survivalgames.objects.Chests;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import io.github.cardsandhuskers.survivalgames.objects.PlayerTracker;
@@ -29,18 +29,18 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 public class GameStageHandler {
     private final SurvivalGames plugin;
     private final Chests chests;
-    private final Border worldBorder;
+    private final BorderOld worldBorderOld;
     private Countdown gameTimer, restockTimer, deathmatchTimer, preDeathmatch, deathmatchPrepTimer, gracePeriodTimer;
     private final AttackerTimersHandler attackerTimersHandler;
     private boolean deathMatchStarted = false;
     ArrayList<Team> teamList;
     ArrayList<PlayerTracker> trackerList;
     public GlowPacketListener glowPacketListener;
-    public GameStageHandler(SurvivalGames plugin, Chests chests, Border worldBorder, ArrayList<Team> teamList, AttackerTimersHandler attackerTimersHandler, ArrayList<PlayerTracker> trackerList) {
+    public GameStageHandler(SurvivalGames plugin, Chests chests, BorderOld worldBorderOld, ArrayList<Team> teamList, AttackerTimersHandler attackerTimersHandler, ArrayList<PlayerTracker> trackerList) {
         this.trackerList = trackerList;
         this.plugin = plugin;
         this.chests = chests;
-        this.worldBorder = worldBorder;
+        this.worldBorderOld = worldBorderOld;
         this.teamList = teamList;
         this.attackerTimersHandler = attackerTimersHandler;
     }
@@ -128,8 +128,8 @@ public class GameStageHandler {
         if(preDeathmatch != null) preDeathmatch.cancelTimer();
         if(deathmatchPrepTimer != null) deathmatchPrepTimer.cancelTimer();
 
-        if(gameType == GameType.SURVIVAL_GAMES) worldBorder.shrinkWorldBorder(50, 1);
-        if(gameType == GameType.SKYWARS) worldBorder.buildWorldBorder(0,0);
+        if(gameType == GameType.SURVIVAL_GAMES) worldBorderOld.shrinkWorldBorder(50, 1);
+        if(gameType == GameType.SKYWARS) worldBorderOld.buildWorldBorder(0,0);
 
         attackerTimersHandler.cancelOperation();
 
@@ -154,7 +154,7 @@ public class GameStageHandler {
                     altTimeVar = totalSeconds;
                     gameState = State.GAME_IN_PROGRESS;
                     if(gameType == GameType.SURVIVAL_GAMES) {
-                        worldBorder.shrinkWorldBorder(90, totalSeconds);
+                        worldBorderOld.shrinkWorldBorder(90, totalSeconds);
                         gameState = State.GRACE_PERIOD;
                     }
 
@@ -253,7 +253,7 @@ public class GameStageHandler {
                     if(gameType == GameType.SKYWARS) {
                         Bukkit.broadcastMessage(ChatColor.RED + "" + ChatColor.BOLD + "BORDER WILL BEGIN SHRINKING");
 
-                        worldBorder.shrinkWorldBorder(2,restockTime);
+                        worldBorderOld.shrinkWorldBorder(2,restockTime);
                     }
                 },
 
@@ -327,7 +327,7 @@ public class GameStageHandler {
                     altTimeVar = totalSeconds;
                     gameState = State.DEATHMATCH;
                     if(gameType == GameType.SURVIVAL_GAMES) {
-                        worldBorder.shrinkWorldBorder(50, 1);
+                        worldBorderOld.shrinkWorldBorder(50, 1);
                     }
                     try {
                         updateGlass(Material.GLASS);
@@ -382,7 +382,7 @@ public class GameStageHandler {
                 () -> {
                     timeVar = totalSeconds;
                     if(gameType == GameType.SURVIVAL_GAMES) {
-                        worldBorder.shrinkWorldBorder(2, totalSeconds);
+                        worldBorderOld.shrinkWorldBorder(2, totalSeconds);
                     }
                 },
 

@@ -63,6 +63,7 @@ note: GameType refers to either SURVIVAL_GAMES or SKYWARS, this lets you choose 
 <br>%Survivalgames_totalKills_[gametype]_[index]% - returns the number of total kills the person in that place has (lifetime kills leaderboard)
 <br>%Survivalgames_wins_[gametype]_[index]% - returns the number of wins the person in that place has (lifetime wins leaderboard)
 <br>%Survivalgames_kd_[gametype]_[index]%
+<br>%Survivalgames_allkd%
 <br>**gametype = "sg" or "skywars"**
 
 

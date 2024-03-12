@@ -1,6 +1,7 @@
-package io.github.cardsandhuskers.survivalgames.objects;
+package io.github.cardsandhuskers.survivalgames.objects.border;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
+import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.WorldBorder;
