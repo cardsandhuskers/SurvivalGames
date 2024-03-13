@@ -13,15 +13,16 @@ public interface Border {
     void shrinkWorldBorder(int size, int time);
 
     /**
-     * Instantly sets world border to the specified size
-     * @param size
+     * Sets the border size variable (static int borderSize)
      */
-    void setWorldBorder(int size);
+    void setSize(int size);
 
-    /**
-     * Updates the border size variable (static int borderSize)
-     */
-    void updateSizeVariable();
+    static int getSize() {
+        return 0;
+    }
+
+    void startOperation();
+    void cancelOperation();
 
 
 }

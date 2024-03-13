@@ -6,7 +6,9 @@ import io.github.cardsandhuskers.survivalgames.handlers.GameStageHandler;
 import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
 import io.github.cardsandhuskers.survivalgames.listeners.*;
 import io.github.cardsandhuskers.survivalgames.objects.*;
+import io.github.cardsandhuskers.survivalgames.objects.border.Border;
 import io.github.cardsandhuskers.survivalgames.objects.border.BorderOld;
+import io.github.cardsandhuskers.survivalgames.objects.border.SkywarsBorder;
 import io.github.cardsandhuskers.survivalgames.objects.stats.Stats;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.*;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.GameType.SKYWARS;
 import static org.bukkit.Bukkit.getServer;
 
 public class StartGameCommand implements CommandExecutor {
@@ -132,14 +135,13 @@ public class StartGameCommand implements CommandExecutor {
                 }, 10L);
             }
         }
-        BorderOld worldBorderOld = new BorderOld(plugin);
+        Border worldBorder;
+        if (gameType == SKYWARS) worldBorder = new SkywarsBorder(plugin);
+        else worldBorder = new BorderOld(plugin);
 
-        Location pos1 = plugin.getConfig().getLocation(gameType + ".pos1");
-        Location pos2 = plugin.getConfig().getLocation(gameType + ".pos2");
-        int centerX = (int)(pos1.getX() + pos2.getX())/2;
-        int centerZ = (int)(pos1.getZ() + pos2.getZ())/2;
 
-        worldBorderOld.buildWorldBorder(centerX, centerZ);
+        worldBorder.buildWorldBorder();
+        if(gameType == SKYWARS) worldBorder.startOperation();
 
 
         HashMap<Player, Player> storedAttackers = new HashMap<>();
@@ -152,7 +154,7 @@ public class StartGameCommand implements CommandExecutor {
         ArrayList<Team> teamList = new ArrayList<>();
         trackerList = new ArrayList<>();
 
-        gameStageHandler = new GameStageHandler(plugin, chests, worldBorderOld, teamList, attackerTimersHandler, trackerList);
+        gameStageHandler = new GameStageHandler(plugin, chests, worldBorder, teamList, attackerTimersHandler, trackerList);
 
         if(gameNumber == 1) stats = new Stats("round,deadTeam,deadName,killerTeam,killerName,place");
         playerDeathHandler = new PlayerDeathHandler(plugin, gameStageHandler, teamList, stats);
@@ -222,7 +224,7 @@ public class StartGameCommand implements CommandExecutor {
                         if (gameType == GameType.SURVIVAL_GAMES) {
                             if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcastMessage(GameMessages.getSGDescription());
                         }
-                        if (gameType == GameType.SKYWARS) {
+                        if (gameType == SKYWARS) {
                             if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcastMessage(GameMessages.getSkywarsDescription());
                         }
                         if (t.getSecondsLeft() == t.getTotalSeconds() - 11) Bukkit.broadcastMessage(GameMessages.getPointsDescription(plugin));

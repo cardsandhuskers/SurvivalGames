@@ -1,6 +1,7 @@
 package io.github.cardsandhuskers.survivalgames.objects;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
+import io.github.cardsandhuskers.survivalgames.objects.border.Border;
 import io.github.cardsandhuskers.survivalgames.objects.stats.PlayerStatsHolder;
 import io.github.cardsandhuskers.survivalgames.objects.stats.Tuples;
 import io.github.cardsandhuskers.teams.handlers.TeamHandler;
@@ -139,7 +140,7 @@ public class Placeholder extends PlaceholderExpansion {
             return numPlayers + "/" + totalPlayers;
         }
         if(s.equalsIgnoreCase("border")) {
-            return " +- " + borderSize;
+            return " +- " + Border.getSize();
         }
         if(s.equalsIgnoreCase("playerkills")) {
             if (!playerKills.containsKey((Player) p)) {

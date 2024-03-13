@@ -11,7 +11,7 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 /**
  * @deprecated updated to interface with 2 border types
  */
-public class BorderOld {
+public class BorderOld implements Border{
     public static int borderSize = 0;
     private WorldBorder worldBorder;
     private final SurvivalGames plugin;
@@ -22,15 +22,15 @@ public class BorderOld {
 
     /**
      * Initializes a worldborder the size of the arena
-     * @param x X coordinate of center
-     * @param z Z coordinate of center
      */
-    public void buildWorldBorder(int x, int z) {
+    public void buildWorldBorder() {
         Location l1 = plugin.getConfig().getLocation(gameType + ".pos1");
         Location l2 = plugin.getConfig().getLocation(gameType + ".pos2");
+        int centerX = (int)(l1.getX() + l2.getX())/2;
+        int centerZ = (int)(l1.getZ() + l2.getZ())/2;
 
         worldBorder = Bukkit.getWorld(l1.getWorld().getUID()).getWorldBorder();
-        worldBorder.setCenter(x, z);
+        worldBorder.setCenter(centerX, centerZ);
 
         worldBorder.setSize(Math.abs(l1.getX()) + Math.abs(l2.getX()));
         worldBorder.setDamageBuffer(0);
@@ -47,8 +47,18 @@ public class BorderOld {
         updateBorderSize(altTimeVar);
     }
 
-    public void setWorldBorder(int size) {
+    public void setSize(int size) {
         worldBorder.setSize(size, 0);
+    }
+
+    @Override
+    public void startOperation() {
+
+    }
+
+    @Override
+    public void cancelOperation() {
+
     }
 
     public void chunkShrinkBorder(int time) {
@@ -70,7 +80,7 @@ public class BorderOld {
                 //Each Second
                 (t) -> {
                     if(timeVar % delta == 0) {
-                        setWorldBorder((int) (worldBorder.getSize() - shrinkValue));
+                        setSize((int) (worldBorder.getSize() - shrinkValue));
                     }
                     borderSize = (int) (worldBorder.getSize()/2);
                 }
