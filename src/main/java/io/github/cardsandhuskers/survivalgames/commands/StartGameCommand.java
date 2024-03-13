@@ -35,7 +35,7 @@ public class StartGameCommand implements CommandExecutor {
     private ArrayList<PlayerTracker> trackerList;
     public Countdown pregameTimer;
     private static Stats stats;
-
+    //test
     public StartGameCommand(SurvivalGames plugin) {
         this.plugin = plugin;
 
