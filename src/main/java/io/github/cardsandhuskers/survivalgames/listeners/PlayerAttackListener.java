@@ -2,6 +2,9 @@ package io.github.cardsandhuskers.survivalgames.listeners;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
+import io.github.cardsandhuskers.teams.handlers.TeamHandler;
+import io.github.cardsandhuskers.teams.objects.Team;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -32,6 +35,7 @@ public class PlayerAttackListener implements Listener {
         Player attacker;
         Player attacked;
 
+
         if(e.getEntity().getType() == EntityType.PLAYER) {
             attacked = (Player) e.getEntity();
             //if attack is from arrow
@@ -39,11 +43,23 @@ public class PlayerAttackListener implements Listener {
                 Arrow arrow = (Arrow) e.getDamager();
                 attacker = (Player) arrow.getShooter();
                 damage(attacker, attacked, e);
+
+                Team attackedTeam = TeamHandler.getInstance().getPlayerTeam(attacked);
+                if(attackedTeam != null) {
+                    attacker.sendMessage(attackedTeam.getColor() + attacked.getDisplayName() + ChatColor.RESET + " is on " + ChatColor.RED + (int)attacked.getHealth() + "❤");
+                }
+
                 //if attack is from player
             } else if(e.getDamager().getType() == EntityType.SPECTRAL_ARROW){
                 SpectralArrow arrow = (SpectralArrow) e.getDamager();
                 attacker = (Player) arrow.getShooter();
                 damage(attacker, attacked, e);
+
+                Team attackedTeam = TeamHandler.getInstance().getPlayerTeam(attacked);
+                if(attackedTeam != null) {
+                    attacker.sendMessage(attackedTeam.getColor() + attacked.getDisplayName() + ChatColor.RESET + " is on " + ChatColor.RED + (int)attacked.getHealth() + "❤");
+                }
+
             }else if(e.getDamager().getType() == EntityType.PLAYER) {
                 attacker = (Player) e.getDamager();
                 damage(attacker, attacked, e);
