@@ -1,8 +1,8 @@
 package io.github.cardsandhuskers.survivalgames.objects;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
+import io.github.cardsandhuskers.survivalgames.objects.border.Border;
 import io.github.cardsandhuskers.survivalgames.objects.stats.PlayerStatsHolder;
-import io.github.cardsandhuskers.survivalgames.objects.stats.StatCalculator;
 import io.github.cardsandhuskers.survivalgames.objects.stats.Tuples;
 import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import io.github.cardsandhuskers.teams.objects.Team;
@@ -19,7 +19,7 @@ import static io.github.cardsandhuskers.survivalgames.SurvivalGames.GameType.SKY
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.GameType.SURVIVAL_GAMES;
 import static io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler.numPlayers;
 import static io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler.numTeams;
-import static io.github.cardsandhuskers.survivalgames.objects.Border.borderSize;
+import static io.github.cardsandhuskers.survivalgames.objects.border.BorderOld.borderSize;
 
 public class Placeholder extends PlaceholderExpansion {
     private final SurvivalGames plugin;
@@ -140,7 +140,7 @@ public class Placeholder extends PlaceholderExpansion {
             return numPlayers + "/" + totalPlayers;
         }
         if(s.equalsIgnoreCase("border")) {
-            return " +- " + borderSize;
+            return " +- " + Border.getSize();
         }
         if(s.equalsIgnoreCase("playerkills")) {
             if (!playerKills.containsKey((Player) p)) {

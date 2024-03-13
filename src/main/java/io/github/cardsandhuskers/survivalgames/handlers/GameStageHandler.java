@@ -2,10 +2,12 @@ package io.github.cardsandhuskers.survivalgames.handlers;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.listeners.GlowPacketListener;
-import io.github.cardsandhuskers.survivalgames.objects.Border;
+import io.github.cardsandhuskers.survivalgames.objects.border.Border;
+import io.github.cardsandhuskers.survivalgames.objects.border.BorderOld;
 import io.github.cardsandhuskers.survivalgames.objects.Chests;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import io.github.cardsandhuskers.survivalgames.objects.PlayerTracker;
+import io.github.cardsandhuskers.survivalgames.objects.border.SkywarsBorderDamageHandler;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -36,6 +38,8 @@ public class GameStageHandler {
     ArrayList<Team> teamList;
     ArrayList<PlayerTracker> trackerList;
     public GlowPacketListener glowPacketListener;
+
+    private SkywarsBorderDamageHandler skywarsBorderDamageHandler;
     public GameStageHandler(SurvivalGames plugin, Chests chests, Border worldBorder, ArrayList<Team> teamList, AttackerTimersHandler attackerTimersHandler, ArrayList<PlayerTracker> trackerList) {
         this.trackerList = trackerList;
         this.plugin = plugin;
@@ -44,6 +48,10 @@ public class GameStageHandler {
         this.teamList = teamList;
         this.attackerTimersHandler = attackerTimersHandler;
     }
+
+    /**
+     * Starts the actual game (releases players from boxes)
+     */
     public void startGame() {
         for(Team t: handler.getTeams()) {
             for(Player p:t.getOnlinePlayers()) {
@@ -60,13 +68,11 @@ public class GameStageHandler {
                 if(gameType == GameType.SKYWARS) {
                     inv.setItem(0, new ItemStack(Material.SHEARS));
                     inv.setItem(1, new ItemStack(handler.getPlayerTeam(p).getWoolColor(), 64));
+                    skywarsBorderDamageHandler = new SkywarsBorderDamageHandler(plugin);
+                    skywarsBorderDamageHandler.startOperation();
                 }
             }
         }
-
-        //for(org.bukkit.scoreboard.Team t:Bukkit.getScoreboardManager().getMainScoreboard().getTeams()) {
-        //    t.setOption(org.bukkit.scoreboard.Team.Option.COLLISION_RULE, org.bukkit.scoreboard.Team.OptionStatus.ALWAYS);
-        //}
 
         World world = plugin.getConfig().getLocation(gameType + ".spawnPoint").getWorld();
         world.setGameRule(GameRule.KEEP_INVENTORY, true);
@@ -100,8 +106,8 @@ public class GameStageHandler {
         if(scoreboard.getObjective("belowNameHP") != null) scoreboard.getObjective("belowNameHP").unregister();
         if(scoreboard.getObjective("listHP") != null) scoreboard.getObjective("listHP").unregister();
 
-        Objective belowNameHP = scoreboard.registerNewObjective("belowNameHP", Criterias.HEALTH, ChatColor.DARK_RED + "❤");
-        Objective listHP = scoreboard.registerNewObjective("listHP", Criterias.HEALTH, ChatColor.YELLOW + "");
+        Objective belowNameHP = scoreboard.registerNewObjective("belowNameHP", Criteria.HEALTH, ChatColor.DARK_RED + "❤");
+        Objective listHP = scoreboard.registerNewObjective("listHP", Criteria.HEALTH, ChatColor.YELLOW + "");
         belowNameHP.setDisplaySlot(DisplaySlot.BELOW_NAME);
         listHP.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         for(Player p:Bukkit.getOnlinePlayers()) {
@@ -115,29 +121,6 @@ public class GameStageHandler {
             glowPacketListener = new GlowPacketListener(plugin);
             glowPacketListener.startOperation();
         }
-    }
-
-    /**
-     * Called when the main game timer ends
-     */
-    public void endGame() {
-        if(gracePeriodTimer != null) gracePeriodTimer.cancelTimer();
-        if(gameTimer != null) gameTimer.cancelTimer();
-        if(restockTimer != null) restockTimer.cancelTimer();
-        if(deathmatchTimer != null) deathmatchTimer.cancelTimer();
-        if(preDeathmatch != null) preDeathmatch.cancelTimer();
-        if(deathmatchPrepTimer != null) deathmatchPrepTimer.cancelTimer();
-
-        if(gameType == GameType.SURVIVAL_GAMES) worldBorder.shrinkWorldBorder(50, 1);
-        if(gameType == GameType.SKYWARS) worldBorder.buildWorldBorder(0,0);
-
-        attackerTimersHandler.cancelOperation();
-
-        if(plugin.getConfig().getBoolean("enableGlow")) {
-            glowPacketListener.disableGlow();
-            glowPacketListener.cancelOperation();
-        }
-
     }
 
     /**
@@ -167,13 +150,6 @@ public class GameStageHandler {
                     if(gameType == GameType.SURVIVAL_GAMES) {
                         startDeathmatch();
                     }
-                    /*if(gameType == GameType.SKYWARS) {
-                        Bukkit.broadcastMessage(ChatColor.RED + "" + ChatColor.BOLD + "OVERTIME! BORDER WILL SHRINK RAPIDLY");
-                        for(Player p:Bukkit.getOnlinePlayers()) {
-                            p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_AMBIENT, 1F, .5F);
-                        }
-                        worldBorder.shrinkWorldBorder(2,60);
-                    }*/
                 },
 
                 //Each Second
@@ -253,7 +229,7 @@ public class GameStageHandler {
                     if(gameType == GameType.SKYWARS) {
                         Bukkit.broadcastMessage(ChatColor.RED + "" + ChatColor.BOLD + "BORDER WILL BEGIN SHRINKING");
 
-                        worldBorder.shrinkWorldBorder(2,restockTime);
+                        worldBorder.shrinkWorldBorder(0, gameTimer.getSecondsLeft());
                     }
                 },
 
@@ -400,6 +376,32 @@ public class GameStageHandler {
         );
         // Start scheduling, don't use the "run" method unless you want to skip a second
         deathmatchTimer.scheduleTimer();
+    }
+
+    /**
+     * Called when the last player is killed/game is cancelled
+     */
+    public void endGame() {
+        if(gracePeriodTimer != null) gracePeriodTimer.cancelTimer();
+        if(gameTimer != null) gameTimer.cancelTimer();
+        if(restockTimer != null) restockTimer.cancelTimer();
+        if(deathmatchTimer != null) deathmatchTimer.cancelTimer();
+        if(preDeathmatch != null) preDeathmatch.cancelTimer();
+        if(deathmatchPrepTimer != null) deathmatchPrepTimer.cancelTimer();
+
+        if(gameType == GameType.SURVIVAL_GAMES) worldBorder.shrinkWorldBorder(50, 1);
+        if(gameType == GameType.SKYWARS) {
+            skywarsBorderDamageHandler.cancelOperation();
+            worldBorder.cancelOperation();
+        }
+
+        attackerTimersHandler.cancelOperation();
+
+        if(plugin.getConfig().getBoolean("enableGlow")) {
+            glowPacketListener.disableGlow();
+            glowPacketListener.cancelOperation();
+        }
+
     }
 
     /**

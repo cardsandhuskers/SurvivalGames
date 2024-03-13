@@ -35,9 +35,10 @@ public class GameMessages {
         String SKYWARS_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------\n" + ChatColor.RESET +
                 StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Skywars", 30) +
                 ChatColor.BLUE + "" + ChatColor.BOLD + "\nHow To Play:" +
-                ChatColor.RESET + "\nThere will be 2 rounds of Skywars on the famous Hypixel map: Elven" +
+                ChatColor.RESET + "\nThere will be 2 rounds of Skywars on our custom map: Time Traveler" +
                 "\nWork with your teammates to take down the other teams and be the last one standing!" +
                 "\nEach island has chests to get geared up, while the middle has many chests with even better loot!" +
+                "\nThe border will begin shrinking after the chest refill. It will also become shorter to prevent skybasing." +
                 "\nBe careful not to fall off the edge! The void will kill you." +
                 ChatColor.STRIKETHROUGH + "\n----------------------------------------";
         return SKYWARS_DESCRIPTION;

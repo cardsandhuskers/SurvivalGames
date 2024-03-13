@@ -117,6 +117,9 @@ SKYWARS:
   #points given to alive players when someone else dies
   survivalPoints: 20
 
+  #damage applied for every half second the player is outside the border
+  borderDamage: 1
+
   # number of items to put in each chest
   chest:
     min: 13

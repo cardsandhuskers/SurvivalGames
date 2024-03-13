@@ -6,6 +6,9 @@ import io.github.cardsandhuskers.survivalgames.handlers.GameStageHandler;
 import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
 import io.github.cardsandhuskers.survivalgames.listeners.*;
 import io.github.cardsandhuskers.survivalgames.objects.*;
+import io.github.cardsandhuskers.survivalgames.objects.border.Border;
+import io.github.cardsandhuskers.survivalgames.objects.border.BorderOld;
+import io.github.cardsandhuskers.survivalgames.objects.border.SkywarsBorder;
 import io.github.cardsandhuskers.survivalgames.objects.stats.Stats;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.*;
@@ -21,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.GameType.SKYWARS;
 import static org.bukkit.Bukkit.getServer;
 
 public class StartGameCommand implements CommandExecutor {
@@ -31,7 +35,6 @@ public class StartGameCommand implements CommandExecutor {
     private ArrayList<PlayerTracker> trackerList;
     public Countdown pregameTimer;
     private static Stats stats;
-
     public StartGameCommand(SurvivalGames plugin) {
         this.plugin = plugin;
 
@@ -131,14 +134,13 @@ public class StartGameCommand implements CommandExecutor {
                 }, 10L);
             }
         }
-        Border worldBorder = new Border(plugin);
+        Border worldBorder;
+        if (gameType == SKYWARS) worldBorder = new SkywarsBorder(plugin);
+        else worldBorder = new BorderOld(plugin);
 
-        Location pos1 = plugin.getConfig().getLocation(gameType + ".pos1");
-        Location pos2 = plugin.getConfig().getLocation(gameType + ".pos2");
-        int centerX = (int)(pos1.getX() + pos2.getX())/2;
-        int centerZ = (int)(pos1.getZ() + pos2.getZ())/2;
 
-        worldBorder.buildWorldBorder(centerX, centerZ);
+        worldBorder.buildWorldBorder();
+        if(gameType == SKYWARS) worldBorder.startOperation();
 
 
         HashMap<Player, Player> storedAttackers = new HashMap<>();
@@ -221,7 +223,7 @@ public class StartGameCommand implements CommandExecutor {
                         if (gameType == GameType.SURVIVAL_GAMES) {
                             if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcastMessage(GameMessages.getSGDescription());
                         }
-                        if (gameType == GameType.SKYWARS) {
+                        if (gameType == SKYWARS) {
                             if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcastMessage(GameMessages.getSkywarsDescription());
                         }
                         if (t.getSecondsLeft() == t.getTotalSeconds() - 11) Bukkit.broadcastMessage(GameMessages.getPointsDescription(plugin));
