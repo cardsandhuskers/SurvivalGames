@@ -46,7 +46,7 @@ public class PlayerAttackListener implements Listener {
 
                 Team attackedTeam = TeamHandler.getInstance().getPlayerTeam(attacked);
                 if(attackedTeam != null) {
-                    attacker.sendMessage(attackedTeam.getColor() + attacked.getDisplayName() + ChatColor.RESET + " is on " + ChatColor.RED + (int)attacked.getHealth() + "❤");
+                    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, ()-> {attacker.sendMessage(attackedTeam.getColor() + attacked.getDisplayName() + ChatColor.RESET + " is on " + ChatColor.RED + (int)attacked.getHealth() + "❤");}, 1L);
                 }
 
                 //if attack is from player
@@ -57,7 +57,7 @@ public class PlayerAttackListener implements Listener {
 
                 Team attackedTeam = TeamHandler.getInstance().getPlayerTeam(attacked);
                 if(attackedTeam != null) {
-                    attacker.sendMessage(attackedTeam.getColor() + attacked.getDisplayName() + ChatColor.RESET + " is on " + ChatColor.RED + (int)attacked.getHealth() + "❤");
+                    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, ()-> {attacker.sendMessage(attackedTeam.getColor() + attacked.getDisplayName() + ChatColor.RESET + " is on " + ChatColor.RED + (int)attacked.getHealth() + "❤");}, 1L);
                 }
 
             }else if(e.getDamager().getType() == EntityType.PLAYER) {
