@@ -26,18 +26,23 @@ public class SkywarsBorderDamageHandler implements Runnable {
      */
     private void applyDamage() {
         for(Player p: Bukkit.getOnlinePlayers()) {
+
             if(p.getGameMode() == GameMode.SURVIVAL) {
+                System.out.println(p.getName() + ": ");
+
                 Location playerLoc = p.getLocation();
                 if(playerLoc.getY() < SkywarsBorder.getFloor() || playerLoc.getY() > SkywarsBorder.getCeil()) {
+                    System.out.println(" - height damage");
                     p.damage(damage);
-                    return;
+                    continue;
                 }
                 double playerX = playerLoc.getX();
                 double playerZ = playerLoc.getZ();
 
                 if((playerX * playerX) + (playerZ * playerZ) >= SkywarsBorder.getSize() * SkywarsBorder.getSize()) {
+                    System.out.println(" - radius damage");
                     p.damage(damage);
-                    return;
+                    continue;
                 }
             }
         }

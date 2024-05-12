@@ -65,7 +65,6 @@ public class SkywarsBorder implements Border, Runnable{
 
                 //Each Second
                 (t) -> {
-                    System.out.println(borderSize);
 
                     borderSize = borderSize - shrinkDelta;
                     if(borderSize < 0) borderSize = 0;
@@ -161,11 +160,11 @@ public class SkywarsBorder implements Border, Runnable{
             l1.getWorld().spawnParticle(Particle.REDSTONE, l.getX(), l.getY(), l.getZ(), 1, dustOptions);
         }
 
+        double borderSquared = borderSize * borderSize;
         for(int x = (int) (centerX - borderSize); x < centerX + borderSize; x++) {
             for(int z = (int) (centerZ - borderSize); z < centerZ + borderSize; z++) {
-                if((x * x) + (z * z) <= (borderSize * borderSize)) {
+                if((x * x) + (z * z) <= borderSquared) {
                     l1.getWorld().spawnParticle(Particle.REDSTONE, x, minY, z, 1, dustOptions);
-                    l1.getWorld().spawnParticle(Particle.REDSTONE, x, maxY, z, 1, dustOptions);
                 }
             }
         }

@@ -68,10 +68,12 @@ public class GameStageHandler {
                 if(gameType == GameType.SKYWARS) {
                     inv.setItem(0, new ItemStack(Material.SHEARS));
                     inv.setItem(1, new ItemStack(handler.getPlayerTeam(p).getWoolColor(), 64));
-                    skywarsBorderDamageHandler = new SkywarsBorderDamageHandler(plugin);
-                    skywarsBorderDamageHandler.startOperation();
                 }
             }
+        }
+        if(gameType == GameType.SKYWARS) {
+            skywarsBorderDamageHandler = new SkywarsBorderDamageHandler(plugin);
+            skywarsBorderDamageHandler.startOperation();
         }
 
         World world = plugin.getConfig().getLocation(gameType + ".spawnPoint").getWorld();
@@ -80,7 +82,6 @@ public class GameStageHandler {
         world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
         world.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
-
 
         for(Player p:Bukkit.getOnlinePlayers()) {
             if(handler.getPlayerTeam(p) == null) {

@@ -214,8 +214,10 @@ public class Placeholder extends PlaceholderExpansion {
 
             if(values[0].equalsIgnoreCase("allkd")) {
                 ArrayList<Tuples.KDTuple> kds = plugin.statCalculator.getAllKDs(p);
-                for(Tuples.KDTuple kd: kds) {
-                    p.getPlayer().sendMessage(kd.toString());
+                if(kds != null) {
+                    for (Tuples.KDTuple kd : kds) {
+                        p.getPlayer().sendMessage(kd.toString());
+                    }
                 }
             return "";
             }
