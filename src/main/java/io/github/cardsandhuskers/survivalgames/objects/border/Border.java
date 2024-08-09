@@ -1,6 +1,7 @@
 package io.github.cardsandhuskers.survivalgames.objects.border;
 
 public interface Border {
+
     /**
      * Initializes a worldborder the size of the arena
      */
@@ -17,12 +18,10 @@ public interface Border {
      */
     void setSize(int size);
 
-    static int getSize() {
-        return 0;
-    }
-
     void startOperation();
     void cancelOperation();
+    int getCenterX();
+    int getCenterZ();
 
 
 }

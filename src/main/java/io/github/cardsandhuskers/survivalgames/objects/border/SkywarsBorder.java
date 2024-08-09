@@ -9,6 +9,11 @@ import java.util.Set;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameType;
 
+/**
+ * @deprecated this causes a lot of lag, use SkywarsCrumbleBorder instead
+ * Uses particles to construct a border.
+ *
+ */
 public class SkywarsBorder implements Border, Runnable{
     private final SurvivalGames plugin;
     private static double borderSize = 0;
@@ -186,5 +191,15 @@ public class SkywarsBorder implements Border, Runnable{
     public void cancelOperation() {
         if (assignedTaskId != null) Bukkit.getScheduler().cancelTask(assignedTaskId);
         if(borderTimer != null) borderTimer.cancelTimer();
+    }
+
+    @Override
+    public int getCenterX() {
+        return 0;
+    }
+
+    @Override
+    public int getCenterZ() {
+        return 0;
     }
 }

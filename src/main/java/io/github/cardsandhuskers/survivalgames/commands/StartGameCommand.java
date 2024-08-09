@@ -160,7 +160,7 @@ public class StartGameCommand implements CommandExecutor {
 
         //PlayerDamageListener playerDamageListener = new PlayerDamageListener(playerDeathHandler, storedAttackers);
         getServer().getPluginManager().registerEvents(new PlayerAttackListener(playerDeathHandler, storedAttackers, attackerTimers, plugin), plugin);
-        getServer().getPluginManager().registerEvents(new BlockPlaceListener(plugin), plugin);
+        getServer().getPluginManager().registerEvents(new BlockPlaceListener(plugin, worldBorder), plugin);
         getServer().getPluginManager().registerEvents(new BlockBreakListener(), plugin);
         getServer().getPluginManager().registerEvents(new ItemClickListener(), plugin);
 

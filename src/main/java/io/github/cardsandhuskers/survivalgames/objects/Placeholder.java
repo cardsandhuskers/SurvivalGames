@@ -140,7 +140,7 @@ public class Placeholder extends PlaceholderExpansion {
             return numPlayers + "/" + totalPlayers;
         }
         if(s.equalsIgnoreCase("border")) {
-            return " +- " + Border.getSize();
+            return " +- ";// + Border.getSize();
         }
         if(s.equalsIgnoreCase("playerkills")) {
             if (!playerKills.containsKey((Player) p)) {

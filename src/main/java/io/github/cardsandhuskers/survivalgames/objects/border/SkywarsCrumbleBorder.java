@@ -34,7 +34,12 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
      */
     @Override
     public void buildWorldBorder() {
-        //unused here
+        Location l1 = plugin.getConfig().getLocation(gameType + ".pos1");
+        Location l2 = plugin.getConfig().getLocation(gameType + ".pos2");
+
+        int widthX = (int)Math.abs(l1.getX() - l2.getX());
+        int widthZ = (int)Math.abs(l1.getX() - l2.getX());
+        borderSize = (double) Math.max(widthX, widthZ) / 2 + 1;
     }
 
     /**
@@ -67,7 +72,8 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
         //ticks per block
         //period is doubled because it shrinks based on radius, not diameter
         period = 20 * time / (Math.max(widthX, widthZ) - size) * 2;
-        borderSize = Math.max(widthX, widthZ) / 2;
+        //trying a +1 cuz outer layer is ignored for some reason
+        borderSize = (double)Math.max(widthX, widthZ) / 2 + 1;
 
         updateBorderEdgeBlocks();
         startOperation();
@@ -91,10 +97,22 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
     }
 
     @Override
+    public int getCenterX() {
+        return centerX;
+    }
+
+    @Override
+    public int getCenterZ() {
+        return centerZ;
+    }
+
+    @Override
     public void run() {
         borderSize--;
         updateBorderEdgeBlocks();
         crumble();
+
+        System.out.println(borderSize);
 
         if (borderSize == 0) cancelOperation();
 
@@ -114,10 +132,17 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
             edgeBlocks.add(new Location(l1.getWorld(), x, 0, z).getBlock());
         }
 
-    }
+        //find any outstanding blocks from prior crumble
+        for(double angle = 0; angle < 2 * 3.14; angle += (2* pi) / (double)360 / (borderSize / (double) 20)) {
+            //double radians = Math.toRadians(angle);
+            double x = centerX + (borderSize+1) * Math.cos(angle);
+            double z = centerZ + (borderSize+1) * Math.sin(angle);
 
-    public boolean isPlacementOutsideCircle() {
-        return false;
+            for(int y = minY; y <= maxY; y++) {
+                Location testLoc = new Location(l1.getWorld(), x, y, z);
+                testLoc.getBlock().setType(Material.AIR);
+            }
+        }
     }
 
     public void crumble() {
@@ -132,8 +157,10 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
                     foundBlocks++;
 
                     plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, ()-> {
+                        Location loc = testBlock.getLocation();
+                        loc.add(.5, 0, .5);
 
-                        FallingBlock block = world.spawnFallingBlock(testBlock.getLocation(), testBlock.getType().createBlockData());
+                        FallingBlock block = world.spawnFallingBlock(loc, testBlock.getType().createBlockData());
                         block.setCancelDrop(true);
 
                         testBlock.setType(Material.AIR);
@@ -145,5 +172,9 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
                 }
             }
         }
+    }
+
+    public double getBorderSize() {
+        return borderSize;
     }
 }

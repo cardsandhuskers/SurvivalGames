@@ -15,6 +15,7 @@ public class BorderOld implements Border{
     public static int borderSize = 0;
     private WorldBorder worldBorder;
     private final SurvivalGames plugin;
+    private int centerX, centerZ;
 
     public BorderOld(SurvivalGames plugin) {
         this.plugin = plugin;
@@ -26,8 +27,8 @@ public class BorderOld implements Border{
     public void buildWorldBorder() {
         Location l1 = plugin.getConfig().getLocation(gameType + ".pos1");
         Location l2 = plugin.getConfig().getLocation(gameType + ".pos2");
-        int centerX = (int)(l1.getX() + l2.getX())/2;
-        int centerZ = (int)(l1.getZ() + l2.getZ())/2;
+        centerX = (int)(l1.getX() + l2.getX())/2;
+        centerZ = (int)(l1.getZ() + l2.getZ())/2;
 
         worldBorder = Bukkit.getWorld(l1.getWorld().getUID()).getWorldBorder();
         worldBorder.setCenter(centerX, centerZ);
@@ -51,6 +52,7 @@ public class BorderOld implements Border{
         worldBorder.setSize(size, 0);
     }
 
+
     @Override
     public void startOperation() {
 
@@ -59,6 +61,16 @@ public class BorderOld implements Border{
     @Override
     public void cancelOperation() {
 
+    }
+
+    @Override
+    public int getCenterX() {
+        return centerX;
+    }
+
+    @Override
+    public int getCenterZ() {
+        return centerZ;
     }
 
     public void chunkShrinkBorder(int time) {
