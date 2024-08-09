@@ -9,6 +9,7 @@ import io.github.cardsandhuskers.survivalgames.objects.*;
 import io.github.cardsandhuskers.survivalgames.objects.border.Border;
 import io.github.cardsandhuskers.survivalgames.objects.border.BorderOld;
 import io.github.cardsandhuskers.survivalgames.objects.border.SkywarsBorder;
+import io.github.cardsandhuskers.survivalgames.objects.border.SkywarsCrumbleBorder;
 import io.github.cardsandhuskers.survivalgames.objects.stats.Stats;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.*;
@@ -135,13 +136,11 @@ public class StartGameCommand implements CommandExecutor {
             }
         }
         Border worldBorder;
-        if (gameType == SKYWARS) worldBorder = new SkywarsBorder(plugin);
+        if (gameType == SKYWARS) worldBorder = new SkywarsCrumbleBorder(plugin);
         else worldBorder = new BorderOld(plugin);
 
 
         worldBorder.buildWorldBorder();
-        if(gameType == SKYWARS) worldBorder.startOperation();
-
 
         HashMap<Player, Player> storedAttackers = new HashMap<>();
         HashMap<Player, Integer> attackerTimers = new HashMap<>();

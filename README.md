@@ -16,6 +16,9 @@ note: GameType refers to either SURVIVAL_GAMES or SKYWARS, this lets you choose 
 **/setsgpos2 [GameType]**
 - Sets pos2 at player's location, should be the opposite corner from pos1 (on all 3 axes)
 
+**/setsgcenter [GameType]**
+- Sets arena center at player's location, used for the border, to ensure it converges on this block
+
 **/savesgarena [GameType]**
 - saves a schematic of the arena, which is the area bounded by the pos1 and pos2
 
