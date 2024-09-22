@@ -26,6 +26,7 @@ import java.util.HashMap;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.GameType.SKYWARS;
+import static io.github.cardsandhuskers.survivalgames.SurvivalGames.GameType.SURVIVAL_GAMES;
 import static org.bukkit.Bukkit.getServer;
 
 public class StartGameCommand implements CommandExecutor {
@@ -35,6 +36,7 @@ public class StartGameCommand implements CommandExecutor {
     private PlayerDeathHandler playerDeathHandler;
     private ArrayList<PlayerTracker> trackerList;
     public Countdown pregameTimer;
+    private Border worldBorder;
     private static Stats stats;
     public StartGameCommand(SurvivalGames plugin) {
         this.plugin = plugin;
@@ -85,13 +87,16 @@ public class StartGameCommand implements CommandExecutor {
         return true;
     }
 
+    /**
+     * Initial game start protocol:
+     * teleports players, builds world border, initializes listeners, and starts timers
+     */
     public void startGame() {
         if(handler.getNumTeams() < 2) {
             Bukkit.broadcastMessage(ChatColor.RED + "ERROR: There must be at least 2 teams!");
             return;
         }
 
-        playerKills = new HashMap<>();
         try {
             chests = new Chests(plugin);
         } catch (IOException e) {
@@ -102,11 +107,14 @@ public class StartGameCommand implements CommandExecutor {
             p.setHealth(20);
             p.setSaturation(20);
             p.setFoodLevel(20);
+            p.setExp(0);
+            p.setLevel(0);
             Inventory inv = p.getInventory();
             inv.clear();
         }
 
         if(gameNumber == 1) {
+            playerKills = new HashMap<>();
             for (Team t : handler.getTeams()) {
                 t.resetTempPoints();
             }
@@ -135,12 +143,15 @@ public class StartGameCommand implements CommandExecutor {
                 }, 10L);
             }
         }
-        Border worldBorder;
         if (gameType == SKYWARS) worldBorder = new SkywarsCrumbleBorder(plugin);
         else worldBorder = new BorderOld(plugin);
 
-
         worldBorder.buildWorldBorder();
+
+        //make it massive so it does not ever interfere with starting room
+        if (gameType == SURVIVAL_GAMES) {
+            worldBorder.setSize(4000);
+        }
 
         HashMap<Player, Player> storedAttackers = new HashMap<>();
         HashMap<Player, Integer> attackerTimers = new HashMap<>();
@@ -176,6 +187,8 @@ public class StartGameCommand implements CommandExecutor {
         getServer().getPluginManager().registerEvents(new PlayerMoveListener(playerDeathListener), plugin);
         getServer().getPluginManager().registerEvents(new PlayerRespawnListener(plugin, playerDeathLocationMap), plugin);
         getServer().getPluginManager().registerEvents(new PlayerLeaveListener(playerDeathListener), plugin);
+
+        getServer().getPluginManager().registerEvents(new CraftItemListener(), plugin);
 
         //if(gameType == GameType.SKYWARS) {
             ResetArenaCommand resetArenaCommand = new ResetArenaCommand(plugin);
@@ -232,6 +245,7 @@ public class StartGameCommand implements CommandExecutor {
                         try {
                             gameStageHandler.updateGlass(Material.GLASS);
                             gameStageHandler.teleportPlayers();
+                            worldBorder.buildWorldBorder();
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }

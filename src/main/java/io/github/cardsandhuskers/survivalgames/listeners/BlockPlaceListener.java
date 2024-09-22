@@ -51,10 +51,7 @@ public class BlockPlaceListener implements Listener {
 
                 int dist = (int) Math.sqrt(absX * absX + absZ * absZ);
 
-
-                System.out.println(dist + " ; " + crumbleBorder.getBorderSize());
-
-                if (dist >= crumbleBorder.getBorderSize()) {
+                if (dist >= SkywarsCrumbleBorder.getBorderSize()) {
                     e.setCancelled(true);
                 }
 

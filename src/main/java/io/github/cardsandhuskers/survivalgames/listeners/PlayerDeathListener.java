@@ -128,7 +128,7 @@ public class PlayerDeathListener implements Listener {
                 if(!player.equals(attacked)) {
                     //System.out.println(player.getName() + "   " + playerDeathHandler.isPlayerAlive(player));
                     if(playerDeathHandler.isPlayerAlive(player)) {
-                        player.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " died [+" + ChatColor.YELLOW + ChatColor.BOLD + (int)(plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
+                        player.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " died [+" + ChatColor.YELLOW + ChatColor.BOLD + (plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + "] Points");
                     } else {
                         player.sendMessage(handler.getPlayerTeam(attacked).color + attacked.getName() + ChatColor.RESET + " died");
                     }

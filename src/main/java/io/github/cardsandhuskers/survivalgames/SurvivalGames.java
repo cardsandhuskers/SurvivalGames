@@ -1,6 +1,7 @@
 package io.github.cardsandhuskers.survivalgames;
 
 import io.github.cardsandhuskers.survivalgames.commands.*;
+import io.github.cardsandhuskers.survivalgames.listeners.InventoryClickListener;
 import io.github.cardsandhuskers.survivalgames.objects.Placeholder;
 import io.github.cardsandhuskers.survivalgames.objects.stats.StatCalculator;
 import io.github.cardsandhuskers.teams.Teams;
@@ -75,6 +76,9 @@ public final class SurvivalGames extends JavaPlugin {
 
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
+
+        //This is only here for testing purposes
+        //getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
     }
 
     @Override

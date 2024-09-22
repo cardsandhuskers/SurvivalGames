@@ -21,7 +21,7 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
     private Integer assignedTaskId;
 
     private int maxY, minY;
-    private int centerX, centerZ;
+    private double centerX, centerZ;
 
     Set<Block> edgeBlocks;
 
@@ -61,11 +61,11 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
 
         Location center = plugin.getConfig().getLocation("SKYWARS.center");
         if (center == null) {
-            centerX = (int)(l1.getX() + l2.getX())/2;
-            centerZ = (int)(l1.getZ() + l2.getZ())/2;
+            centerX =(l1.getX() + l2.getX())/2;
+            centerZ = (l1.getZ() + l2.getZ())/2;
         } else {
-            centerX = center.getBlockX();
-            centerZ = center.getBlockZ();
+            centerX = center.getX();
+            centerZ = center.getZ();
         }
 
 
@@ -98,12 +98,12 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
 
     @Override
     public int getCenterX() {
-        return centerX;
+        return (int)centerX;
     }
 
     @Override
     public int getCenterZ() {
-        return centerZ;
+        return (int)centerZ;
     }
 
     @Override
@@ -112,9 +112,7 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
         updateBorderEdgeBlocks();
         crumble();
 
-        System.out.println(borderSize);
-
-        if (borderSize == 0) cancelOperation();
+        if (borderSize <= 1) cancelOperation();
 
     }
 
@@ -125,6 +123,8 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
         double pi = 3.14;
 
         for(double angle = 0; angle < 2 * 3.14; angle += (2* pi) / (double)360 / (borderSize / (double) 20)) {
+            System.out.println("Border Angle Loop 1");
+
             //double radians = Math.toRadians(angle);
             double x = centerX + borderSize * Math.cos(angle);
             double z = centerZ + borderSize * Math.sin(angle);
@@ -134,6 +134,7 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
 
         //find any outstanding blocks from prior crumble
         for(double angle = 0; angle < 2 * 3.14; angle += (2* pi) / (double)360 / (borderSize / (double) 20)) {
+            System.out.println("Border Angle Loop 2");
             //double radians = Math.toRadians(angle);
             double x = centerX + (borderSize+1) * Math.cos(angle);
             double z = centerZ + (borderSize+1) * Math.sin(angle);
@@ -148,8 +149,12 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
     public void crumble() {
         World world = plugin.getConfig().getLocation(gameType + ".pos1").getWorld();
         for (Block b : edgeBlocks) {
+            System.out.println("EDGE BLOCK LOOP");
+
             int foundBlocks = 0;
             for(int y = minY; y <= maxY; y++) {
+                System.out.println("EDGE BLOCK Y SUB-LOOP");
+
                 Block testBlock = new Location(world, b.getX(), y, b.getZ()).getBlock();
                 if(testBlock.getType() != Material.AIR &&
                         testBlock.getType() != Material.CAVE_AIR) {
@@ -160,12 +165,20 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
                         Location loc = testBlock.getLocation();
                         loc.add(.5, 0, .5);
 
-                        FallingBlock block = world.spawnFallingBlock(loc, testBlock.getType().createBlockData());
-                        block.setCancelDrop(true);
+                        Location oneAbove = new Location(loc.getWorld(), loc.getX(), loc.getY() + 1, loc.getZ());
+                        Location twoAbove = new Location(loc.getWorld(), loc.getX(), loc.getY() + 2, loc.getZ());
 
+
+                        if (oneAbove.getBlock().getType() == Material.AIR || oneAbove.getBlock().getType() == Material.CAVE_AIR ||
+                            twoAbove.getBlock().getType() == Material.AIR || twoAbove.getBlock().getType() == Material.CAVE_AIR) {
+                            FallingBlock block = world.spawnFallingBlock(loc, testBlock.getType().createBlockData());
+                            block.setCancelDrop(true);
+
+                            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, block::remove, 15L);
+                        }
                         testBlock.setType(Material.AIR);
 
-                        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, block::remove, 15L);
+
 
                     }, foundBlocks);
 
@@ -174,7 +187,8 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
         }
     }
 
-    public double getBorderSize() {
+    public static double getBorderSize() {
         return borderSize;
     }
+
 }

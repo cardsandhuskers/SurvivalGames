@@ -20,7 +20,7 @@ public class PlayerLeaveListener implements Listener {
         Player p = e.getPlayer();
         if(handler.getPlayerTeam(p) == null) return;
 
-        if(gameState != SurvivalGames.State.GAME_OVER) {
+        if(gameState != SurvivalGames.State.GAME_OVER && gameState != SurvivalGames.State.GAME_STARTING) {
             playerDeathListener.onOtherDeath(p);
         }
         //numPlayers--;

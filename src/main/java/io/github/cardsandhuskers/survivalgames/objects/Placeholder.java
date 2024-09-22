@@ -2,6 +2,8 @@ package io.github.cardsandhuskers.survivalgames.objects;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.objects.border.Border;
+import io.github.cardsandhuskers.survivalgames.objects.border.BorderOld;
+import io.github.cardsandhuskers.survivalgames.objects.border.SkywarsCrumbleBorder;
 import io.github.cardsandhuskers.survivalgames.objects.stats.PlayerStatsHolder;
 import io.github.cardsandhuskers.survivalgames.objects.stats.Tuples;
 import io.github.cardsandhuskers.teams.handlers.TeamHandler;
@@ -140,7 +142,14 @@ public class Placeholder extends PlaceholderExpansion {
             return numPlayers + "/" + totalPlayers;
         }
         if(s.equalsIgnoreCase("border")) {
-            return " +- ";// + Border.getSize();
+            int size = 0;
+            if(gameType == SKYWARS) {
+                size = (int) SkywarsCrumbleBorder.getBorderSize();
+            } else {
+                size = (int) BorderOld.getBorderSize();
+            }
+
+            return " +- " + size;
         }
         if(s.equalsIgnoreCase("playerkills")) {
             if (!playerKills.containsKey((Player) p)) {

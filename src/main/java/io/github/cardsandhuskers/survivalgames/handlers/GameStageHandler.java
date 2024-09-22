@@ -56,6 +56,8 @@ public class GameStageHandler {
                 p.setHealth(20);
                 p.setSaturation(20);
                 p.setFoodLevel(20);
+                p.setExp(0);
+                p.setLevel(0);
                 Inventory inv = p.getInventory();
                 inv.clear();
                 for (PotionEffect potionEffect : p.getActivePotionEffects()) {
@@ -444,6 +446,8 @@ public class GameStageHandler {
             Location spawn = arenaFileConfig.getLocation("teamSpawn." + counter);
             for(Player p: randomTeamList.get(index).getOnlinePlayers()) {
                 p.teleport(spawn);
+                p.setExp(0);
+                p.setLevel(0);
             }
             index++;
             counter = spots.remove();
