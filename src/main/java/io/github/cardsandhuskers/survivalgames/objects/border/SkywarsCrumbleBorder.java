@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -75,7 +76,7 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
         //trying a +1 cuz outer layer is ignored for some reason
         borderSize = (double)Math.max(widthX, widthZ) / 2 + 1;
 
-        updateBorderEdgeBlocks();
+        updateBorderEdgeBlocks(false);
         startOperation();
 
     }
@@ -83,7 +84,7 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
     @Override
     public void setSize(int size) {
         borderSize = size;
-        updateBorderEdgeBlocks();
+        updateBorderEdgeBlocks(false);
     }
 
     @Override
@@ -109,51 +110,71 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
     @Override
     public void run() {
         borderSize--;
-        updateBorderEdgeBlocks();
-        crumble();
+        updateBorderEdgeBlocks(true);
+        //crumble();
 
         if (borderSize <= 1) cancelOperation();
 
     }
 
-    public void updateBorderEdgeBlocks() {
+    public void updateBorderEdgeBlocks(boolean crumble) {
         Location l1 = plugin.getConfig().getLocation(gameType + ".pos1");
 
         edgeBlocks = new HashSet<>();
         double pi = 3.14;
 
-        for(double angle = 0; angle < 2 * 3.14; angle += (2* pi) / (double)360 / (borderSize / (double) 20)) {
-            System.out.println("Border Angle Loop 1");
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, ()-> {
 
-            //double radians = Math.toRadians(angle);
-            double x = centerX + borderSize * Math.cos(angle);
-            double z = centerZ + borderSize * Math.sin(angle);
+            // Code to kill the task if it's still running
+            Thread thread = Thread.currentThread();
+            long startTime = System.currentTimeMillis();
+            long timeout = 3000; // 3 seconds
 
-            edgeBlocks.add(new Location(l1.getWorld(), x, 0, z).getBlock());
-        }
+            final BukkitTask[] timerTask = new BukkitTask[1];
+            timerTask[0] = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+                if (System.currentTimeMillis() - startTime > timeout) {
+                    if (thread.isAlive()) {
+                        //System.out.println("Task took too long, interrupting!");
+                        thread.interrupt();  // Interrupt the task if it's still running
+                        timerTask[0].cancel();  // Cancel the timer task after interrupting
+                    }
+                }
+            }, 0L, 20L);  // Check every 20 ticks (1 second)
 
-        //find any outstanding blocks from prior crumble
-        for(double angle = 0; angle < 2 * 3.14; angle += (2* pi) / (double)360 / (borderSize / (double) 20)) {
-            System.out.println("Border Angle Loop 2");
-            //double radians = Math.toRadians(angle);
-            double x = centerX + (borderSize+1) * Math.cos(angle);
-            double z = centerZ + (borderSize+1) * Math.sin(angle);
 
-            for(int y = minY; y <= maxY; y++) {
-                Location testLoc = new Location(l1.getWorld(), x, y, z);
-                testLoc.getBlock().setType(Material.AIR);
+            for(double angle = 0; angle < 2 * 3.14; angle += (2* pi) / (double)360 / (borderSize / (double) 20)) {
+
+                //double radians = Math.toRadians(angle);
+                double x = centerX + borderSize * Math.cos(angle);
+                double z = centerZ + borderSize * Math.sin(angle);
+
+                edgeBlocks.add(new Location(l1.getWorld(), x, 0, z).getBlock());
             }
-        }
+
+            //find any outstanding blocks from prior crumble
+            for(double angle = 0; angle < 2 * 3.14; angle += (2* pi) / (double)360 / (borderSize / (double) 20)) {
+                //double radians = Math.toRadians(angle);
+                double x = centerX + (borderSize+1) * Math.cos(angle);
+                double z = centerZ + (borderSize+1) * Math.sin(angle);
+
+                Bukkit.getScheduler().runTask(plugin, ()-> {
+                    for(int y = minY; y <= maxY; y++) {
+                        Location testLoc = new Location(l1.getWorld(), x, y, z);
+                        testLoc.getBlock().setType(Material.AIR);
+                    }
+                });
+            }
+
+            if (crumble) Bukkit.getScheduler().runTask(plugin, this::crumble);
+        });
     }
 
     public void crumble() {
         World world = plugin.getConfig().getLocation(gameType + ".pos1").getWorld();
         for (Block b : edgeBlocks) {
-            System.out.println("EDGE BLOCK LOOP");
 
             int foundBlocks = 0;
             for(int y = minY; y <= maxY; y++) {
-                System.out.println("EDGE BLOCK Y SUB-LOOP");
 
                 Block testBlock = new Location(world, b.getX(), y, b.getZ()).getBlock();
                 if(testBlock.getType() != Material.AIR &&
