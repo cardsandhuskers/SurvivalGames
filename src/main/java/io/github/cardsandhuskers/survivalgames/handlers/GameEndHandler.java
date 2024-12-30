@@ -89,7 +89,7 @@ public class GameEndHandler {
 
                     for(int i = 0; i < 10; i++) {
                         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                            Firework firework1 = (Firework) l1.getWorld().spawnEntity(l1, EntityType.FIREWORK);
+                            Firework firework1 = (Firework) l1.getWorld().spawnEntity(l1, EntityType.FIREWORK_ROCKET);
                             FireworkMeta fireworkMeta = firework1.getFireworkMeta();
                             fireworkMeta.addEffect(FireworkEffect.builder().withColor(winner.translateColor()).flicker(true).build());
                             firework1.setFireworkMeta(fireworkMeta);
@@ -99,19 +99,19 @@ public class GameEndHandler {
                             }, 30L);
 
 
-                            Firework firework2 = (Firework) l2.getWorld().spawnEntity(l2, EntityType.FIREWORK);
+                            Firework firework2 = (Firework) l2.getWorld().spawnEntity(l2, EntityType.FIREWORK_ROCKET);
                             firework2.setFireworkMeta(fireworkMeta);
                             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                                 firework2.detonate();
                             }, 30L);
 
-                            Firework firework3 = (Firework) l3.getWorld().spawnEntity(l3, EntityType.FIREWORK);
+                            Firework firework3 = (Firework) l3.getWorld().spawnEntity(l3, EntityType.FIREWORK_ROCKET);
                             firework3.setFireworkMeta(fireworkMeta);
                             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                                 firework3.detonate();
                             }, 30L);
 
-                            Firework firework4 = (Firework) l4.getWorld().spawnEntity(l4, EntityType.FIREWORK);
+                            Firework firework4 = (Firework) l4.getWorld().spawnEntity(l4, EntityType.FIREWORK_ROCKET);
                             firework4.setFireworkMeta(fireworkMeta);
                             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                                 firework4.detonate();

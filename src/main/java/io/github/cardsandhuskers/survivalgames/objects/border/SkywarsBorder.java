@@ -162,14 +162,14 @@ public class SkywarsBorder implements Border, Runnable{
         Particle.DustOptions dustOptions = new Particle.DustOptions(Color.fromRGB(0, 127, 255), 1.0F);
 
         for(Location l: edgeLocations) {
-            l1.getWorld().spawnParticle(Particle.REDSTONE, l.getX(), l.getY(), l.getZ(), 1, dustOptions);
+            l1.getWorld().spawnParticle(Particle.DUST, l.getX(), l.getY(), l.getZ(), 1, dustOptions);
         }
 
         double borderSquared = borderSize * borderSize;
         for(int x = (int) (centerX - borderSize); x < centerX + borderSize; x++) {
             for(int z = (int) (centerZ - borderSize); z < centerZ + borderSize; z++) {
                 if((x * x) + (z * z) <= borderSquared) {
-                    l1.getWorld().spawnParticle(Particle.REDSTONE, x, minY, z, 1, dustOptions);
+                    l1.getWorld().spawnParticle(Particle.DUST, x, minY, z, 1, dustOptions);
                 }
             }
         }

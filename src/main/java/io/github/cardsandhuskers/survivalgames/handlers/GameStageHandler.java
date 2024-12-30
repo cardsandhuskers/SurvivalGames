@@ -63,7 +63,7 @@ public class GameStageHandler {
                 for (PotionEffect potionEffect : p.getActivePotionEffects()) {
                     p.removePotionEffect(potionEffect.getType());
                 }
-                p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 60, 30));
+                p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 60, 30));
                 if (gameType == GameType.SKYWARS) {
                     inv.setItem(0, new ItemStack(Material.SHEARS));
                     inv.setItem(1, new ItemStack(handler.getPlayerTeam(p).getWoolColor(), 64));
@@ -108,8 +108,8 @@ public class GameStageHandler {
         listHP.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         for(Player p:Bukkit.getOnlinePlayers()) {
             p.setScoreboard(scoreboard);
-            belowNameHP.getScore(p.getDisplayName()).setScore(20);
-            listHP.getScore(p.getDisplayName()).setScore(20);
+            //belowNameHP.getScore(p.getDisplayName()).setScore(20);
+            //listHP.getScore(p.getDisplayName()).setScore(20);
         }
 
         if(plugin.getConfig().getBoolean("enableGlow")) {
