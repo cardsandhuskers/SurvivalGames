@@ -16,6 +16,9 @@ commands:
   setSGPos2:
     description: sets position 2 of the arena
     usage: /<command> [SURVIVAL_GAMES or SKYWARS]
+  setSGCenter:
+    description: sets center block of the arena
+    usage: /<command> [SURVIVAL_GAMES or SKYWARS]
   saveSGArena:
     description: makes a schematic of the arena and saves the locations of all chests
     usage: /<command> [SURVIVAL_GAMES or SKYWARS]

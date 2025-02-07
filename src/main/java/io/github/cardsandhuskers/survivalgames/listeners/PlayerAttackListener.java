@@ -63,7 +63,7 @@ public class PlayerAttackListener implements Listener {
             }else if(e.getDamager().getType() == EntityType.PLAYER) {
                 attacker = (Player) e.getDamager();
                 damage(attacker, attacked, e);
-            } else if(e.getDamager().getType() == EntityType.SPLASH_POTION) {
+            } else if(e.getDamager().getType() == EntityType.POTION) {
                 ThrownPotion potion = (ThrownPotion) e.getDamager();
                 attacker = (Player) potion.getShooter();
                 damage(attacker, attacked, e);

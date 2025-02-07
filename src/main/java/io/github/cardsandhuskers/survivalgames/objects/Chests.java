@@ -190,7 +190,6 @@ public class Chests {
                             stewMeta.setDisplayName("Speed Soup");
                             stewMeta.setLore(Collections.singletonList("Gives 15 seconds of speed, plus health!"));
 
-
                             stack.setItemMeta(stewMeta);
 
                             stackArray.add(stack);
@@ -199,6 +198,7 @@ public class Chests {
                         default:
                             stack = new ItemStack(itemMat, value);
                             ItemMeta itemMeta = stack.getItemMeta();
+
                             for (int j = 2; j < splitItem.length - 1; j += 2) {
                                 Enchantment enchantment;
                                 int level;

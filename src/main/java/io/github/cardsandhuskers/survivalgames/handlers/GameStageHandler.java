@@ -3,11 +3,9 @@ package io.github.cardsandhuskers.survivalgames.handlers;
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.listeners.GlowPacketListener;
 import io.github.cardsandhuskers.survivalgames.objects.border.Border;
-import io.github.cardsandhuskers.survivalgames.objects.border.BorderOld;
 import io.github.cardsandhuskers.survivalgames.objects.Chests;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import io.github.cardsandhuskers.survivalgames.objects.PlayerTracker;
-import io.github.cardsandhuskers.survivalgames.objects.border.SkywarsBorderDamageHandler;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -39,7 +37,6 @@ public class GameStageHandler {
     ArrayList<PlayerTracker> trackerList;
     public GlowPacketListener glowPacketListener;
 
-    private SkywarsBorderDamageHandler skywarsBorderDamageHandler;
     public GameStageHandler(SurvivalGames plugin, Chests chests, Border worldBorder, ArrayList<Team> teamList, AttackerTimersHandler attackerTimersHandler, ArrayList<PlayerTracker> trackerList) {
         this.trackerList = trackerList;
         this.plugin = plugin;
@@ -54,26 +51,24 @@ public class GameStageHandler {
      */
     public void startGame() {
         for(Team t: handler.getTeams()) {
-            for(Player p:t.getOnlinePlayers()) {
+            for (Player p : t.getOnlinePlayers()) {
                 p.setGameMode(GameMode.SURVIVAL);
                 p.setHealth(20);
                 p.setSaturation(20);
                 p.setFoodLevel(20);
+                p.setExp(0);
+                p.setLevel(0);
                 Inventory inv = p.getInventory();
                 inv.clear();
-                for(PotionEffect potionEffect: p.getActivePotionEffects()) {
+                for (PotionEffect potionEffect : p.getActivePotionEffects()) {
                     p.removePotionEffect(potionEffect.getType());
                 }
-                p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 60,30));
-                if(gameType == GameType.SKYWARS) {
+                p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 60, 30));
+                if (gameType == GameType.SKYWARS) {
                     inv.setItem(0, new ItemStack(Material.SHEARS));
                     inv.setItem(1, new ItemStack(handler.getPlayerTeam(p).getWoolColor(), 64));
                 }
             }
-        }
-        if(gameType == GameType.SKYWARS) {
-            skywarsBorderDamageHandler = new SkywarsBorderDamageHandler(plugin);
-            skywarsBorderDamageHandler.startOperation();
         }
 
         World world = plugin.getConfig().getLocation(gameType + ".spawnPoint").getWorld();
@@ -113,8 +108,8 @@ public class GameStageHandler {
         listHP.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         for(Player p:Bukkit.getOnlinePlayers()) {
             p.setScoreboard(scoreboard);
-            belowNameHP.getScore(p.getDisplayName()).setScore(20);
-            listHP.getScore(p.getDisplayName()).setScore(20);
+            //belowNameHP.getScore(p.getDisplayName()).setScore(20);
+            //listHP.getScore(p.getDisplayName()).setScore(20);
         }
 
         if(plugin.getConfig().getBoolean("enableGlow")) {
@@ -392,7 +387,6 @@ public class GameStageHandler {
 
         if(gameType == GameType.SURVIVAL_GAMES) worldBorder.shrinkWorldBorder(50, 1);
         if(gameType == GameType.SKYWARS) {
-            skywarsBorderDamageHandler.cancelOperation();
             worldBorder.cancelOperation();
         }
 
@@ -452,6 +446,8 @@ public class GameStageHandler {
             Location spawn = arenaFileConfig.getLocation("teamSpawn." + counter);
             for(Player p: randomTeamList.get(index).getOnlinePlayers()) {
                 p.teleport(spawn);
+                p.setExp(0);
+                p.setLevel(0);
             }
             index++;
             counter = spots.remove();

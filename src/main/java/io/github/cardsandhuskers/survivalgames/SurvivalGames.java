@@ -1,6 +1,7 @@
 package io.github.cardsandhuskers.survivalgames;
 
 import io.github.cardsandhuskers.survivalgames.commands.*;
+import io.github.cardsandhuskers.survivalgames.listeners.InventoryClickListener;
 import io.github.cardsandhuskers.survivalgames.objects.Placeholder;
 import io.github.cardsandhuskers.survivalgames.objects.stats.StatCalculator;
 import io.github.cardsandhuskers.teams.Teams;
@@ -61,6 +62,7 @@ public final class SurvivalGames extends JavaPlugin {
          */
         getCommand("setSGPos1").setExecutor(new SetPos1Command(this));
         getCommand("setSGPos2").setExecutor(new SetPos2Command(this));
+        getCommand("setSGCenter").setExecutor(new SetCenterCommand(this));
         getCommand("saveSGArena").setExecutor(new SaveArenaCommand(this));
         getCommand("setSGSpawnPoint").setExecutor(new SetSpawnPointCommand(this));
         getCommand("setSGSpawnBox").setExecutor(new SetTeamSpawnCommand(this));
@@ -74,6 +76,9 @@ public final class SurvivalGames extends JavaPlugin {
 
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
+
+        //This is only here for testing purposes
+        //getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
     }
 
     @Override

@@ -45,7 +45,7 @@ public class PlayerJoinListener implements Listener {
             }
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()-> {
                 p.setGameMode(GameMode.SPECTATOR);
-            }, 2L);
+            }, 10L);
         }
 
 
