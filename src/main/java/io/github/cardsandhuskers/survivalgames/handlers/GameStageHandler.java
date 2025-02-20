@@ -6,6 +6,7 @@ import io.github.cardsandhuskers.survivalgames.objects.border.Border;
 import io.github.cardsandhuskers.survivalgames.objects.Chests;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import io.github.cardsandhuskers.survivalgames.objects.PlayerTracker;
+import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -50,7 +51,7 @@ public class GameStageHandler {
      * Starts the actual game (releases players from boxes)
      */
     public void startGame() {
-        for(Team t: handler.getTeams()) {
+        for(Team t: TeamHandler.getInstance().getTeams()) {
             for (Player p : t.getOnlinePlayers()) {
                 p.setGameMode(GameMode.SURVIVAL);
                 p.setHealth(20);
@@ -66,7 +67,7 @@ public class GameStageHandler {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 60, 30));
                 if (gameType == GameType.SKYWARS) {
                     inv.setItem(0, new ItemStack(Material.SHEARS));
-                    inv.setItem(1, new ItemStack(handler.getPlayerTeam(p).getWoolColor(), 64));
+                    inv.setItem(1, new ItemStack(TeamHandler.getInstance().getPlayerTeam(p).getWoolColor(), 64));
                 }
             }
         }
@@ -79,7 +80,7 @@ public class GameStageHandler {
         world.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
 
         for(Player p:Bukkit.getOnlinePlayers()) {
-            if(handler.getPlayerTeam(p) == null) {
+            if(TeamHandler.getInstance().getPlayerTeam(p) == null) {
                 p.setGameMode(GameMode.SPECTATOR);
             }
         }

@@ -1,5 +1,5 @@
 # SurvivalGames
-Minecraft survival games and skywars plugin for 1.20.1
+Minecraft Survival Games and Skywars plugin for 1.21.1
 Survival Games follows standard rules, only breakable blocks are leaves.
 Skywars lets you break and place any and all blocks.
 Chest loot, game timers, and points can be edited in the config to let you change them however you want.
@@ -48,7 +48,7 @@ note: GameType refers to either SURVIVAL_GAMES or SKYWARS, this lets you choose 
 
 
 ##Setup:
-1. use the setsgpos commands to mark the corners of an arena
+1. use the /setsgpos commands to mark the corners of an arena
 2. make sure to use /savesgarena to create a schematic of the area inside the corners that the game will use to reset the arena
 3. use /setsgspawnbox to set each of the spawn points in the game, it's designed to support up to 12
 
@@ -72,7 +72,14 @@ note: GameType refers to either SURVIVAL_GAMES or SKYWARS, this lets you choose 
 
 ## Dependencies:
 - Teams Plugin (https://github.com/cardsandhuskers/TeamsPlugin)
-  - note: this must be manually set up as a local library on your machine to build this plugin
+  - note: the package is hosted on GitHub, it is public, but you still need a key to authenticate your account
 - Protocollib
 - FastAsyncWorldedit
 - optional: PlaceholderAPI for scoreboard placeholders
+
+
+## Changelog:
+ - 1.0: base version
+ - 1.1: improved loot tables
+ - 1.2: Skywars Crumble border
+ - 1.3: 1.21 update and paper migration

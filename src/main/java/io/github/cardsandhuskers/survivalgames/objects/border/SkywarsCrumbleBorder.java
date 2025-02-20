@@ -171,6 +171,11 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
 
     public void crumble() {
         World world = plugin.getConfig().getLocation(gameType + ".pos1").getWorld();
+        if(world == null) {
+            plugin.getLogger().warning("Cannot crumble skywars border, world not found!");
+            return;
+        }
+
         for (Block b : edgeBlocks) {
 
             int foundBlocks = 0;
@@ -186,12 +191,15 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
                         Location loc = testBlock.getLocation();
                         loc.add(.5, 0, .5);
 
-                        Location oneAbove = new Location(loc.getWorld(), loc.getX(), loc.getY() + 1, loc.getZ());
-                        Location twoAbove = new Location(loc.getWorld(), loc.getX(), loc.getY() + 2, loc.getZ());
-
-
-                        if (oneAbove.getBlock().getType() == Material.AIR || oneAbove.getBlock().getType() == Material.CAVE_AIR ||
-                            twoAbove.getBlock().getType() == Material.AIR || twoAbove.getBlock().getType() == Material.CAVE_AIR) {
+                        //if 3 nearest blocks above the block are air, spawn an entity to fall
+                        boolean foundSolid = false;
+                        for(int i = 1; i <= 3; i++) {
+                            Location above = loc.clone().add(0,i,0);
+                            if(above.getBlock().getType() != Material.AIR && above.getBlock().getType() != Material.CAVE_AIR) {
+                                foundSolid = true;
+                            }
+                        }
+                        if (!foundSolid) {
                             FallingBlock block = world.spawnFallingBlock(loc, testBlock.getType().createBlockData());
                             block.setCancelDrop(true);
 

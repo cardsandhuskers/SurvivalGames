@@ -41,7 +41,7 @@ public class Placeholder extends PlaceholderExpansion {
     }
     @Override
     public String getVersion() {
-        return "1.0.0";
+        return "1.3.0";
     }
     @Override
     public boolean persist() {
@@ -136,7 +136,7 @@ public class Placeholder extends PlaceholderExpansion {
 
 
         if(s.equalsIgnoreCase("teamsLeft")) {
-            return numTeams + "/" + handler.getNumTeams();
+            return numTeams + "/" + TeamHandler.getInstance().getNumTeams();
         }
         if(s.equalsIgnoreCase("playersLeft")) {
             return numPlayers + "/" + totalPlayers;

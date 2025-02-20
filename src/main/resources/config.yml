@@ -1,5 +1,6 @@
 enableGlow: true
 SURVIVAL_GAMES:
+  # countdown to game start. This should probably not be less than ~25 or the glass can get overwritten by the schematic
   PregameTime: 30
   # total game time, excluding deathmatch
   GameTime: 420

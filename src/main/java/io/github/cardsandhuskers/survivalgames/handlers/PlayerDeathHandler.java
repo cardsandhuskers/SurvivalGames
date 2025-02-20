@@ -2,6 +2,7 @@ package io.github.cardsandhuskers.survivalgames.handlers;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.objects.stats.Stats;
+import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -32,7 +33,7 @@ public class PlayerDeathHandler {
         playerList = new ArrayList<>();
 
         //initialize list
-        for(Team t:handler.getTeams()) {
+        for(Team t: TeamHandler.getInstance().getTeams()) {
             for(Player p:t.getOnlinePlayers()) {
                 playerList.add(p);
             }
@@ -44,11 +45,11 @@ public class PlayerDeathHandler {
     }
 
     public void onPlayerDeath(Player p) {
-        Team t = handler.getPlayerTeam(p);
+        Team t = TeamHandler.getInstance().getPlayerTeam(p);
         playerList.remove(p);
         boolean found = false;
         for(Player player:playerList) {
-            Team team = handler.getPlayerTeam(player);
+            Team team = TeamHandler.getInstance().getPlayerTeam(player);
             if(team != null && team.equals(t)) {
                 found = true;
             }
@@ -84,7 +85,7 @@ public class PlayerDeathHandler {
         //p.setGameMode(GameMode.SPECTATOR);
         //give survival points to everyone alive
         for(Player player:playerList) {
-            handler.getPlayerTeam(player).addTempPoints(player, plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier);
+            TeamHandler.getInstance().getPlayerTeam(player).addTempPoints(player, plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier);
         }
 
         p.setGameMode(GameMode.SPECTATOR);
@@ -101,7 +102,7 @@ public class PlayerDeathHandler {
 
     public void addPlayer(Player p) {
         playerList.add(p);
-        Team t = handler.getPlayerTeam(p);
+        Team t = TeamHandler.getInstance().getPlayerTeam(p);
         if(!teamList.contains(t)) {
             teamList.add(t);
         }

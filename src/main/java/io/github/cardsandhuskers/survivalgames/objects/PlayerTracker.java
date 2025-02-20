@@ -1,6 +1,7 @@
 package io.github.cardsandhuskers.survivalgames.objects;
 
 import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
+import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -12,8 +13,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.CompassMeta;
-
-import static io.github.cardsandhuskers.survivalgames.SurvivalGames.handler;
 
 public class PlayerTracker {
     Player owner;
@@ -61,7 +60,7 @@ public class PlayerTracker {
         Location l = owner.getLocation();
         Player nearest = null;
         for(Player player: Bukkit.getOnlinePlayers()) {
-            if(handler.getPlayerTeam(player) != null && !handler.getPlayerTeam(player).equals(handler.getPlayerTeam(owner)) && playerDeathHandler.isPlayerAlive(player)) {
+            if(TeamHandler.getInstance().getPlayerTeam(player) != null && !TeamHandler.getInstance().getPlayerTeam(player).equals(TeamHandler.getInstance().getPlayerTeam(owner)) && playerDeathHandler.isPlayerAlive(player)) {
                 //System.out.println("Player: " + player + " Owner: " + owner);
                 Location l2 = player.getLocation();
                 double dist = l.distance(l2);

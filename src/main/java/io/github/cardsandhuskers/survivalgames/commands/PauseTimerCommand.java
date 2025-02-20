@@ -1,6 +1,8 @@
 package io.github.cardsandhuskers.survivalgames.commands;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,7 +28,7 @@ public class PauseTimerCommand implements CommandExecutor {
         if(sender instanceof Player p && p.isOp()) {
            pauseTimer();
         } else if(sender instanceof Player p) {
-            p.sendMessage(ChatColor.RED + "You don't have permission to do this");
+            p.sendMessage(Component.text("You don't have permission to do this", NamedTextColor.RED));
         }else {
             pauseTimer();
         }

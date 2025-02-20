@@ -9,6 +9,7 @@ import com.comphenix.protocol.wrappers.WrappedDataValue;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
+import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -16,8 +17,6 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static io.github.cardsandhuskers.survivalgames.SurvivalGames.handler;
 
 /**
  * Class that handles glowing through packets so that only specific players will be glowing for others
@@ -38,7 +37,7 @@ public class GlowPacketListener implements Runnable{
      * @return Arraylist - players that glow for the param player
      */
     public ArrayList<Player> getGlows(Player p) {
-        ArrayList<Player> isGlowing = handler.getPlayerTeam(p).getOnlinePlayers();
+        ArrayList<Player> isGlowing = TeamHandler.getInstance().getPlayerTeam(p).getOnlinePlayers();
         isGlowing.remove(p);
         return isGlowing;
     }
@@ -50,7 +49,7 @@ public class GlowPacketListener implements Runnable{
     public void enableGlow() {
         var protocolManager = ProtocolLibrary.getProtocolManager();
 
-        for(Team t: handler.getTeams()) {
+        for(Team t: TeamHandler.getInstance().getTeams()) {
             for(Player p:t.getOnlinePlayers()) {
                 ArrayList<Player> isGlowing = getGlows(p);
 
@@ -78,7 +77,7 @@ public class GlowPacketListener implements Runnable{
                 try {
                     //event.getPlayer() is the player being sent the packet
                     //this should be right, finds all players that the packet recipient should be seeing glow
-                    if (handler.getPlayerTeam(event.getPlayer()) == null) return;
+                    if (TeamHandler.getInstance().getPlayerTeam(event.getPlayer()) == null) return;
                     ArrayList<Player> isGlowing = getGlows(event.getPlayer());
                     System.out.println(event.getPlayer().getDisplayName() + ": " + isGlowing + "\n\n");
 
@@ -152,7 +151,7 @@ public class GlowPacketListener implements Runnable{
         var protocolManager = ProtocolLibrary.getProtocolManager();
         if(glowListener != null) protocolManager.removePacketListener(glowListener);
 
-        for(Team t: handler.getTeams()) {
+        for(Team t: TeamHandler.getInstance().getTeams()) {
             for(Player p:t.getOnlinePlayers()) {
                 ArrayList<Player> isGlowing = getGlows(p);
 
@@ -167,7 +166,7 @@ public class GlowPacketListener implements Runnable{
     public void sendArtificialGlowPackets() {
         var protocolManager = ProtocolLibrary.getProtocolManager();
 
-        for(Team t: handler.getTeams()) {
+        for(Team t: TeamHandler.getInstance().getTeams()) {
             for(Player p:t.getOnlinePlayers()) {
                 ArrayList<Player> isGlowing = getGlows(p);
 

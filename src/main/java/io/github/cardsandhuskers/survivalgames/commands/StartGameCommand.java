@@ -8,9 +8,9 @@ import io.github.cardsandhuskers.survivalgames.listeners.*;
 import io.github.cardsandhuskers.survivalgames.objects.*;
 import io.github.cardsandhuskers.survivalgames.objects.border.Border;
 import io.github.cardsandhuskers.survivalgames.objects.border.BorderOld;
-import io.github.cardsandhuskers.survivalgames.objects.border.SkywarsBorder;
 import io.github.cardsandhuskers.survivalgames.objects.border.SkywarsCrumbleBorder;
 import io.github.cardsandhuskers.survivalgames.objects.stats.Stats;
+import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -92,6 +92,10 @@ public class StartGameCommand implements CommandExecutor {
      * teleports players, builds world border, initializes listeners, and starts timers
      */
     public void startGame() {
+        TeamHandler handler = TeamHandler.getInstance();
+        System.out.println(handler.getTeams());
+        System.out.println(handler.getNumTeams());
+
         if(handler.getNumTeams() < 2) {
             Bukkit.broadcastMessage(ChatColor.RED + "ERROR: There must be at least 2 teams!");
             return;
@@ -219,7 +223,7 @@ public class StartGameCommand implements CommandExecutor {
                         p.sendTitle(ChatColor.GREEN + ">" + "GO" + "<", "", 2, 16, 2);
                     }
                     gameStageHandler.startGame();
-                    for(Team t:handler.getTeams()) {
+                    for(Team t:TeamHandler.getInstance().getTeams()) {
                         for(Player p:t.getOnlinePlayers()) {
                             PlayerTracker tracker = new PlayerTracker(playerDeathHandler, p);
                             tracker.giveCompass();
@@ -233,12 +237,12 @@ public class StartGameCommand implements CommandExecutor {
                     timeVar = t.getSecondsLeft();
                     if(gameNumber == 1) {
                         if (gameType == GameType.SURVIVAL_GAMES) {
-                            if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcastMessage(GameMessages.getSGDescription());
+                            if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcast(GameMessages.getSGDescription());
                         }
                         if (gameType == SKYWARS) {
-                            if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcastMessage(GameMessages.getSkywarsDescription());
+                            if (t.getSecondsLeft() == t.getTotalSeconds() - 1) Bukkit.broadcast(GameMessages.getSkywarsDescription());
                         }
-                        if (t.getSecondsLeft() == t.getTotalSeconds() - 11) Bukkit.broadcastMessage(GameMessages.getPointsDescription(plugin));
+                        if (t.getSecondsLeft() == t.getTotalSeconds() - 11) Bukkit.broadcast(GameMessages.getPointsDescription(plugin));
                     }
 
                     if (t.getSecondsLeft() == 15) {

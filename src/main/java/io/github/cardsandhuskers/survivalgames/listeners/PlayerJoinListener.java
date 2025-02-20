@@ -2,6 +2,7 @@ package io.github.cardsandhuskers.survivalgames.listeners;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
+import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -26,9 +27,9 @@ public class PlayerJoinListener implements Listener {
         Player p = e.getPlayer();
 
 
-        if(handler.getPlayerTeam(p) != null && gameState == SurvivalGames.State.GAME_STARTING) {
+        if(TeamHandler.getInstance().getPlayerTeam(p) != null && gameState == SurvivalGames.State.GAME_STARTING) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()-> {
-                Team t = handler.getPlayerTeam(p);
+                Team t = TeamHandler.getInstance().getPlayerTeam(p);
                 for(Player player:t.getOnlinePlayers()) {
                     if(!player.equals(p)) {
                         p.teleport(player);

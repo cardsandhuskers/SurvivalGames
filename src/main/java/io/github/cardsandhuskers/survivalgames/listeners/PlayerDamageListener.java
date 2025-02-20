@@ -2,6 +2,7 @@ package io.github.cardsandhuskers.survivalgames.listeners;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
 import io.github.cardsandhuskers.survivalgames.handlers.PlayerDeathHandler;
+import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -44,6 +45,8 @@ public class PlayerDamageListener implements Listener {
      * @deprecated
      */
     public void onPlayerDeath(Player p) {
+        TeamHandler handler = TeamHandler.getInstance();
+
         if(storedAttackers.get(p) != null) {
             Player attacker = storedAttackers.get(p);
             //ppAPI.give(attacker.getUniqueId(), (int)(plugin.getConfig().getInt(gameType + ".killPoints") * multiplier));

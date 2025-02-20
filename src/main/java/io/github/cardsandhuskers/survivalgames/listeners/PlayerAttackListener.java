@@ -112,6 +112,7 @@ public class PlayerAttackListener implements Listener {
      */
     public void damage(Player attacker, Player attacked, EntityDamageByEntityEvent e) { //this part added for SKYWARS to remove grace period
         if(gameState == State.GAME_IN_PROGRESS || gameState == State.DEATHMATCH || (gameType == GameType.SKYWARS && gameState == State.GRACE_PERIOD)) {
+            TeamHandler handler = TeamHandler.getInstance();
             //handle error if someone's team is null
             if (!(handler.getPlayerTeam(attacker) == null || handler.getPlayerTeam(attacked) == null)) {
                 if (handler.getPlayerTeam(attacker).equals(handler.getPlayerTeam(attacked))) {

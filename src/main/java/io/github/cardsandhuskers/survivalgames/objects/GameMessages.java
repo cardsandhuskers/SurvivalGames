@@ -1,70 +1,114 @@
 package io.github.cardsandhuskers.survivalgames.objects;
 
 import io.github.cardsandhuskers.survivalgames.SurvivalGames;
+import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import io.github.cardsandhuskers.teams.objects.Team;
 import io.github.cardsandhuskers.teams.objects.TempPointsHolder;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentBuilder;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.gameType;
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.multiplier;
 import static io.github.cardsandhuskers.teams.Teams.handler;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
+import static net.kyori.adventure.text.format.TextDecoration.BOLD;
+import static net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH;
 
 public class GameMessages {
 
-    public static String getSGDescription() {
-        String SURVIVAL_GAMES_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------\n" + ChatColor.RESET +
-                StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Survival Games", 30) +
-                ChatColor.BLUE + "" + ChatColor.BOLD + "\nHow To Play:" +
-                ChatColor.RESET + "\nThis iconic survival games map returns!" +
-                "\nWork with your teammates to take down the other teams and be the last one standing!" +
-                "\nThe game will start with a 45 second grace period where PvP is disabled." +
-                "\nThe worldborder will shrink over time. Don't get caught outside it, you will die." +
-                ChatColor.STRIKETHROUGH + "\n----------------------------------------";
-        return SURVIVAL_GAMES_DESCRIPTION;
+    private static final Map<String, NamedTextColor> COLOR_MAP = new HashMap<>();
+
+    static {
+        COLOR_MAP.put("&0", NamedTextColor.BLACK);
+        COLOR_MAP.put("&1", NamedTextColor.DARK_BLUE);
+        COLOR_MAP.put("&2", NamedTextColor.DARK_GREEN);
+        COLOR_MAP.put("&3", NamedTextColor.DARK_AQUA);
+        COLOR_MAP.put("&4", NamedTextColor.DARK_RED);
+        COLOR_MAP.put("&5", NamedTextColor.DARK_PURPLE);
+        COLOR_MAP.put("&6", NamedTextColor.GOLD);
+        COLOR_MAP.put("&7", NamedTextColor.GRAY);
+        COLOR_MAP.put("&8", NamedTextColor.DARK_GRAY);
+        COLOR_MAP.put("&9", NamedTextColor.BLUE);
+        COLOR_MAP.put("&a", NamedTextColor.GREEN);
+        COLOR_MAP.put("&b", NamedTextColor.AQUA);
+        COLOR_MAP.put("&c", NamedTextColor.RED);
+        COLOR_MAP.put("&d", LIGHT_PURPLE);
+        COLOR_MAP.put("&e", NamedTextColor.YELLOW);
+        COLOR_MAP.put("&f", WHITE);
     }
 
-    public static String getSkywarsDescription() {
-        String SKYWARS_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------\n" + ChatColor.RESET +
-                StringUtils.center(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Skywars", 30) +
-                ChatColor.BLUE + "" + ChatColor.BOLD + "\nHow To Play:" +
-                ChatColor.RESET + "\nThere will be 2 rounds of Skywars on our custom map: Time Traveler" +
-                "\nWork with your teammates to take down the other teams and be the last one standing!" +
-                "\nEach island has chests to get geared up, while the middle has many chests with even better loot!" +
-                "\nThe border will begin shrinking after the chest refill. It will also become shorter to prevent skybasing." +
-                "\nBe careful not to fall off the edge! The void will kill you." +
-                ChatColor.STRIKETHROUGH + "\n----------------------------------------";
-        return SKYWARS_DESCRIPTION;
+    public static Component getSGDescription() {
+        return Component.text()
+                .append(Component.text("----------------------------------------\n", WHITE, STRIKETHROUGH))
+                .append(Component.text(StringUtils.center("Survival Games", 40), LIGHT_PURPLE, BOLD))
+                .append(Component.text("\nHow To Play:", BLUE, BOLD))
+                .append(Component.text("""
+                        \nWork with your teammates to hunt down the other teams and be the last one standing!
+                        The game will start with a 45 second grace period where PvP is disabled.
+                        The worldborder will shrink over time. Don't get caught outside it, you will die."""))
+                .append(Component.text("\n----------------------------------------", WHITE, STRIKETHROUGH))
+                .build();
     }
 
-    public static String getPointsDescription(SurvivalGames plugin) {
-        String POINTS_DESCRIPTION = ChatColor.STRIKETHROUGH + "----------------------------------------" +
-                ChatColor.GOLD + "" + ChatColor.BOLD + "\nHow is the game Scored:" +
-                ChatColor.RESET + "\nFor winning: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".winPoints") * multiplier) + ChatColor.RESET + " points divided among the team members" +
-                "\nFor Each Kill: " + ChatColor.GOLD + (int) (plugin.getConfig().getInt(gameType + ".killPoints") * multiplier) + ChatColor.RESET + " points" +
-                "\nFor each player you outlive: " + ChatColor.GOLD + (plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier) + ChatColor.RESET + " points" +
-                ChatColor.STRIKETHROUGH + "\n----------------------------------------";
-        return POINTS_DESCRIPTION;
+    public static Component getSkywarsDescription() {
+        return Component.text()
+                .append(Component.text("----------------------------------------\n", WHITE, STRIKETHROUGH))
+                .append(Component.text(StringUtils.center("Skywars", 40), LIGHT_PURPLE, BOLD))
+                .append(Component.text("\nHow To Play:", BLUE, BOLD))
+                .append(Component.text("""
+                        \nThere will be 2 rounds of Skywars on our custom map: Time Traveler
+                        Work with your teammates to take down the other teams and be the last one standing!
+                        Each island has chests to get geared up, while the middle has many chests with even better loot!
+                        The border will begin shrinking after the chest refill.
+                        The border shrinks by crumbling.
+                        Be careful not to fall off the edge! The void will kill you."""))
+                .append(Component.text("\n----------------------------------------", WHITE, STRIKETHROUGH))
+                .build();
+    }
+
+    public static Component getPointsDescription(SurvivalGames plugin) {
+
+        int winPoints = (int) (plugin.getConfig().getInt(gameType + ".winPoints") * multiplier);
+        int killPoints = (int) (plugin.getConfig().getInt(gameType + ".killPoints") * multiplier);
+        double survivalPoints = (plugin.getConfig().getDouble(gameType + ".survivalPoints") * multiplier);
+
+        return Component.text()
+                .append(Component.text("----------------------------------------\n", WHITE, STRIKETHROUGH))
+                .append(Component.text("How is the game Scored:\n", GOLD, BOLD))
+                .append(Component.text("For winning: ")).append(Component.text(winPoints, GOLD)).append(Component.text(" points divided among the team members"))
+                .append(Component.text("\nFor Each Kill: ")).append(Component.text(killPoints, GOLD)).append(Component.text(" points"))
+                .append(Component.text("\nFor each player you outlive: ")).append(Component.text(survivalPoints, GOLD)).append(Component.text(" points"))
+                .append(Component.text("\n----------------------------------------", WHITE, STRIKETHROUGH))
+                .build();
     }
 
 
-    public static String getWinnerDescription(Team winner) {
-        String message = winner.color + ChatColor.STRIKETHROUGH + "------------------------------" + ChatColor.RESET +
-                        ChatColor.BOLD + "\nWinner:\n" + ChatColor.RESET +
-                        winner.color + winner.getTeamName() + "\n" + ChatColor.RESET;
-        message += winner.color;
+    public static Component getWinnerDescription(Team winner) {
+        NamedTextColor color = COLOR_MAP.get(winner.getConfigColor());
+
+        TextComponent.Builder builder = Component.text()
+                .append(Component.text("------------------------------\n", color, STRIKETHROUGH))
+                .append(Component.text(StringUtils.center("Winner:", 40) + "\n", WHITE, BOLD))
+                .append(Component.text(StringUtils.center(winner.getTeamName(), 40), color))
+                .append(Component.text("\nMembers:", WHITE, BOLD));
+
         for(Player p:winner.getOnlinePlayers()) {
-            message += "\n    " + p.getDisplayName();
+            builder.append(Component.text("\n  " + p.getName(), color));
         }
-        message += "\n" + ChatColor.STRIKETHROUGH + "------------------------------";
-        return message;
+        builder.append(Component.text("\n------------------------------", color, STRIKETHROUGH));
+
+        return builder.build();
     }
 
 
@@ -80,7 +124,7 @@ public class GameMessages {
             }
         }
 
-        Collections.sort(tempPointsList, Comparator.comparing(TempPointsHolder::getPoints));
+        tempPointsList.sort(Comparator.comparing(TempPointsHolder::getPoints));
         Collections.reverse(tempPointsList);
 
         int max;
@@ -90,15 +134,22 @@ public class GameMessages {
             max = tempPointsList.size() - 1;
         }
 
-        Bukkit.broadcastMessage("\n" + ChatColor.RED + "" + ChatColor.BOLD + "Top 5 Players:");
-        Bukkit.broadcastMessage(ChatColor.DARK_RED + "------------------------------");
+        TextComponent.Builder builder = Component.text()
+                .append(Component.text("\nTop 5 Players:", RED, BOLD))
+                .append(Component.text("\n------------------------------", DARK_RED));
+
         int number = 1;
         for(int i = 0; i <= max; i++) {
             TempPointsHolder h = tempPointsList.get(i);
-            Bukkit.broadcastMessage(number + ". " + handler.getPlayerTeam(h.getPlayer()).color + h.getPlayer().getName() + ChatColor.RESET + "    Points: " +  h.getPoints());
+            Team team = TeamHandler.getInstance().getPlayerTeam(h.getPlayer());
+
+            builder.append(Component.text("\n" + number + ". "))
+                    .append(Component.text(h.getPlayer().getName(), COLOR_MAP.get(team.getConfigColor()), BOLD))
+                    .append(Component.text(" Points: " + h.getPoints()));
             number++;
         }
-        Bukkit.broadcastMessage(ChatColor.DARK_RED + "------------------------------");
+        builder.append(Component.text("\n------------------------------", DARK_RED));
+        Bukkit.broadcast(builder.build());
     }
 
     /**
@@ -112,18 +163,26 @@ public class GameMessages {
                     tempPointsList.add(team.getPlayerTempPoints(p));
                 }
             }
-            Collections.sort(tempPointsList, Comparator.comparing(TempPointsHolder::getPoints));
+            tempPointsList.sort(Comparator.comparing(TempPointsHolder::getPoints));
             Collections.reverse(tempPointsList);
+            NamedTextColor teamColor = COLOR_MAP.get(team.getConfigColor());
+
+            TextComponent.Builder builder = Component.text()
+                    .append(Component.text("\nYour Team Standings:", teamColor, BOLD))
+                    .append(Component.text("\n------------------------------", teamColor));
+
+            int number = 1;
+            for (TempPointsHolder h : tempPointsList) {
+                builder.append(Component.text("\n" + number + ". "))
+                        .append(Component.text(h.getPlayer().getName(), teamColor, BOLD))
+                        .append(Component.text(" Points: " + h.getPoints()));
+                number++;
+            }
+            builder.append(Component.text("\n------------------------------", teamColor));
+
 
             for (Player p : team.getOnlinePlayers()) {
-                p.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Your Team Standings:");
-                p.sendMessage(ChatColor.DARK_BLUE + "------------------------------");
-                int number = 1;
-                for (TempPointsHolder h : tempPointsList) {
-                    p.sendMessage(number + ". " + handler.getPlayerTeam(p).color + h.getPlayer().getName() + ChatColor.RESET + "    Points: " + h.getPoints());
-                    number++;
-                }
-                p.sendMessage(ChatColor.DARK_BLUE + "------------------------------\n");
+                p.sendMessage(builder.build());
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
             }
         }
@@ -133,18 +192,26 @@ public class GameMessages {
      * Announces the leaderboard of teams based on points earned in the game
      */
     public static void announceTeamLeaderboard() {
-        ArrayList<Team> teamList = handler.getTeams();
-        Collections.sort(teamList, Comparator.comparing(Team::getTempPoints));
+
+        ArrayList<Team> teamList = TeamHandler.getInstance().getTeams();
+        teamList.sort(Comparator.comparing(Team::getTempPoints));
         Collections.reverse(teamList);
 
-        Bukkit.broadcastMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "Team Leaderboard:");
-        Bukkit.broadcastMessage(ChatColor.GREEN + "------------------------------");
+        TextComponent.Builder builder = Component.text()
+                .append(Component.text("\nTeam Leaderboard:", BLUE, BOLD))
+                .append(Component.text("\n------------------------------", DARK_BLUE));
+
         int counter = 1;
         for(Team team:teamList) {
-            Bukkit.broadcastMessage(counter + ". " + team.color + ChatColor.BOLD +  team.getTeamName() + ChatColor.RESET + " Points: " + team.getTempPoints());
+            builder.append(Component.text("\n" + counter + ". "))
+                    .append(Component.text(team.getTeamName(), COLOR_MAP.get(team.getConfigColor()), BOLD))
+                    .append(Component.text(" Points: " + team.getTempPoints()));
+
             counter++;
         }
-        Bukkit.broadcastMessage(ChatColor.GREEN + "------------------------------");
+        builder.append(Component.text("\n------------------------------", DARK_BLUE));
+
+        Bukkit.broadcast(builder.build());
         for(Player p: Bukkit.getOnlinePlayers()) {
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
         }

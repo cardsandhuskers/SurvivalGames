@@ -6,6 +6,7 @@ import io.github.cardsandhuskers.survivalgames.listeners.GlowPacketListener;
 import io.github.cardsandhuskers.survivalgames.objects.Countdown;
 import io.github.cardsandhuskers.survivalgames.objects.GameMessages;
 import io.github.cardsandhuskers.survivalgames.objects.stats.Stats;
+import io.github.cardsandhuskers.teams.handlers.TeamHandler;
 import io.github.cardsandhuskers.teams.objects.Team;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
@@ -19,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static io.github.cardsandhuskers.survivalgames.SurvivalGames.*;
-import static io.github.cardsandhuskers.teams.Teams.handler;
 
 public class GameEndHandler {
     private final SurvivalGames plugin;
@@ -55,7 +55,7 @@ public class GameEndHandler {
                     if(!teamList.isEmpty()) {
                         winner = teamList.get(0);
                     } else {
-                        winner = handler.getTeam(0);
+                        winner = TeamHandler.getInstance().getTeam(0);
                     }
 
                     int numPlayers = winner.getOnlinePlayers().size();
@@ -68,7 +68,7 @@ public class GameEndHandler {
                     }
 
                     gameState = SurvivalGames.State.GAME_OVER;
-                    Bukkit.broadcastMessage(GameMessages.getWinnerDescription(winner));
+                    Bukkit.broadcast(GameMessages.getWinnerDescription(winner));
 
                     //put title on screen
                     for(Player p:Bukkit.getOnlinePlayers()) {

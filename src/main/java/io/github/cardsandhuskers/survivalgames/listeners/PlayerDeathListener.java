@@ -94,7 +94,7 @@ public class PlayerDeathListener implements Listener {
     public void onOtherDeath(Player attacked) {
         if(!playerDeathHandler.isPlayerAlive(attacked)) return;
 
-
+        TeamHandler handler = TeamHandler.getInstance();
         if(storedAttackers.get(attacked) != null) {
             Player attacker = storedAttackers.get(attacked);
             handler.getPlayerTeam(attacker).addTempPoints(attacker, plugin.getConfig().getInt(gameType + ".killPoints") * multiplier);

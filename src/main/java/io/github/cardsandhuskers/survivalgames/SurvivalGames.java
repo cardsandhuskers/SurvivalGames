@@ -14,7 +14,6 @@ import java.util.HashMap;
 
 public final class SurvivalGames extends JavaPlugin {
     public static State gameState = State.GAME_STARTING;
-    public static TeamHandler handler;
     public static int timeVar = 0;
     public static int altTimeVar = 0;
     public static double multiplier = 1;
@@ -53,7 +52,6 @@ public final class SurvivalGames extends JavaPlugin {
             //Bukkit.getPluginManager().disablePlugin(this);
         }
 
-        handler = Teams.handler;
         playerKills = new HashMap<>();
 
         /*
