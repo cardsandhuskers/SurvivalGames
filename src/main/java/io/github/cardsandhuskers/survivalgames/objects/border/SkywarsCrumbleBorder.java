@@ -205,9 +205,7 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
 
                             plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, block::remove, 15L);
                         }
-                        testBlock.setType(Material.AIR);
-
-
+                        testBlock.setType(Material.AIR, false);
 
                     }, foundBlocks);
 
