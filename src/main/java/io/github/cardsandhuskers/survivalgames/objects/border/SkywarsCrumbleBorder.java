@@ -160,7 +160,25 @@ public class SkywarsCrumbleBorder implements Border, Runnable{
                 Bukkit.getScheduler().runTask(plugin, ()-> {
                     for(int y = minY; y <= maxY; y++) {
                         Location testLoc = new Location(l1.getWorld(), x, y, z);
-                        testLoc.getBlock().setType(Material.AIR);
+                        if(testLoc.getBlock().getType() == Material.AIR || testLoc.getBlock().getType() == Material.CAVE_AIR) {
+                            testLoc.getBlock().setType(Material.AIR);
+                        }
+                    }
+                });
+            }
+
+            //find any outstanding blocks from prior crumble
+            for(double angle = 0; angle < 2 * 3.14; angle += (2* pi) / (double)360 / (borderSize / (double) 20)) {
+                //double radians = Math.toRadians(angle);
+                double x = centerX + (borderSize+2) * Math.cos(angle);
+                double z = centerZ + (borderSize+2) * Math.sin(angle);
+
+                Bukkit.getScheduler().runTask(plugin, ()-> {
+                    for(int y = minY; y <= maxY; y++) {
+                        Location testLoc = new Location(l1.getWorld(), x, y, z);
+                        if(testLoc.getBlock().getType() == Material.AIR || testLoc.getBlock().getType() == Material.CAVE_AIR) {
+                            testLoc.getBlock().setType(Material.AIR);
+                        }
                     }
                 });
             }

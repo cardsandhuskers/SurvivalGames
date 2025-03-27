@@ -83,3 +83,4 @@ note: GameType refers to either SURVIVAL_GAMES or SKYWARS, this lets you choose 
  - 1.1: improved loot tables
  - 1.2: Skywars Crumble border
  - 1.3: 1.21 update and paper migration
+   - 1.3.1: Reduced crumble to only 1 block on a vertical space
